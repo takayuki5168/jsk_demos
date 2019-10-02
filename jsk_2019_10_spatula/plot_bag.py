@@ -11,7 +11,8 @@ def main():
 	bag_no_bowl = '/home/leus/experiment_without_bowl_2019-09-27-17-02-24.bag'
 
 	#change the joint here to the joint you want to plot
-	joint = "r_upper_arm_roll_joint"
+	joint = "l_upper_arm_roll_joint"
+
 	d_spatula_and_bowl = data_analysis(joint,bag_spatula_and_bowl)
 	d_spatula_and_bowl.extract_bag_data()
 	d_spatula_and_bowl.split_data()
@@ -37,10 +38,10 @@ def main():
 		print "you picked a joint that is not from either arm plotting all three experiments"
 		data_list = [d_spatula_and_bowl,d_no_spatula,d_no_bowl]
 
-	plot_data(data_list, show_av2=True, cutoff_f=2, interactive_plot=True) 
+	plot_data(data_list, show_av2=True, interactive_plot=True) 
 	#eg. add argument cutoff_f = 10, to apply lowpass filter with cutoff frequency 10 to the effort
 	#add interactive_plot=True to make the programm run further without having to close the plot
-	plot_filtered_unfiltered(d_spatula_and_bowl, cutoff_f=2)
+	plot_filtered_unfiltered(d_spatula_and_bowl, cutoff_f=5)
 
 
 class data_analysis:
@@ -95,7 +96,7 @@ class data_analysis:
 		        if np.sum(np.abs((pos_array[cmd_indices_bag]-self.av_1)/self.av_1)) > max_diff:
 		        	max_diff = np.sum(np.abs((pos_array[cmd_indices_bag]-self.av_1)/self.av_1))
 
-		    diff_limit = 1.1
+		    diff_limit = 1.1 
 		    if np.sum(np.abs((pos_array[cmd_indices_bag]-self.av_1)/self.av_1)) < diff_limit:
 		        n_split = n_split + 1 
 		        split_window[np.sum(np.abs((pos_array[cmd_indices_bag]-self.av_1)/self.av_1))] = i
@@ -136,6 +137,7 @@ class data_analysis:
 		n_joint = effort_shape[1]
 		tmp_indices = self.split_indices[0:-1]
 		tmp_indices.insert(0,0)
+		print np.array(self.split_indices) - np.array(tmp_indices)
 		n_time = np.max(np.array(self.split_indices) - np.array(tmp_indices))
 		self.split_effort = np.array(np.zeros([self.n_exp,n_time,n_joint]))
 		self.split_position = np.array(np.zeros([self.n_exp,n_time,n_joint]))
@@ -160,24 +162,33 @@ def butter_lowpass_filter(data, cutoff, fs, order=5):
     y = lfilter(b,a,data)
     return y
 
-def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,fs=100.3, interactive_plot=False):
-	t1 = np.array(range(920))
+def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,fs=100.3, interactive_plot=False, start_ind = 3):
 	fig, axs = plt.subplots(2, 1)
 
 	for data in data_list:
-		for i in range(3,data.n_exp):
-			s1 = data.split_effort[i,0:920,data.ind_joint]
+		for i in range(start_ind,data.n_exp):
+			list_split_effort = list(data.split_effort[i,:,data.ind_joint])
+			length = list_split_effort.index(0)
+			t1 = np.array(range(length))
+			s1 = data.split_effort[i,0:length,data.ind_joint]
 			if cutoff_f is not None:
 				s1 = butter_lowpass_filter(s1, cutoff_f, fs, order)
 			axs[0].plot(t1, s1, data.color)
 
-		for i in range(3,data.n_exp):
-			s2 = data.split_position[i,0:920,data.ind_joint]
-			axs[1].plot(t1, s2, data.color)
+		for i in range(start_ind,data.n_exp):
+			list_split_effort = list(data.split_effort[i,:,data.ind_joint])
+			length = list_split_effort.index(0)
+			t2 = np.array(range(length))
+			s2 = data.split_position[i,0:length,data.ind_joint]
+
+			axs[1].plot(t2, s2, data.color)
 
 		if show_av2:
-			for av2_idx in data.av2_indices:
-				axs[1].plot(av2_idx,data.av_2[data.cmd_joints.index(data.joint_name)],'%s x' % data.color)
+			try:
+				for av2_idx in data.av2_indices:
+					axs[1].plot(av2_idx,data.av_2[data.cmd_joints.index(data.joint_name)],'%s x' % data.color)
+			except:
+				print "cannot plot av2, as %s is not part of av2" % data.joint_name
 
 	axs[0].set_xlabel('time')
 	axs[0].set_ylabel('effort_%s' % data.name[data.ind_joint])
@@ -189,17 +200,23 @@ def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,f
 	fig.tight_layout()
 	plt.show()
 
-def plot_filtered_unfiltered(data, cutoff_f, order=6, fs=100.3, interactive_plot=False):
+def plot_filtered_unfiltered(data, cutoff_f, order=6, fs=100.3, interactive_plot=False, start_ind = 3):
 	t1 = np.array(range(920))
 	fig = plt.figure()
 	ax = fig.add_subplot(1,1,1)
-	for i in range(3,data.n_exp):
-		s1 = data.split_effort[i,0:920,data.ind_joint]
+	for i in range(start_ind,data.n_exp):
+		list_split_effort = list(data.split_effort[i,:,data.ind_joint])
+		length = list_split_effort.index(0)
+		t1 = np.array(range(length))
+		s1 = data.split_effort[i,0:length,data.ind_joint]
 		ax.plot(t1, s1, "deepskyblue")
-	for i in range(3,data.n_exp):	
-		s1 = data.split_effort[i,0:920,data.ind_joint]
+	for i in range(start_ind,data.n_exp):	
+		list_split_effort = list(data.split_effort[i,:,data.ind_joint])
+		length = list_split_effort.index(0)
+		t2 = np.array(range(length))
+		s1 = data.split_effort[i,0:length,data.ind_joint]
 		s2 = butter_lowpass_filter(s1, cutoff_f, fs, order)
-		ax.plot(t1, s2, "blue")
+		ax.plot(t2, s2, "blue")
 	fig.tight_layout()
 	interactive(interactive_plot)
 	plt.show()
