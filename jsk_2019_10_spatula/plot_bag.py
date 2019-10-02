@@ -2,7 +2,7 @@ import rosbag
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import butter, lfilter, freqz, filtfilt
-
+from matplotlib import interactive
 
 def main():
 	#change the path here to the absolute path, where you downloaded the bagfiles to
@@ -37,9 +37,10 @@ def main():
 		print "you picked a joint that is not from either arm plotting all three experiments"
 		data_list = [d_spatula_and_bowl,d_no_spatula,d_no_bowl]
 
-	plot_data(data_list, show_av2=True) 
+	plot_data(data_list, show_av2=True, cutoff_f=2, interactive_plot=True) 
 	#eg. add argument cutoff_f = 10, to apply lowpass filter with cutoff frequency 10 to the effort
-
+	#add interactive_plot=True to make the programm run further without having to close the plot
+	plot_filtered_unfiltered(d_spatula_and_bowl, cutoff_f=2)
 
 
 class data_analysis:
@@ -159,9 +160,10 @@ def butter_lowpass_filter(data, cutoff, fs, order=5):
     y = lfilter(b,a,data)
     return y
 
-def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,fs=100.3):
+def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,fs=100.3, interactive_plot=False):
 	t1 = np.array(range(920))
 	fig, axs = plt.subplots(2, 1)
+
 	for data in data_list:
 		for i in range(3,data.n_exp):
 			s1 = data.split_effort[i,0:920,data.ind_joint]
@@ -172,17 +174,34 @@ def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,f
 		for i in range(3,data.n_exp):
 			s2 = data.split_position[i,0:920,data.ind_joint]
 			axs[1].plot(t1, s2, data.color)
+
 		if show_av2:
 			for av2_idx in data.av2_indices:
 				axs[1].plot(av2_idx,data.av_2[data.cmd_joints.index(data.joint_name)],'%s x' % data.color)
+
 	axs[0].set_xlabel('time')
 	axs[0].set_ylabel('effort_%s' % data.name[data.ind_joint])
 	axs[0].grid(True)  
 	axs[1].set_xlabel('time')
 	axs[1].set_ylabel('position_%s' % data.name[data.ind_joint])
 	axs[1].grid(True) 
-
+	interactive(interactive_plot)
 	fig.tight_layout()
+	plt.show()
+
+def plot_filtered_unfiltered(data, cutoff_f, order=6, fs=100.3, interactive_plot=False):
+	t1 = np.array(range(920))
+	fig = plt.figure()
+	ax = fig.add_subplot(1,1,1)
+	for i in range(3,data.n_exp):
+		s1 = data.split_effort[i,0:920,data.ind_joint]
+		ax.plot(t1, s1, "deepskyblue")
+	for i in range(3,data.n_exp):	
+		s1 = data.split_effort[i,0:920,data.ind_joint]
+		s2 = butter_lowpass_filter(s1, cutoff_f, fs, order)
+		ax.plot(t1, s2, "blue")
+	fig.tight_layout()
+	interactive(interactive_plot)
 	plt.show()
 
 
