@@ -17,6 +17,12 @@
 (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
 (send *ri* :wait-interpolation)
 
+;;parameters to specify
+(setq *n-same-circle* 2) ;;specifies how many times the robot should wipe in same circle
+(setq *r-list* '(80 100)) ;;contains the radii the robot should move in 
+(setq *n-sample* 80) ;;how many samples for ine circle
+(setq *t-move* 50) ;;time to move from one pos to next when movign in circle
+
 ;; move robot into initial position
 (send *pr2* :rarm :shoulder-p :joint-angle -20)
 (send *pr2* :larm :shoulder-p :joint-angle 50)
@@ -49,7 +55,10 @@
 (send *ri* :start-grasp :rarm :gain 0.05)
 (send *ri* :wait-interpolation)
 
+
 ;;add code to move the robot into good start position -> use send *ri* :state :potentio-vector
+
+;;START-POSITION
 (setq *av1* #f(49.9331 62.6833 33.1418 127.946 -117.444 -7.41574 -5.72958 51.833 -16.9966 -9.03369 -111.73 -116.714 -76.193 -57.7095 266.18 3.0727 -21.2682))
 
 (send *pr2* :angle-vector *av1*)
@@ -71,7 +80,7 @@
 (objects *r-tcp*)
 (objects *l-tcp*) 
 
-
+;;START-POSITION
 ;;move a little more front for inverse kinematics
 (send *r-tcp* :translate (float-vector 0 0 100))
 (send *l-tcp* :translate (float-vector 0 0 -100))
@@ -79,32 +88,54 @@
       (list *r-tcp* *l-tcp*) ;; specify the goals
       :link-list (list rlinklist llinklist) ;; specify the link chains to be moved?
       :move-target (list rtargetframe ltargetframe) ;; specify which frames on the robot to move to the goals
+      :use-torso nil
       )
 (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
 (send *ri* :wait-interpolation)
+
+;;move right arm dependend on position of left arm
+
 
 ;;use for loop to calculate inverse kinematics step by step
 ;;safe angle-vectors of inverse kinematics in list
 (setq *joint-angle-list* nil)
 (setq *joint-angle-time* nil)
 
-(let (r)
-  (setq r 80) ;;set the radius to 80mm
-  (dotimes (i 80)
-  (let (omega)
-    (setq omega (* i (/ pi 40)))
-    (send *r-tcp* :translate (float-vector 0 (* r (cos omega)) (* r (sin omega)) ) )
-    (send *pr2* :inverse-kinematics
-      (list *r-tcp* *l-tcp*) ;; specify the goals
-      :link-list (list rlinklist llinklist) ;; specify the link chains to be moved?
-      :move-target (list rtargetframe ltargetframe) ;; specify which frames on the robot to move to the goals
+;;move in circle with radius in *r-list*
+(dolist (r *r-list*)
+  (let (j-list)
+    (let (t-list)
+      (setq j-list nil)
+      (setq t-list nil)
+    ;;one circle with 80 steps
+    ;;(dotimes (i 80)
+      (dotimes (i *n-sample*)
+      (let (omega)
+	;;(setq omega (* i (/ pi 40)))
+	(setq omega (* 2 (* i (/ pi *n-sample*))))
+	(send *r-tcp* :translate (float-vector 0 (* r (cos omega)) (* r (sin omega)) ) )
+	(send *r-tcp* :rotate (+ omega 90) :x)
+	(send *pr2* :inverse-kinematics 
+	      (list *r-tcp* *l-tcp*)
+	      :link-list (list rlinklist llinklist)
+	      :move-target (list rtargetframe ltargetframe)
+	      :use-torso nil
+	      )
+	(setq potentio-v (send *pr2* :angle-vector))	
+	(push potentio-v j-list)
+	;;50ms for movement of one step
+	(push *t-move* t-list)
+	;;translate r-tcp back to the center of the bowl
+	(send *r-tcp* :rotate (- 0 (+ omega 90)) :x)
+	(send *r-tcp* :translate (float-vector 0 (- 0 (* r (cos omega))) (- 0 (* r (sin omega)))))
+	))
+    ;;move in circle with same radius multiple times
+    (dotimes (j *n-same-circle*)
+      (setq *joint-angle-time* (append *joint-angle-time* t-list))
+      (setq *joint-angle-list* (append *joint-angle-list* j-list))
       )
-    (setq potentio-v (send *pr2* :angle-vector))
-    (push potentio-v *joint-angle-list*)
-    (push 50 *joint-angle-time*) ;;50ms for movement of one step
-    (send *r-tcp* :translate (float-vector 0 (- 0 (* r (cos omega))) (- 0 (* r (sin omega)))))
-    ;;translate r-tcp back to original position 
   )))
-(print "done with joint angle vector calculation")
 
+(print "done with joint angle vector calculation")
 (send *ri* :angle-vector-sequence *joint-angle-list* *joint-angle-time*)
+
