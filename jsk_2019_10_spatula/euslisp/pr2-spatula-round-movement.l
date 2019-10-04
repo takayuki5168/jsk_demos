@@ -118,21 +118,13 @@
 
 ;;move in circle with radius in *r-list*
 (dolist (dr *r-list*)
-  (let (r)
-  (let (d)
-  ;;!!change to local!!
-  (setq d (elt dr 0))
-  (setq r (elt dr 1))
-  (setq *n-sample* (* (/ *n-sample-100* 100.0) r))
-  (let (j-list)
-  (let (t-list)
-    (setq j-list nil)
-    (setq t-list nil)
+  (let ((r (elt dr 1)) (d (elt dr 0)) (j-list nil) (t-list nil))
+  (let ((n-sample (* (/ *n-sample-100* 100.0) r)))
     ;;one circle with *n-sample* steps
     (send *l-tcp* :translate (float-vector d 0 0)) ;;move left hand to move the bowl
-    (dotimes (i *n-sample*)
+    (dotimes (i n-sample)
      (let (omega)
-	(setq omega (* 2 (* i (/ pi *n-sample*))))
+	(setq omega (* 2 (* i (/ pi n-sample))))
 	(send *r-tcp* :translate (float-vector 0 (* r (cos omega)) (* r (sin omega)) ) )
 	(send *r-tcp* :rotate (+ omega 90) :x)
 	(send *pr2* :inverse-kinematics 
@@ -154,7 +146,7 @@
       (setq *joint-angle-list* (append *joint-angle-list* j-list))
       )
     (send *l-tcp* :translate (float-vector (- 0 d) 0 0)) ;;move the l-tcp back to start position
-  )))))
+  )))
 
 (print "done with joint angle vector calculation")
 (send *ri* :angle-vector-sequence *joint-angle-list* *joint-angle-time*)
