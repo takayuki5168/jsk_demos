@@ -6,9 +6,9 @@ from matplotlib import interactive
 
 def main():
 	#change the path here to the absolute path, where you downloaded the bagfiles to
-	#bag_spatula_and_bowl = '/home/leus/logs/experiment_with_spatula_and_bowl_2019-09-27-16-21-18.bag'
-	#bag_no_spatula = '/home/leus/logs/experiment_without_spatula_2019-09-27-17-09-42.bag'
-	#bag_no_bowl = '/home/leus/logs/experiment_without_bowl_2019-09-27-17-02-24.bag'
+	bag_spatula_and_bowl1 = '/home/leus/logs/experiment_with_spatula_and_bowl_2019-09-27-16-21-18.bag'
+	bag_no_spatula1 = '/home/leus/logs/experiment_without_spatula_2019-09-27-17-09-42.bag'
+	bag_no_bowl1 = '/home/leus/logs/experiment_without_bowl_2019-09-27-17-02-24.bag'
 	
 	bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-07-21-45-53.bag'
 	bag_no_spatula = '/home/leus/force_test_bag/experiment_without_spatula_2019-10-07-22-00-52.bag'
@@ -24,15 +24,15 @@ def main():
 	d_15up.split_data()
 	d_15up.color = 'firebrick'
 
-	d_spatula_and_bowl = data_analysis(joint,bag_spatula_and_bowl)
-	d_spatula_and_bowl.extract_bag_data()
-	d_spatula_and_bowl.split_data()
-	d_spatula_and_bowl.color = 'r'
-
 	d_5up = data_analysis(joint,bag_5up, bagtype = "5_up")
 	d_5up.extract_bag_data()
 	d_5up.split_data()
 	d_5up.color = 'darksalmon'
+
+	d_spatula_and_bowl = data_analysis(joint,bag_spatula_and_bowl)
+	d_spatula_and_bowl.extract_bag_data()
+	d_spatula_and_bowl.split_data()
+	d_spatula_and_bowl.color = 'r'
 
 	d_no_spatula = data_analysis(joint,bag_no_spatula)
 	d_no_spatula.extract_bag_data()
@@ -43,19 +43,34 @@ def main():
 	d_no_bowl.extract_bag_data()
 	d_no_bowl.split_data()
 	d_no_bowl.color = 'g'
+
+	d_spatula_and_bowl1 = data_analysis(joint,bag_spatula_and_bowl1)
+	d_spatula_and_bowl1.extract_bag_data()
+	d_spatula_and_bowl1.split_data()
+	d_spatula_and_bowl1.color = 'darkorange'
+
+	d_no_spatula1 = data_analysis(joint,bag_no_spatula1)
+	d_no_spatula1.extract_bag_data()
+	d_no_spatula1.split_data()
+	d_no_spatula1.color = 'royalblue'
+	
+	d_no_bowl1 = data_analysis(joint,bag_no_bowl1)
+	d_no_bowl1.extract_bag_data()
+	d_no_bowl1.split_data()
+	d_no_bowl1.color = 'lightgreen'
 	
 
 	if joint[0] == "l":
 		print "you picked a joint from left arm, plotting spatula_and_bowl and no_spatula"
-		data_list = [d_spatula_and_bowl,d_no_spatula,d_5up]
+		data_list = [d_spatula_and_bowl,d_no_spatula,d_5up,d_15up]
 	elif joint[0] == "r":
 		print "you picked a joint from right arm, plotting spatula_and_bowl and no_bowl"
-		data_list = [d_15up,d_spatula_and_bowl,d_no_bowl,d_5up]
+		data_list = [d_15up,d_spatula_and_bowl,d_no_bowl,d_5up,d_spatula_and_bowl1,d_no_bowl1]
 	else:
 		print "you picked a joint that is not from either arm plotting all three experiments"
-		data_list = [d_spatula_and_bowl,d_no_spatula,d_no_bowl,d_5up]
+		data_list = [d_spatula_and_bowl,d_no_spatula,d_no_bowl,d_5up,d_15up]
 
-	plot_data(data_list, show_av2=True, interactive_plot=True,cutoff_f=5) 
+	plot_data(data_list, show_av2=True, interactive_plot=True) 
 	#eg. add argument cutoff_f = 10, to apply lowpass filter with cutoff frequency 10 to the effort
 	#add interactive_plot=True to make the programm run further without having to close the plot
 	plot_filtered_unfiltered(d_spatula_and_bowl, cutoff_f=5)
