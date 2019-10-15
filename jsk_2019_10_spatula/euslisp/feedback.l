@@ -6,8 +6,47 @@
 (load "package://pr2eus/pr2-interface.l")
 (ros::roseus "pr2_send_joints")
 
+;;(ros::advertise "start_scraping" std_msgs::string 1)
+(ros::advertise "start_scraping" std_msgs::bool 1)
+
 (setq *ri* (instance pr2-interface :init))
 (pr2-init t)
+
+
+(defun move-left-arm (d)
+  (print "move left arm!!")
+  ;;(setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (if (= d 1)
+      (send *l-tcp* :translate (float-vector 0 10 0)) ;;move up if 1
+      (send *l-tcp* :translate (float-vector 0 -10 0)) ;;move down if -1
+      )
+  
+  (send *pr2* :inverse-kinematics
+	*l-tcp*
+	:move-target *ltargetframe*
+	:use-torso nil
+	)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
+  (send *ri* :wait-interpolation)
+  )
+
+;;define callback function
+(defun string-cb (msg)
+  (print (list 'cb (sys::thread-self) (send msg :data)))
+  (if (= (send msg :data) 0)
+      (print "everything perfect!");;no reaction, touching
+      (if (= (send msg :data) 1);;elseif
+	  ;;(print "it is one");;move towards spatula
+	  (move-left-arm 1)
+	  (if (= (send msg :data) -1);;elseif
+	      ;;(print "it is -1")
+	      (move-left-arm -1)
+	      )
+	  )
+      )
+  )
+;;(ros::subscribe "chatter" std_msgs::string #'string-cb)
+(ros::subscribe "chatter" std_msgs::float64 #'string-cb)
 
 ;;start robot from reset position
 (send *pr2* :reset-pose)
@@ -64,23 +103,34 @@
 
 (setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
 (setq *ltargetframe* (send *pr2* :larm :end-coords))
+
+
 ;;scrape the bottom of the bowl
 (dotimes (i 5)
-  (send *ri* :angle-vector-sequence (list *av1* *av2* *av3*) (list 2000 2000 2000) :rarm-controller)
+  ;;signalize to detect_toching that a new wiping sequence starts
+  ;;(setq msg (instance std_msgs::string :init))
+  (setq msg (instance std_msgs::bool :init))
+  ;;(send msg :data (format nil "hello world ~a" (send (ros::time-now) :sec-nsec)))
+  (send msg :data t)
+  (ros::ros-info "msg [~A]" (send msg :data))
+  (ros::publish "start_scraping" msg)
+  
+  (send *ri* :angle-vector-sequence (list *av1* *av2* *av3*) (list 3000 3000 3000) :rarm-controller)
   (send *ri* :spin-once)
   (setq *beginning* t)
-  
+
   (while (send *ri* :interpolatingp :rarm-controller)
     (send *ri* :spin-once)
-    (when *beginning*
+    (ros::spin-once);;to see if chatter published
+    (when nil ;;*beginning*
       ;;KO add something reasonable here!!
-      (send *l-tcp* :translate (float-vector 0 -100 0))
+      (send *l-tcp* :translate (float-vector 0 -10 0))
       (send *pr2* :inverse-kinematics
 	    *l-tcp*
 	    :move-target *ltargetframe*
 	    :use-torso nil
 	    )
-      (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) 500 :larm-controller)
       (send *ri* :wait-interpolation)
       (setq *beginning* nil)
       )
@@ -88,4 +138,5 @@
     (if (send *ri* :simulation-modep)
       (send *ri* :robot-interface-simulation-callback))
     )
-)
+  )
+
