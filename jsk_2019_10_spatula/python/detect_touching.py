@@ -88,7 +88,7 @@ class detect_touching:
 				self.scrape_movement = False
 				#self.i = 0 #catch if the programm runs for a longer time without finding the right position it just starts from the bginning again
 
-
+			
 			avg_sequence_touch_window = self.avg_sequence_touch[self.i*self.window:self.i*self.window+self.window] #if I use abs I do not have direction (not informative anyways) but count both positive
 			avg_sequence_no_touch_window = self.avg_sequence_no_touch[self.i*self.window:self.i*self.window+self.window]
 
@@ -96,31 +96,38 @@ class detect_touching:
 			diff_no_touch = sum(abs(avg_sequence_no_touch_window - act_sequence))
 
 			#KO have to add something if window is not 1 
-			if (avg_sequence_touch_window > act_sequence > avg_sequence_no_touch_window) or (avg_sequence_touch_window < act_sequence < avg_sequence_no_touch_window):
+			if (avg_sequence_touch_window >= act_sequence >= avg_sequence_no_touch_window) or (avg_sequence_touch_window <= act_sequence <= avg_sequence_no_touch_window):
 				#print "in between the two"
-				cmd = 1.0
+				#cmd = 1.0
+				cmd = abs((act_sequence - avg_sequence_touch_window) / (avg_sequence_no_touch_window - avg_sequence_touch_window))
 				if self.scrape_movement:
 					self.reaction.append(cmd)
-			elif (act_sequence > avg_sequence_touch_window > avg_sequence_no_touch_window) or (act_sequence < avg_sequence_touch_window < avg_sequence_no_touch_window):
+			elif (act_sequence >= avg_sequence_touch_window >= avg_sequence_no_touch_window) or (act_sequence <= avg_sequence_touch_window <= avg_sequence_no_touch_window):
 				#print "touching too much"
-				cmd = -1.0
+				if abs(act_sequence - avg_sequence_touch_window) <= abs(avg_sequence_no_touch_window - avg_sequence_touch_window) :
+					#-1.0
+					cmd = -1 * abs((act_sequence - avg_sequence_touch_window) / (avg_sequence_no_touch_window - avg_sequence_touch_window))
+				else:
+					cmd = -1
 				if self.scrape_movement:
 					self.reaction.append(cmd)
-			elif (act_sequence > avg_sequence_no_touch_window > avg_sequence_touch_window) or (act_sequence < avg_sequence_no_touch_window < avg_sequence_touch_window):
+			elif (act_sequence >= avg_sequence_no_touch_window >= avg_sequence_touch_window) or (act_sequence <= avg_sequence_no_touch_window <= avg_sequence_touch_window):
 				#print "even less than not touching"
-				cmd = 1.0
+				#cmd = 1.0
+				#should not happen if it does it should be some noise or other accident -> no reaction
+				cmd = 0
 				if self.scrape_movement:
 					self.reaction.append(cmd)
-			else:
-				print "nothing of the cases abough"
+			else: #if either avg_sequence_touch or avg_sequence_no_touch is empty ([])
+				print "empty array"
 				cmd = 0.0
-				print avg_sequence_touch_window
-				print avg_sequence_no_touch_window
-				print act_sequence
-				print "touch:"
-				print avg_sequence_touch_window - act_sequence
-				print "no touch:"
-				print avg_sequence_no_touch_window - act_sequence
+				#print avg_sequence_touch_window
+				#print avg_sequence_no_touch_window
+				#print act_sequence
+				#print "touch:"
+				#print avg_sequence_touch_window - act_sequence
+				#print "no touch:"
+				#print avg_sequence_no_touch_window - act_sequence
 			"""
 			diff_touch = sum(abs(self.avg_sequence_touch[self.i*self.window:self.i*self.window+self.window] - act_sequence)) #if I use abs I do not have direction (not informative anyways) but count both positive
 			diff_no_touch = sum(abs(self.avg_sequence_no_touch[self.i*self.window:self.i*self.window+self.window] - act_sequence))
