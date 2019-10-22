@@ -14,15 +14,7 @@
 
 (defun move-left-arm (d)
   (print "move left arm!!")
-  (send *l-tcp* :translate (float-vector 0 (* d 10) 0))
-  ;;(setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  #|
-  (if (= d 1)
-      (send *l-tcp* :translate (float-vector 0 10 0)) ;;move up if 1
-      (send *l-tcp* :translate (float-vector 0 -10 0)) ;;move down if -1
-      )
-|#
-  
+  (send *l-tcp* :translate (float-vector 0 (* d 10) 0)) ;;old bowl  
   (send *pr2* :inverse-kinematics
 	*l-tcp*
 	:move-target *ltargetframe*
@@ -31,7 +23,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
   (while (send *ri* :interpolatingp :larm-controller)
     (send *ri* :spin-once))
-  ;;(send *ri* :wait-interpolation :larm-controller)
   )
 
 
@@ -40,14 +31,7 @@
   (print (list 'cb (sys::thread-self) (send msg :data)))
   (if (= (send msg :data) 0)
       (print "everything perfect!");;no reaction, touching
-      (if (= (send msg :data) 1);;elseif
-	  ;;(print "it is one");;move towards spatula
-	  (move-left-arm 1)
-	  (if (= (send msg :data) -1);;elseif
-	      ;;(print "it is -1")
-	      (move-left-arm -1)
-	      )
-	  )
+      (move-left-arm (send msg :data)) ;;else
       )
   )
 ;;(ros::subscribe "chatter" std_msgs::string #'string-cb)
@@ -101,10 +85,11 @@
 (setq *av2* #f(49.9331 62.3888 32.6716 129.774 -117.502 -7.41574 -5.72958 51.833 -29.1714 -9.19364 -117.398 -118.456 -81.5623 -50.4353 263.348 3.0727 -21.2682))
 (setq *av3* #f(49.9331 62.6975 32.5311 129.278 -117.386 -7.41574 -5.72958 51.833 -29.0716 -9.25665 -86.0776 -118.804 -76.2328 -66.8658 270.291 3.0727 -21.2682))
 
-;;start position
+
 (send *pr2* :angle-vector *av3*)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 3000 :rarm-controller)
 (send *ri* :wait-interpolation)
+
 
 (setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
 (setq *ltargetframe* (send *pr2* :larm :end-coords))
@@ -119,48 +104,27 @@
 (send *ri* :wait-interpolation)
 (unix:sleep 2)
 
+
 ;;added this to make synchonization possible
 (send *pr2* :angle-vector *av1* :rarm-controller) ;;added rarm-controller
 (send *ri* :angle-vector (send *pr2* :angle-vector) 3000 :rarm-controller)
 (send *ri* :wait-interpolation)
 
-;;(setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-;;(setq *ltargetframe* (send *pr2* :larm :end-coords))
-
-
 
 ;;scrape the bottom of the bowl
-(dotimes (i 8)
+(dotimes (i 3)
   ;;signalize to detect_toching that a new wiping sequence starts
-  ;;(setq msg (instance std_msgs::string :init))
   (setq msg (instance std_msgs::bool :init))
-  ;;(send msg :data (format nil "hello world ~a" (send (ros::time-now) :sec-nsec)))
   (send msg :data t)
   (ros::ros-info "msg [~A]" (send msg :data))
   (ros::publish "start_scraping" msg)
-  
-  ;;(send *ri* :angle-vector-sequence (list *av1* *av2* *av3*) (list 3000 3000 3000) :rarm-controller)
+
   (send *ri* :angle-vector-sequence (list *av2* *av3* *av1*) (list 3000 3000 3000) :rarm-controller)
   (send *ri* :spin-once)
-  (setq *beginning* t)
 
   (while (send *ri* :interpolatingp :rarm-controller)
     (send *ri* :spin-once)
     (ros::spin-once);;to see if chatter published
-    
-    (when nil ;;*beginning*
-      ;;KO add something reasonable here!!
-      (send *l-tcp* :translate (float-vector 0 -10 0))
-      (send *pr2* :inverse-kinematics
-	    *l-tcp*
-	    :move-target *ltargetframe*
-	    :use-torso nil
-	    )
-      (send *ri* :angle-vector (send *pr2* :angle-vector) 500 :larm-controller)
-      (send *ri* :wait-interpolation)
-      (setq *beginning* nil)
-      )
-    
     (if (send *ri* :simulation-modep)
       (send *ri* :robot-interface-simulation-callback))
     )
@@ -170,3 +134,4 @@
 (send msg :data nil)
 (ros::ros-info "msg [~A]" (send msg :data))
 (ros::publish "start_scraping" msg)
+
