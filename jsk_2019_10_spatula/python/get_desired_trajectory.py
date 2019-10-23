@@ -7,11 +7,20 @@ from matplotlib import interactive
 import h5py
 
 def main(): 
-    bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-07-21-45-53.bag'
-    bag_no_spatula = '/home/leus/force_test_bag/experiment_without_spatula_2019-10-07-22-00-52.bag'
-    bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-07-21-51-21.bag'
-    bag_5up = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_5mm_up_2019-10-07-22-21-24.bag'
-    bag_15up = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_15mm_up_2019-10-07-22-32-14.bag'
+    #bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-07-21-45-53.bag'
+    #bag_no_spatula = '/home/leus/force_test_bag/experiment_without_spatula_2019-10-07-22-00-52.bag'
+    #bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-07-21-51-21.bag'
+    #bag_5up = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_5mm_up_2019-10-07-22-21-24.bag'
+    #bag_15up = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_15mm_up_2019-10-07-22-32-14.bag'
+
+    #bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-15-23-38-16.bag'
+    #bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-15-23-29-09.bag'
+    #bag_no_spatula = '/home/leus/force_test_bag/experiment_without_spatula_2019-10-15-23-33-58.bag'
+
+
+    bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-23-11-40-14.bag'
+    bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-23-11-41-51.bag'
+
 
     #change the joint here to the joint you want to plot
     data_kind=["/r_arm_controller/state","error"] #actual,desired, error
@@ -95,12 +104,18 @@ class data_analysis:
         self.debug_mode = debug_mode
         self.bag_type = bagtype
         self.data_kind = data_kind
+        self.start_timestamps = []
+        self.stop_timestamps = []
+        self.data_timestamps = []
+
 
     def extract_bag_data(self):
         self.effort = []
         self.position = []
         self.velocity = []
         self.split_indices = []
+        self.split_indices_start = []
+        self.split_indices_stop = []
         self.av2_indices = []
         first = True
 
@@ -119,8 +134,6 @@ class data_analysis:
         #names of 17 jointpositions in av_1 and av_2
         self.cmd_joints = ["torso_lift_joint", "l_shoulder_pan_joint","l_shoulder_lift_joint","l_upper_arm_roll_joint","l_elbow_flex_joint","l_forearm_roll_joint","l_wrist_flex_joint","l_wrist_roll_joint","r_shoulder_pan_joint","r_shoulder_lift_joint","r_upper_arm_roll_joint","r_elbow_flex_joint","r_forearm_roll_joint","r_wrist_flex_joint","r_wrist_roll_joint","head_pan_joint","head_tilt_joint"]
         
-        #print "#############index follows###############"
-        #print self.cmd_joints.index("r_wrist_roll_joint")
         n_split = 0
         if self.debug_mode:
             max_diff = 0
@@ -136,14 +149,24 @@ class data_analysis:
         for topic, msg, t in self.bag.read_messages(''):
 
             if self.debug_mode:
-                if topic == "/tf" and k < 10: #use this to print first 10 msgs of topic tf
+                if topic == "/start_scraping" and k < 10: #/tf #use this to print first 10 msgs of topic tf
                     print msg
+                    print topic
+                    print t
                     k = k+1
                 else:
                     continue
 
+            if topic == "/start_scraping":
+                if msg.data is True:
+                    self.start_timestamps.append(t)
+                elif msg.data is False:
+                    self.stop_timestamps.append(t)
+
             if topic != self.data_kind[0]:
                 continue #looking into "/r_arm_controller/state" only
+
+            self.data_timestamps.append(t)
 
             if self.data_kind[1] is "desired":
                 self.effort.append(msg.desired.effort)
@@ -195,28 +218,34 @@ class data_analysis:
         self.ind_joint = self.name.index(self.joint_name)
 
     def split_data(self):
-        old_ind = 0
-        self.n_exp = len(self.split_indices)
+
+        self.split_indices = []
+        for index in self.start_timestamps:
+            self.split_indices_start.append(np.argmin(abs(np.array(self.data_timestamps) - index)))
+
+        for index in self.stop_timestamps:
+            self.split_indices_stop.append(np.argmin(abs(np.array(self.data_timestamps) - index)))
+
+        self.n_exp = len(self.split_indices_start)
         effort_shape = np.shape(self.effort)
         n_joint = effort_shape[1]
         tmp_indices = self.split_indices[0:-1]
         tmp_indices.insert(0,0)
-        self.plot_length = np.array(self.split_indices) - np.array(tmp_indices)
-        print "**********shapes*********"
-        print np.shape(self.split_indices)
-        print np.shape(tmp_indices)
-        n_time = np.max(np.array(self.split_indices) - np.array(tmp_indices))
+        self.plot_length = np.array(self.split_indices_stop) - np.array(self.split_indices_start)
+        n_time = np.max(np.array(self.split_indices_stop) - np.array(self.split_indices_start))
         self.split_effort = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         self.split_velocity = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         self.split_position = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         i = 0
-        for split_ind in self.split_indices:
+
+        for split_ind in self.split_indices_stop:
+            old_ind = self.split_indices_start[i]
             diff_ind = split_ind - old_ind
             self.split_effort[i,0:split_ind-old_ind,:] = self.effort[old_ind:split_ind,:]
             self.split_velocity[i,0:split_ind-old_ind,:] = self.velocity[old_ind:split_ind,:]
             self.split_position[i,0:split_ind-old_ind,:] = self.position[old_ind:split_ind,:]
-            old_ind = split_ind
             i = i+1
+        
 
 
 def compute_desired_trajectory(data):
@@ -231,6 +260,7 @@ def compute_desired_trajectory(data):
         avg[0:length] = avg[0:length] + data.split_effort[i,0:length,data.ind_joint]
     avg = avg/data.n_exp
     """
+
 def save_trajectory_to_h5(data,directory,exp_type):
     f = h5py.File("%s/desired_trajectory.hdf5" % (directory))
     f.create_dataset("%s/avg_position" % exp_type, data = data.avg_position)
