@@ -5,14 +5,18 @@ from scipy.signal import butter, lfilter, freqz, filtfilt
 from matplotlib import interactive
 
 def main(): 
+    
     bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-07-21-45-53.bag'
     bag_no_spatula = '/home/leus/force_test_bag/experiment_without_spatula_2019-10-07-22-00-52.bag'
     bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-07-21-51-21.bag'
     bag_5up = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_5mm_up_2019-10-07-22-21-24.bag'
     bag_15up = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_15mm_up_2019-10-07-22-32-14.bag'
+    
+    #bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-23-11-40-14.bag'
+    #bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-23-11-41-51.bag'
 
     #change the joint here to the joint you want to plot
-    data_kind=["/r_arm_controller/state","actual"] #actual,desired, error
+    data_kind=["/r_arm_controller/state","error"] #actual,desired, error
     joint = "r_forearm_roll_joint"
 
     #data_kind=["/l_arm_controller/state","desired"]
@@ -21,32 +25,30 @@ def main():
     #decide if u want to plot the data
     plot = True
 
-    
-
     d_spatula_and_bowl = data_analysis(joint,bag_spatula_and_bowl,data_kind=data_kind)
     d_spatula_and_bowl.extract_bag_data()
     d_spatula_and_bowl.split_data()
     d_spatula_and_bowl.color = 'firebrick'
  
-    d_no_spatula = data_analysis(joint,bag_no_spatula,data_kind=data_kind)
-    d_no_spatula.extract_bag_data()
-    d_no_spatula.split_data()
-    d_no_spatula.color = 'darkgreen'
+    #d_no_spatula = data_analysis(joint,bag_no_spatula,data_kind=data_kind)
+    #d_no_spatula.extract_bag_data()
+    #d_no_spatula.split_data()
+    #d_no_spatula.color = 'darkgreen'
     
     d_no_bowl = data_analysis(joint,bag_no_bowl,data_kind=data_kind)
     d_no_bowl.extract_bag_data()
     d_no_bowl.split_data()
     d_no_bowl.color = 'seagreen'
 
-    d_5up = data_analysis(joint,bag_5up, bagtype = "5_up",data_kind=data_kind)
-    d_5up.extract_bag_data()
-    d_5up.split_data()
-    d_5up.color = 'darksalmon'
+    #d_5up = data_analysis(joint,bag_5up, bagtype = "5_up",data_kind=data_kind)
+    #d_5up.extract_bag_data()
+    #d_5up.split_data()
+    #d_5up.color = 'darksalmon'
 
-    d_15up = data_analysis(joint,bag_15up, bagtype = "15_up",data_kind=data_kind)
-    d_15up.extract_bag_data()
-    d_15up.split_data()
-    d_15up.color = 'sienna'
+    #d_15up = data_analysis(joint,bag_15up, bagtype = "15_up",data_kind=data_kind)
+    #d_15up.extract_bag_data()
+    #d_15up.split_data()
+    #d_15up.color = 'sienna'
     
     
     if plot:
@@ -55,7 +57,7 @@ def main():
             data_list = [d_spatula_and_bowl,d_no_spatula,d_5up]
         elif joint[0] == "r":
             print "you picked a joint from right arm, plotting spatula_and_bowl and no_bowl"
-            data_list = [d_15up,d_spatula_and_bowl,d_no_bowl,d_5up]
+            data_list = [d_spatula_and_bowl,d_no_bowl]#[d_15up,d_spatula_and_bowl,d_no_bowl,d_5up]
         else:
             print "you picked a joint that is not from either arm plotting all three experiments"
             data_list = [d_spatula_and_bowl,d_no_spatula,d_no_bowl,d_5up]
@@ -75,6 +77,15 @@ class data_analysis:
         self.debug_mode = debug_mode
         self.bag_type = bagtype
         self.data_kind = data_kind
+
+        self.start_timestamps = []
+        self.stop_timestamps = []
+        self.split_indices_start = []
+        self.split_indices_stop = []
+        self.split_indices_start = []
+        self.split_indices_stop = []
+        self.data_timestamps = []
+
 
     def extract_bag_data(self):
         self.effort = []
@@ -112,6 +123,7 @@ class data_analysis:
         i = 0
         k = 0
 
+        self.start_scraping_published = False 
 
         for topic, msg, t in self.bag.read_messages(''):
 
@@ -122,8 +134,18 @@ class data_analysis:
                 else:
                     continue
 
+            if topic == "/start_scraping":
+                if msg.data is True:
+                    self.start_timestamps.append(t)
+                elif msg.data is False:
+                    self.stop_timestamps.append(t)
+                self.start_scraping_published = True
+
+
             if topic != self.data_kind[0]:
                 continue #looking into "/r_arm_controller/state" only
+
+            self.data_timestamps.append(t)
 
             if self.data_kind[1] is "desired":
                 self.effort.append(msg.desired.effort)
@@ -150,14 +172,15 @@ class data_analysis:
             pos_array = np.array(msg.desired.positions)
 
 
-            diff_limit = 1.1 
-            if np.sum(np.abs((pos_array-self.av_1[r_arm_controller_indices])/self.av_1[r_arm_controller_indices])) < diff_limit:
-                n_split = n_split + 1 
-                split_window[np.sum(np.abs((pos_array-self.av_1[r_arm_controller_indices])/self.av_1[r_arm_controller_indices]))] = i
+            if not self.start_scraping_published:
+                diff_limit = 1.1 
+                if np.sum(np.abs((pos_array-self.av_1[r_arm_controller_indices])/self.av_1[r_arm_controller_indices])) < diff_limit:
+                    n_split = n_split + 1 
+                    split_window[np.sum(np.abs((pos_array-self.av_1[r_arm_controller_indices])/self.av_1[r_arm_controller_indices]))] = i
 
-            elif split_window:
-                self.split_indices.append(split_window[np.min(split_window.keys())])
-                split_window = dict()
+                elif split_window:
+                    self.split_indices.append(split_window[np.min(split_window.keys())])
+                    split_window = dict()
             """
             if np.sum(np.abs((pos_array[cmd_indices_bag]-self.av_2)/self.av_2)) < diff_limit:
                 n_split = n_split + 1 
@@ -192,27 +215,52 @@ class data_analysis:
 
     def split_data(self):
         old_ind = 0
-        self.n_exp = len(self.split_indices)
+
+        if self.start_scraping_published:
+            for index in self.start_timestamps:
+                self.split_indices_start.append(np.argmin(abs(np.array(self.data_timestamps) - index)))
+            for index in self.stop_timestamps:
+                self.split_indices_stop.append(np.argmin(abs(np.array(self.data_timestamps) - index)))
+            self.n_exp = len(self.split_indices_start)
+        else:
+            self.n_exp = len(self.split_indices)
         effort_shape = np.shape(self.effort)
         n_joint = effort_shape[1]
         tmp_indices = self.split_indices[0:-1]
         tmp_indices.insert(0,0)
-        self.plot_length = np.array(self.split_indices) - np.array(tmp_indices)
+
+        if self.start_scraping_published:
+            self.plot_length = np.array(self.split_indices_stop) - np.array(self.split_indices_start)
+        else:
+            self.plot_length = np.array(self.split_indices) - np.array(tmp_indices)
         print "**********shapes*********"
         print np.shape(self.split_indices)
         print np.shape(tmp_indices)
-        n_time = np.max(np.array(self.split_indices) - np.array(tmp_indices))
+
+        if self.start_scraping_published:
+            n_time = np.max(np.array(self.split_indices_stop) - np.array(self.split_indices_start))
+        else:
+            n_time = np.max(np.array(self.split_indices) - np.array(tmp_indices))
         self.split_effort = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         self.split_velocity = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         self.split_position = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         i = 0
-        for split_ind in self.split_indices:
-            diff_ind = split_ind - old_ind
-            self.split_effort[i,0:split_ind-old_ind,:] = self.effort[old_ind:split_ind,:]
-            self.split_velocity[i,0:split_ind-old_ind,:] = self.velocity[old_ind:split_ind,:]
-            self.split_position[i,0:split_ind-old_ind,:] = self.position[old_ind:split_ind,:]
-            old_ind = split_ind
-            i = i+1
+        if self.start_scraping_published:
+            for split_ind in self.split_indices_stop:
+                old_ind = self.split_indices_start[i]
+                diff_ind = split_ind - old_ind
+                self.split_effort[i,0:split_ind-old_ind,:] = self.effort[old_ind:split_ind,:]
+                self.split_velocity[i,0:split_ind-old_ind,:] = self.velocity[old_ind:split_ind,:]
+                self.split_position[i,0:split_ind-old_ind,:] = self.position[old_ind:split_ind,:]
+                i = i+1
+        else:
+            for split_ind in self.split_indices:
+                diff_ind = split_ind - old_ind
+                self.split_effort[i,0:split_ind-old_ind,:] = self.effort[old_ind:split_ind,:]
+                self.split_velocity[i,0:split_ind-old_ind,:] = self.velocity[old_ind:split_ind,:]
+                self.split_position[i,0:split_ind-old_ind,:] = self.position[old_ind:split_ind,:]
+                old_ind = split_ind
+                i = i+1
 
 
 def numeric_derivative(sequence):
