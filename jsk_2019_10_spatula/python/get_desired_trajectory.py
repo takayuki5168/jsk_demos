@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import butter, lfilter, freqz, filtfilt
 from matplotlib import interactive
+import os
 
 import h5py
 
@@ -15,84 +16,104 @@ def main():
 
     #bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-15-23-38-16.bag'
     #bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-15-23-29-09.bag'
-    #bag_no_spatula = '/home/leus/force_test_bag/experiment_without_spatula_2019-10-15-23-33-58.bag'
+    #bag_no_spatula = '/home/leus/force_test_bag/slow_push_robot_2019-10-24-17-28-51.bag'
+    #bag_spatula_and_bowl = '/home/leus/force_test_bag/slow_experiment_with_spatula_and_bowl_2019-10-24-17-24-17.bag'
+    #bag_no_bowl = '/home/leus/force_test_bag/slow_experiment_without_bowl_2019-10-24-17-26-38.bag'
+
+    #directory = "/home/leus/bag_files_shaving_cream"
+    #bag_no_spatula = '%s/foam_2019-10-25-17-07-51.bag' % directory
+    #bag_spatula_and_bowl = '%s/both_2019-10-25-16-46-25.bag' % directory
+    #bag_no_bowl = '%s/no_bowl_2019-10-25-16-48-55.bag' % directory
+
+    directory = "/home/leus/step_response_bag/1kg_movement/"
+    data_list = []
+    for bag in os.listdir(directory):
+        bag_spatula_and_bowl = "%s/%s" % (directory,bag)
+        print bag
+
+        #bag_spatula_and_bowl = '/home/leus/force_test_bag/push_robot_2019-10-24-14-37-35.bag'
 
 
-    bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-23-11-40-14.bag'
-    bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-23-11-41-51.bag'
+        #change the joint here to the joint you want to plot
+        data_kind=["/r_arm_controller/state","error"] #actual,desired, error
+        joint = "r_forearm_roll_joint"
+        #joint = "r_shoulder_pan_joint"
+        #data_kind=["/l_arm_controller/state","desired"]
+        #joint = "l_elbow_flex_joint"
+
+        #decide if u want to plot the data
+        plot = True
+
+        
+
+        d = data_analysis(joint,bag_spatula_and_bowl,data_kind=data_kind)
+        d.extract_bag_data()
+        d.split_data()
+        d.color = 'firebrick'
+        avg_min_max_aray = compute_desired_trajectory(d)
+        d.avg_position = avg_min_max_aray[0]
+        d.min_position = avg_min_max_aray[1]
+        d.max_position = avg_min_max_aray[2]
 
 
-    #change the joint here to the joint you want to plot
-    data_kind=["/r_arm_controller/state","error"] #actual,desired, error
-    joint = "r_forearm_roll_joint"
+        data_list.append(d)
+        #save_trajectory_to_h5(d_spatula_and_bowl,directory,"touching")
 
-    #data_kind=["/l_arm_controller/state","desired"]
-    #joint = "l_elbow_flex_joint"
 
-    #decide if u want to plot the data
-    plot = True
-
-    
-
-    d_spatula_and_bowl = data_analysis(joint,bag_spatula_and_bowl,data_kind=data_kind)
-    d_spatula_and_bowl.extract_bag_data()
-    d_spatula_and_bowl.split_data()
-    d_spatula_and_bowl.color = 'firebrick'
-    avg_min_max_aray = compute_desired_trajectory(d_spatula_and_bowl)
-    d_spatula_and_bowl.avg_position = avg_min_max_aray[0]
-    d_spatula_and_bowl.min_position = avg_min_max_aray[1]
-    d_spatula_and_bowl.max_position = avg_min_max_aray[2]
-    save_trajectory_to_h5(d_spatula_and_bowl,"/home/leus/force_test_bag","touching")
+        """
+        d_no_bowl = data_analysis(joint,bag_no_bowl,data_kind=data_kind)
+        d_no_bowl.extract_bag_data()
+        d_no_bowl.split_data()
+        d_no_bowl.color = 'seagreen'
+        avg_min_max_aray = compute_desired_trajectory(d_no_bowl)
+        d_no_bowl.avg_position = avg_min_max_aray[0]
+        d_no_bowl.min_position = avg_min_max_aray[1]
+        d_no_bowl.max_position = avg_min_max_aray[2]
+        save_trajectory_to_h5(d_no_bowl,directory,"not_touching")
 
 
 
-    d_no_bowl = data_analysis(joint,bag_no_bowl,data_kind=data_kind)
-    d_no_bowl.extract_bag_data()
-    d_no_bowl.split_data()
-    d_no_bowl.color = 'seagreen'
-    avg_min_max_aray = compute_desired_trajectory(d_no_bowl)
-    d_no_bowl.avg_position = avg_min_max_aray[0]
-    d_no_bowl.min_position = avg_min_max_aray[1]
-    d_no_bowl.max_position = avg_min_max_aray[2]
-    save_trajectory_to_h5(d_no_bowl,"/home/leus/force_test_bag","not_touching")
+        d_no_spatula = data_analysis(joint,bag_no_spatula,data_kind=data_kind)
+        d_no_spatula.extract_bag_data()
+        d_no_spatula.split_data()
+        d_no_spatula.color = 'navy'#'darkgreen'
+        avg_min_max_aray = compute_desired_trajectory(d_no_bowl)
+        d_no_spatula.avg_position = avg_min_max_aray[0]
+        d_no_spatula.min_position = avg_min_max_aray[1]
+        d_no_spatula.max_position = avg_min_max_aray[2]
+        save_trajectory_to_h5(d_no_spatula,directory,"not_touching_no_spatula")
+        
 
 
-    """
-    d_no_spatula = data_analysis(joint,bag_no_spatula,data_kind=data_kind)
-    d_no_spatula.extract_bag_data()
-    d_no_spatula.split_data()
-    d_no_spatula.color = 'darkgreen'
-    
+        d_5up = data_analysis(joint,bag_5up, bagtype = "5_up",data_kind=data_kind)
+        d_5up.extract_bag_data()
+        d_5up.split_data()
+        d_5up.color = 'darksalmon'
 
-
-    d_5up = data_analysis(joint,bag_5up, bagtype = "5_up",data_kind=data_kind)
-    d_5up.extract_bag_data()
-    d_5up.split_data()
-    d_5up.color = 'darksalmon'
-
-    d_15up = data_analysis(joint,bag_15up, bagtype = "15_up",data_kind=data_kind)
-    d_15up.extract_bag_data()
-    d_15up.split_data()
-    d_15up.color = 'sienna'
-    """
-    
+        d_15up = data_analysis(joint,bag_15up, bagtype = "15_up",data_kind=data_kind)
+        d_15up.extract_bag_data()
+        d_15up.split_data()
+        d_15up.color = 'sienna'
+        """
+        
 
 
     if plot:
-        if joint[0] == "l":
-            print "you picked a joint from left arm, plotting spatula_and_bowl and no_spatula"
-            data_list = [d_spatula_and_bowl,d_no_spatula,d_5up]
-        elif joint[0] == "r":
-            print "you picked a joint from right arm, plotting spatula_and_bowl and no_bowl"
-            data_list = [d_spatula_and_bowl,d_no_bowl]#[d_15up,d_spatula_and_bowl,d_no_bowl,d_5up]
-        else:
-            print "you picked a joint that is not from either arm plotting all three experiments"
-            data_list = [d_spatula_and_bowl,d_no_spatula,d_no_bowl,d_5up]
+        if not data_list:
+            if joint[0] == "l":
+                print "you picked a joint from left arm, plotting spatula_and_bowl and no_spatula"
+                data_list = [d_spatula_and_bowl,d_no_spatula,d_no_bowl]
+            elif joint[0] == "r":
+                print "you picked a joint from right arm, plotting spatula_and_bowl and no_bowl"
+                data_list = [d_spatula_and_bowl]#d_no_spatula,[d_spatula_and_bowl,d_no_bowl]#[d_15up,d_spatula_and_bowl,d_no_bowl,d_5up]
+            else:
+                print "you picked a joint that is not from either arm plotting all three experiments"
+                data_list = [d_spatula_and_bowl,d_spatula_and_bowl,d_no_spatula,d_no_bowl]#[d_spatula_and_bowl,d_no_spatula,d_no_bowl,d_5up]
 
-        plot_data(data_list, show_av2=True, interactive_plot=True) 
+        plot_data(data_list, show_av2=True, interactive_plot=False) 
         #eg. add argument cutoff_f = 10, to apply lowpass filter with cutoff frequency 10 to the effort
         #add interactive_plot=True to make the programm run further without having to close the plot
-        plot_filtered_unfiltered(d_spatula_and_bowl, cutoff_f=5)
+        #plot_filtered_unfiltered(d_spatula_and_bowl, cutoff_f=5)
 
 
 class data_analysis:
@@ -107,6 +128,8 @@ class data_analysis:
         self.start_timestamps = []
         self.stop_timestamps = []
         self.data_timestamps = []
+
+        self.plot_whole_sequence = False
 
 
     def extract_bag_data(self):
@@ -227,32 +250,55 @@ class data_analysis:
             self.split_indices_stop.append(np.argmin(abs(np.array(self.data_timestamps) - index)))
 
         self.n_exp = len(self.split_indices_start)
+        if self.plot_whole_sequence:
+            self.n_exp = self.n_exp - 1 #do not plot the last one as u dont know where to stop
         effort_shape = np.shape(self.effort)
         n_joint = effort_shape[1]
         tmp_indices = self.split_indices[0:-1]
+        #tmp_indices = self.split_indices_start[0:-1]
         tmp_indices.insert(0,0)
-        self.plot_length = np.array(self.split_indices_stop) - np.array(self.split_indices_start)
-        n_time = np.max(np.array(self.split_indices_stop) - np.array(self.split_indices_start))
+
+        if self.plot_whole_sequence:
+            self.plot_length = np.array(self.split_indices_start[1::]) - np.array(self.split_indices_start[0:-1])
+            n_time = np.max(self.plot_length)
+        else:
+            self.plot_length = np.array(self.split_indices_stop) - np.array(self.split_indices_start)
+            n_time = np.max(np.array(self.split_indices_stop) - np.array(self.split_indices_start))
         self.split_effort = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         self.split_velocity = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         self.split_position = np.array(np.zeros([self.n_exp,n_time,n_joint]))
         i = 0
 
-        for split_ind in self.split_indices_stop:
-            old_ind = self.split_indices_start[i]
-            diff_ind = split_ind - old_ind
-            self.split_effort[i,0:split_ind-old_ind,:] = self.effort[old_ind:split_ind,:]
-            self.split_velocity[i,0:split_ind-old_ind,:] = self.velocity[old_ind:split_ind,:]
-            self.split_position[i,0:split_ind-old_ind,:] = self.position[old_ind:split_ind,:]
-            i = i+1
+        if self.plot_whole_sequence:
+            old_ind = self.split_indices_start[0]
+            for split_ind in self.split_indices_start:
+                if split_ind is old_ind:
+                    continue
+                self.split_effort[i,0:split_ind-old_ind,:] = self.effort[old_ind:split_ind,:]
+                self.split_velocity[i,0:split_ind-old_ind,:] = self.velocity[old_ind:split_ind,:]
+                self.split_position[i,0:split_ind-old_ind,:] = self.position[old_ind:split_ind,:]
+                old_ind = split_ind
+                i = i+1
+        else:
+            for split_ind in self.split_indices_stop:
+                old_ind = self.split_indices_start[i]
+                diff_ind = split_ind - old_ind
+                self.split_effort[i,0:split_ind-old_ind,:] = self.effort[old_ind:split_ind,:]
+                self.split_velocity[i,0:split_ind-old_ind,:] = self.velocity[old_ind:split_ind,:]
+                self.split_position[i,0:split_ind-old_ind,:] = self.position[old_ind:split_ind,:]
+                i = i+1
         
 
 
 def compute_desired_trajectory(data):
     length = np.min(data.plot_length)
-    avg = np.mean(data.split_position[2::,0:length,data.ind_joint],0)
-    min_sequence = np.min(data.split_position[2::,0:length,data.ind_joint],0)
-    max_sequence = np.max(data.split_position[2::,0:length,data.ind_joint],0)
+    #avg = np.mean(data.split_position[2::,0:length,data.ind_joint],0)
+    #min_sequence = np.min(data.split_position[2::,0:length,data.ind_joint],0)
+    #max_sequence = np.max(data.split_position[2::,0:length,data.ind_joint],0)
+
+    avg = np.mean(data.split_position[0::,0:length,data.ind_joint],0)
+    min_sequence = np.min(data.split_position[0::,0:length,data.ind_joint],0)
+    max_sequence = np.max(data.split_position[0::,0:length,data.ind_joint],0)
     return [avg,min_sequence,max_sequence]
     """
     for i in range(start_ind,data.n_exp):
@@ -288,8 +334,8 @@ def butter_lowpass_filter(data, cutoff, fs, order=5):
     y = lfilter(b,a,data)
     return y
 
-def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,fs=100.3, interactive_plot=False, start_ind = 2):
-    fig, axs = plt.subplots(5, 1)
+def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,fs=100.3, interactive_plot=False, start_ind = 0):#start_ind was 2
+    fig, axs = plt.subplots(7, 1)
     for data in data_list:
         for i in range(start_ind,data.n_exp):
             length = data.plot_length[i]
@@ -300,6 +346,12 @@ def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,f
             axs[0].plot(t1, s1, data.color)
 
         for i in range(start_ind,data.n_exp):
+            if False:#i == 3:
+                print "navy"
+                data.color = "navy"
+            if False:#i == 4:
+                print "seagreen"
+                data.color = "seagreen"
             length = data.plot_length[i]
             t2 = np.array(range(length))
             s2 = data.split_position[i,0:length,data.ind_joint]
@@ -323,13 +375,16 @@ def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,f
             s5 = numeric_derivative(data.split_position[i,0:length,data.ind_joint])
             axs[4].plot(t5[1::], s5[1::], data.color)
 
+        axs[5].plot(data.position[data.split_indices_start[0]:data.split_indices_stop[-1],data.ind_joint],data.color)
+        axs[6].plot(data.effort[data.split_indices_start[0]:data.split_indices_stop[-1],data.ind_joint],data.color)
+
 
         print "-----avg_pos------"
         print np.shape(data.avg_position)
         print len(data.avg_position)
-        axs[1].plot(range(len(data.avg_position)),data.avg_position,"black")
-        axs[1].plot(range(len(data.min_position)),data.min_position,"gray")
-        axs[1].plot(range(len(data.max_position)),data.max_position,"gray")
+        #axs[1].plot(range(len(data.avg_position)),data.avg_position,"black")
+        #axs[1].plot(range(len(data.min_position)),data.min_position,"gray")
+        #axs[1].plot(range(len(data.max_position)),data.max_position,"gray")
 
     axs[0].set_xlabel('time',fontsize="small")
     axs[0].set_ylabel('effort_%s' % data.name[data.ind_joint],fontsize="small")
@@ -348,9 +403,10 @@ def plot_data(data_list,split_plot = True,show_av2=False,cutoff_f=None,order=6,f
     axs[4].grid(True) 
     fig.suptitle("%s --- %s" % (data.data_kind[0],data.data_kind[1]))
     interactive(interactive_plot)
+    plt.hold(True)
     plt.show()
 
-def plot_filtered_unfiltered(data, cutoff_f, order=6, fs=100.3, interactive_plot=False, start_ind = 3):
+def plot_filtered_unfiltered(data, cutoff_f, order=6, fs=100.3, interactive_plot=False, start_ind = 0):
     t1 = np.array(range(920))
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
