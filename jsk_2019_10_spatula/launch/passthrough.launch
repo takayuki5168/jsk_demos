@@ -1,0 +1,8 @@
+<launch>
+  <node name="passthrough_points" pkg="jsk_topic_tools" type="passthrough">
+    <remap from="~input" to="/kinect_head/depth_registered/points" />
+    <rosparam subst_value="true">
+      default_duration: 2
+    </rosparam>
+  </node>
+</launch>

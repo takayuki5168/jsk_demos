@@ -1,6 +1,6 @@
 #!/usr/bin/env roseus
 ;;;;
-;;;; make PR2 use a spatula to scrape through a bowl without feedback, this is only a simple experiment in order to gathe data for analysis of PR2 effort accuracy
+;;;; make scraping movement with right hand, move the bowl with the left Hand until the spatula touches the bowl. 
 ;;;;
 
 (load "package://pr2eus/pr2-interface.l")
@@ -29,13 +29,12 @@
 (send *pr2* :rarm :wrist-p :joint-angle -40)
 (send *pr2* :larm :wrist-r :joint-angle 30)
 
-
 (if (boundp '*irtviewer*)    
     (send *irtviewer* :draw-objects))
 
-
 (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
 (send *ri* :wait-interpolation)
+
 
 ;; hand the robot the spatula and bowl
 (send *pr2* :stop-grasp)
@@ -60,54 +59,14 @@
 
 (setq *av3* #f(49.9331 62.6975 32.5311 129.278 -117.386 -7.41574 -5.72958 51.833 -29.0716 -9.25665 -86.0776 -118.804 -76.2328 -66.8658 270.291 3.0727 -21.2682))
 
-
-
-
-#|
-;;move up by 15 mm
-(setq *av1* #f(49.9331 60.6407 29.3418 129.618 -119.459 -42.6544 -5.72958 84.7396 -16.9966 -9.03369 -111.73 -116.714 -76.193 -57.7095 266.18 3.0727 -21.2682))
-
-(setq *av2* #f(49.9331  60.6407 29.3418 129.618 -119.459 -42.6544 -5.72958 84.7396 -29.1714 -9.19364 -117.398 -118.456 -81.5623 -50.4353 263.348 3.0727 -21.2682))
-
-(setq *av3* #f(49.9331  60.6407 29.3418 129.618 -119.459 -42.6544 -5.72958 84.7396 -29.0716 -9.25665 -86.0776 -118.804 -76.2328 -66.8658 270.291 3.0727 -21.2682))
-|#
-
-#|
-;;with the bowl moved up by 5 mm
-(setq *av1* #f(49.9331  62.1038 31.4599 129.388 -117.925 -17.5744 -5.72958 61.2193 -16.9966 -9.03369 -111.73 -116.714 -76.193 -57.7095 266.18 3.0727 -21.2682))
-
-(setq *av2* #f(49.9331 62.1038 31.4599 129.388 -117.925 -17.5744 -5.72958 61.2193 -29.1714 -9.19364 -117.398 -118.456 -81.5623 -50.4353 263.348 3.0727 -21.2682))
-
-(setq *av3* #f(49.9331  62.1038 31.4599 129.388 -117.925 -17.5744 -5.72958 61.2193 -29.0716 -9.25665 -86.0776 -118.804 -76.2328 -66.8658 270.291 3.0727 -21.2682))
-|#
-
-
+;;start position
 (send *pr2* :angle-vector *av3*)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
 (send *ri* :wait-interpolation)
 
-#|
-;;move the bowl up a little to make it touch even more
-(setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-(setq *r-tcp* (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-(setq rtargetframe (send *pr2* :rarm :end-coords))
-(setq ltargetframe (send *pr2* :larm :end-coords))
 
-(send *l-tcp* :translate (float-vector 0 5 0)) ;;move left hand to move the bowl
-(send *pr2* :inverse-kinematics 
-      (list *r-tcp* *l-tcp*)
-      :move-target (list rtargetframe ltargetframe)
-      :use-torso nil
-      )
-(send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
-(send *ri* :wait-interpolation)
-|#
-
-;;scrape the bottom of the bowl 40 times
-(dotimes (i 4)
+;;scrape the bottom of the bowl
+(dotimes (i 2)
   (send *ri* :angle-vector-sequence (list *av1* *av2* *av3*))
   (send *ri* :wait-interpolation)  
   )
-
-
-
