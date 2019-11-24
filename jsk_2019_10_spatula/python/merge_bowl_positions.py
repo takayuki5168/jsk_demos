@@ -10,11 +10,10 @@ from std_msgs.msg import Header
 import sys
 import math
 import tf
-
+import time
 
 
 def main():
-    print "test"
     rospy.init_node('merge_pointcloud_sequence', anonymous=True)
     Merger = MergePointClouds()
     #rospy.Subscriber("/pcl_nodelet/hsi_filter_white/output", PointCloud2, Merger.callback_ptcloud)
@@ -29,13 +28,16 @@ class MergePointClouds:
         self.n_brown = 0
         self.n_white = 0
         self.angle = 0
-        self.points_back = []
-        self.points_front = []
-        self.pos1 = 0
-        self.pos2 = 0
+        #self.points_back = []
+        #self.points_front = []
+        self.points = []
+        #self.pos1 = 0
+        #self.pos2 = 0
+        self.look = ""
+        self.change_pos = False
         self.cmd_joints = ["torso_lift_joint", "l_shoulder_pan_joint","l_shoulder_lift_joint","l_upper_arm_roll_joint","l_elbow_flex_joint","l_forearm_roll_joint","l_wrist_flex_joint","l_wrist_roll_joint","r_shoulder_pan_joint","r_shoulder_lift_joint","r_upper_arm_roll_joint","r_elbow_flex_joint","r_forearm_roll_joint","r_wrist_flex_joint","r_wrist_roll_joint","head_pan_joint","head_tilt_joint"]
 
-    def callback_position(self,msg):
+    def callback_position_old(self,msg):
         #used to specify in which direction the bowl was rotated
         if abs(msg.position[msg.name.index("l_forearm_roll_joint")] * 360 / (2*np.pi) - 4.18) < 0.01:
             self.angle = -np.pi/8
@@ -46,8 +48,29 @@ class MergePointClouds:
         else:
             self.angle = 0
 
+    def callback_position(self,msg):
+        if self.look == "" and abs(msg.position[msg.name.index("l_forearm_roll_joint")] * 360 / (2*np.pi) + 13.096) < 0.1:
+            self.look = "front"
+            self.change_pos = True
+            print "front"
+        if self.look is "front" and abs(msg.position[msg.name.index("l_forearm_roll_joint")] * 360 / (2*np.pi) + 5.521) < 0.1:
+            self.look = "right"
+            self.change_pos = True
+            print "right"
+        if self.look is "right" and abs(msg.position[msg.name.index("l_forearm_roll_joint")] * 360 / (2*np.pi) - 4.183) < 0.1:
+            self.look = "back"
+            self.change_pos = True
+            print "back"
+        if self.look is "back" and abs(msg.position[msg.name.index("l_forearm_roll_joint")] * 360 / (2*np.pi) + 6.886) < 0.1:
+            self.look = "left"
+            self.change_pos = True
+            print "left"
+        if self.look is "left" and abs(msg.position[msg.name.index("l_forearm_roll_joint")] * 360 / (2*np.pi) + 6.628) < 0.1:
+            self.look = "middle"
+            self.change_pos = True
+            print "middle"
 
-    def callback_ptcloud(self,ptcloud):
+    def callback_ptcloud_old(self,ptcloud):
         if self.angle != 0:
             if abs(self.angle - (-np.pi/8)) < abs(self.angle - (np.pi/12)):
                 #print "found points back"
@@ -65,6 +88,27 @@ class MergePointClouds:
             self.points_front = []
             self.points_back = []
 
+    def callback_ptcloud(self,ptcloud):
+        if self.change_pos is False:
+            return True
+        else:
+            self.change_pos = False
+        #print self.look
+        #t1 = time.time()
+        points = self.read_pointcloud(ptcloud)
+        self.points = self.points + self.transform_points(points)
+        #print np.shape(self.points)
+        #t2 = time.time()
+        #print "time callback"
+        #print t2-t1
+        if self.look is "middle":
+            print "publishing pointcloud"
+            ptcloud_merged = self.generate_pointcloud(ptcloud)
+            self.pub.publish(ptcloud_merged)
+            self.look = ""
+            self.points = []
+
+
     def transform_points(self,points):
         xyz = []
         rgb = []
@@ -74,6 +118,7 @@ class MergePointClouds:
         #testp = points[0]._replace(x=1.0,y=2.0,z=5.0)
         #print testp
         #print type(testp)
+        #t1 = time.time()
         for point in points:
             xyz.append([point.x,point.y,point.z])
             rgb.append(point.rgb)
@@ -88,6 +133,9 @@ class MergePointClouds:
         xyz_transformed = xyz1_transformed[:,0:3]
         point_array = np.hstack([xyz_transformed,rgb])
         point_list = list(point_array)
+        t2 = time.time()
+        #print "time transform"
+        #print t2-t1
         #return point_list
         #point_list = []
         #for i in range(np.shape(point_array)[0]):
@@ -118,12 +166,16 @@ class MergePointClouds:
         return trafo
 
     def read_pointcloud(self,ptcloud):
+        #t1 = time.time()
         fields = ptcloud.fields
         fields[3].datatype = 6
         points = pc2.read_points_list(ptcloud, skip_nans=True)
+        t2 = time.time()
+        #print "time read_pointcloud"
+        #print t2-t1
         return points
 
-    def generate_pointcloud(self,ptcloud):
+    def generate_pointcloud_old(self,ptcloud):
         header =  ptcloud.header
         header.frame_id = "/l_gripper_l_finger_tip_frame"
         fields = ptcloud.fields
@@ -134,6 +186,18 @@ class MergePointClouds:
         #print ";;;;;;;;;;;;;;;;;"
         #print type(points_test[0])
         ptcloud_merged.fields[3].datatype = 7
+        return ptcloud_merged
+
+    def generate_pointcloud(self,ptcloud):
+        t1 = time.time()
+        header =  ptcloud.header
+        header.frame_id = "/l_gripper_l_finger_tip_frame"
+        fields = ptcloud.fields
+        ptcloud_merged = pc2.create_cloud(header, fields, self.points)
+        ptcloud_merged.fields[3].datatype = 7
+        t2 = time.time()
+        print "time generate ptcloud"
+        print t2-t1
         return ptcloud_merged
         
 
