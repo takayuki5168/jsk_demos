@@ -4,6 +4,7 @@
 (load "package://pr2eus/pr2-interface.l")
 (ros::roseus "pr2_send_joints")
 (ros::advertise "scrape_left_jacobian" jsk_2019_10_spatula::Jacobian 1)
+(ros::advertise "scrape_right_jacobian" jsk_2019_10_spatula::Jacobian 1)
 (setq *ri* (instance pr2-interface :init))
 (pr2-init t)
 
@@ -30,7 +31,8 @@
 	      :transform-coords (make-coords)
 	      :rotation-axis t
 	      ))
- (format-array jacobi) ;; print
+  (format-array jacobi) ;; print
+  (publish-jacobi 0)
  )
 
 (defun get-jacobi-r ()
@@ -45,9 +47,42 @@
 	      :rotation-axis t
 	      ))
 
- (format-array jacobi) ;; print
+  (format-array jacobi) ;; print
+  (publish-jacobi 1)
  )
 
+(defun publish-jacobi (arm)
+  ;;get the line components of the jacobi
+  (setq selection #f(1 0 0 0 0 0))
+  (setq jacobi-x (transform selection jacobi))
+  (setq selection #f(0 1 0 0 0 0)) 
+  (setq jacobi-y (transform selection jacobi))
+  (setq selection #f(0 0 1 0 0 0))
+  (setq jacobi-z (transform selection jacobi))
+  (setq selection #f(0 0 0 1 0 0))
+  (setq jacobi-roll (transform selection jacobi))
+  (setq selection #f(0 0 0 0 1 0))
+  (setq jacobi-pitch (transform selection jacobi))
+  (setq selection #f(0 0 0 0 0 1))
+  (setq jacobi-yaw (transform selection jacobi))
+
+  ;;pack the line components into Jacobian msg
+  (setq msg (instance jsk_2019_10_spatula::Jacobian :init))
+  (send msg :x jacobi-x)
+  (send msg :y jacobi-y)
+  (send msg :z jacobi-z)
+  (send msg :roll jacobi-yaw)
+  (send msg :pitch jacobi-pitch)
+  (send msg :yaw jacobi-yaw)
+  ;;print the msg
+  (ros::ros-info "msg [~A]" (send msg :x))
+  ;;publish the msg
+  (if (= arm 0)
+      (ros::publish "scrape_left_jacobian" msg)
+      (ros::publish "scrape_right_jacobian" msg)
+      )
+  
+  )
 
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -57,32 +92,8 @@
 (send *pr2* :angle-vector *av3*) 
 (send *ri* :angle-vector (send *pr2* :angle-vector) 2000 :larm-controller)
 (send *ri* :wait-interpolation)
+(get-jacobi-r)
 (get-jacobi-l)
 
 
-;;get the first line of matrix, x component
-(setq selection #f(1 0 0 0 0 0))
-(setq jacobi-x (transform selection jacobi))
-(setq selection #f(0 1 0 0 0 0))
-(setq jacobi-y (transform selection jacobi))
-(setq selection #f(0 0 1 0 0 0))
-(setq jacobi-z (transform selection jacobi))
-(setq selection #f(0 0 0 1 0 0))
-(setq jacobi-roll (transform selection jacobi))
-(setq selection #f(0 0 0 0 1 0))
-(setq jacobi-pitch (transform selection jacobi))
-(setq selection #f(0 0 0 0 0 1))
-(setq jacobi-yaw (transform selection jacobi))
 
-(setq msg (instance jsk_2019_10_spatula::Jacobian :init))
-(send msg :x jacobi-x)
-(send msg :y jacobi-y)
-(send msg :z jacobi-z)
-(send msg :roll jacobi-yaw)
-(send msg :pitch jacobi-pitch)
-(send msg :yaw jacobi-yaw)
-(ros::ros-info "msg [~A]" (send msg :x))
-(ros::publish "scrape_left_jacobian" msg)
-
-;; in case it should be converted to list
-;;(setq jacobi-x-list (coerce jacobi-x cons))
