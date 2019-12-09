@@ -12,13 +12,15 @@ import math
 import tf
 import time
 
-
+#if debug is set True, the ptclouds that are merged are also publihsed seperately
 debug = True
 
 def main():
     rospy.init_node('merge_pointcloud_sequence', anonymous=True)
     Merger = MergePointClouds()
+    #subsrcibe to topic, where the ptclouds are published that should be merged
     rospy.Subscriber("/pcl_nodelet/ExtractIndices/output", PointCloud2, Merger.callback_ptcloud)
+    #subscribe to semantic annotation to decide which ptclouds should be merged
     rospy.Subscriber("/semantic_annotation", String, Merger.callback_semantics)
     rospy.spin()
 
@@ -34,6 +36,12 @@ class MergePointClouds:
 
 
     def callback_semantics(self,msg):
+        """
+        input           msg: string that describes what the robot is doing
+        output          none
+        description     - publishes ptcloud and starts a new points array, if semantic annotation determines the end of vision
+                        - sets flag to add the next published ptcloud, if semantic annotation dtermines a new vision position is reached
+        """
         split_action = msg.data.split("_")
         if split_action[0] == "vision":
             if split_action[1] == "end":
@@ -46,8 +54,13 @@ class MergePointClouds:
 
 
     def callback_ptcloud(self,ptcloud):
-        #always have the newest version of the ptcoud
-        self.ptcloud = ptcloud
+        """
+        input           ptcloud:    sensor_msgs.msg PointCloud2
+        output          none
+        description     - if flag self.add_ptcloud is set, it calls the functions to read and transform the ptcloud and add it to self.points
+                        - if the debug flag is set it also publishes the transformed ptcloud
+        """
+        self.ptcloud = ptcloud #always have the newest version of the ptcoud
         if self.add_ptcloud:
             #look up trafo right away as otherwise there is a delay due to read_ptcloud
             self.add_ptcloud = False
@@ -63,6 +76,11 @@ class MergePointClouds:
 
 
     def transform_points(self,points):
+        """
+        input           points:     List of namedtuples containing the values for each point from the ptcloud
+        output          point_list: List conatinnig the values of each point, transformed into '/l_gripper_tool_frame' KS
+        description     transforms the points from '/head_mount_kinect_rgb_optical_frame' into /l_gripper_tool_frame KS
+        """
         xyz = []
         rgb = []
         for point in points:
@@ -83,8 +101,13 @@ class MergePointClouds:
         return point_list
 
     def quat2mat(self,quat):
-        #http://docs.ros.org/melodic/api/geometry_msgs/html/msg/Quaternion.html
-        #implementation from https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
+        """
+        input           quat 4-element list/array representing a quaternion in the order x,y,z,w
+        output          mat, 3x3 array representing a rotation matrix
+        description     converts quaternion to rotation matrix
+        resources       - http://docs.ros.org/melodic/api/geometry_msgs/html/msg/Quaternion.html
+                        - implementation from https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
+        """
         x = quat[0]
         y = quat[1]
         z = quat[2]
@@ -95,6 +118,10 @@ class MergePointClouds:
         return mat
 
     def get_transform(self):
+        """
+        input           none
+        output          trafo:  transformation matrix that transforms from '/head_mount_kinect_rgb_optical_frame' to '/l_gripper_tool_frame'
+        """
         (trans,rot) = self.listener.lookupTransform('/l_gripper_tool_frame', '/head_mount_kinect_rgb_optical_frame', rospy.Time(0))
         rotmat = self.quat2mat(rot)
         trans_v = np.array(trans)
@@ -103,12 +130,25 @@ class MergePointClouds:
         return trafo
 
     def read_pointcloud(self,ptcloud):
+        """
+        input           ptcloud:    sensor_msgs.msg PointCloud2
+        output          points:     List of namedtuples containing the values for each point
+        description     - before reading the points from the ptcloud the datatype of the RGB values is changed 
+                            from fields[3].datatype = 7(FLOAT32) to fields[3].datatype = 6(UINT32), as the data
+                            is damaged when reading in float as all values that start with nine 1's are read as NAN
+                        - https://github.com/PointCloudLibrary/pcl/issues/1543 (simular issue is described here)
+        """
         fields = ptcloud.fields
         fields[3].datatype = 6
         points = pc2.read_points_list(ptcloud, skip_nans=True)
         return points
 
     def generate_pointcloud(self,points=None):
+        """
+        input           points (optional) list, containing x,y,z,RBG of one point in each line
+        output          ptcloud_merged: sensor_msgs.msg PointCloud2
+        description     change fields[3].datatype back to 7 (FLOAT32)
+        """
         header =  self.ptcloud.header
         header.frame_id = "/l_gripper_tool_frame"
         fields = self.ptcloud.fields
