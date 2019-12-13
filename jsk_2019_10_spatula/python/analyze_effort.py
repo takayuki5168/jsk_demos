@@ -8,15 +8,19 @@ import numpy as np
 def main():
     Analyzer = AnalyzeEffort()
     #path = "/home/leus/rosbag_clean_certain_piece/pushing/2019-12-10-19-31-09.bag"
-    path = "/home/leus/jacobian_bag/2019-12-11-11-33-46.bag"
-    #path = "/home/leus/workspace/docs/2019-12-12-18-36-03.bag"
+    #path = "/home/leus/jacobian_bag/2019-12-11-11-33-46.bag"
+    path = "/home/leus/workspace/docs/2019-12-13-17-58-56.bag"
+
+
     Analyzer.read_bag(path)
     Analyzer.get_small_jacobi(1,3,4)
+    #Analyzer.transform_jacobi([1,2,3])
     Analyzer.calculate_force(1,3,4)
+
     #Analyzer.plot_data(["velocity","desired"])
     #Analyzer.plot_data(["velocity","actual"])
-    Analyzer.plot_data(["effort","actual"])
-    Analyzer.plot_data(["position","error"])
+    #Analyzer.plot_data(["effort","actual"])
+    #Analyzer.plot_data(["position","error"])
 
 
 class AnalyzeEffort():
@@ -41,7 +45,8 @@ class AnalyzeEffort():
                 self.jacobian[4,:] = msg.pitch
                 self.jacobian[5,:] = msg.yaw
                 print self.jacobian
-                self.jacobian[2,:] = self.jacobian[2,:] - (0.07 * self.jacobian[3,:])
+                #self.jacobian[2,:] = self.jacobian[2,:] - (0.07 * self.jacobian[3,:])
+                #self.transform_jacobi([0,0,-0.05])
                 first_jacobi = False
 
             elif topic == "/torso_controller/state":
@@ -75,6 +80,14 @@ class AnalyzeEffort():
         self.small_jacobiT[2,:] = np.transpose(self.jacobian)[k,0:3]
         print self.small_jacobiT
         print np.linalg.inv(self.small_jacobiT)
+
+    def transform_jacobi(self,r):
+        T = np.vstack([np.hstack([np.eye(3), -self.skew(r)]) , np.hstack([np.zeros([3,3]),np.eye(3)])])
+        self.jacobian = np.matmul(T,self.jacobian)
+
+    def skew(self,v):
+        v_hat = np.array([[0,-v[2],v[1]], [v[2],0,-v[0]], [-v[1],v[0],0]])
+        return v_hat
 
     def calculate_force(self,i,j,k):
         effortT = np.transpose(self.effort["larm"]["actual"])
