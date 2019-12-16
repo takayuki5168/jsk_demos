@@ -9,17 +9,29 @@ def main():
     Analyzer = AnalyzeEffort()
     #path = "/home/leus/rosbag_clean_certain_piece/pushing/2019-12-10-19-31-09.bag"
     #path = "/home/leus/jacobian_bag/2019-12-11-11-33-46.bag"
-    path = "/home/leus/workspace/docs/2019-12-13-17-58-56.bag"
+    #path = "/home/leus/workspace/docs/2019-12-13-17-58-56.bag"
+    path = "/home/leus/bag_trafo_jacobi/2019-12-13-17-46-49.bag"
 
 
     Analyzer.read_bag(path)
+    #Analyzer.transform_jacobi([0,-0.2,0])
     Analyzer.get_small_jacobi(1,3,4)
     #Analyzer.transform_jacobi([1,2,3])
     Analyzer.calculate_force(1,3,4)
+    #Analyzer.debug_force(1,3,4)
+
+    
+    fig, axs = plt.subplots(8, 1)
+    for i in np.arange(0.0,8.0):
+        Analyzer.transform_force_radial(i/4*np.pi) #3*np.pi/4
+        axs[i].plot(np.transpose(Analyzer.force_radial))
+    plt.show()
+    
+
 
     #Analyzer.plot_data(["velocity","desired"])
     #Analyzer.plot_data(["velocity","actual"])
-    #Analyzer.plot_data(["effort","actual"])
+    Analyzer.plot_data(["effort","actual"])
     #Analyzer.plot_data(["position","error"])
 
 
@@ -31,6 +43,7 @@ class AnalyzeEffort():
         self.joint_names = []
         self.jacobian = np.zeros([6,8])
         self.small_jacobiT = np.zeros([3,3])
+        np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
 
     def read_bag(self,path):
         self.bag = rosbag.Bag(path)
@@ -84,20 +97,60 @@ class AnalyzeEffort():
     def transform_jacobi(self,r):
         T = np.vstack([np.hstack([np.eye(3), -self.skew(r)]) , np.hstack([np.zeros([3,3]),np.eye(3)])])
         self.jacobian = np.matmul(T,self.jacobian)
+        print T
+        print self.jacobian
 
     def skew(self,v):
         v_hat = np.array([[0,-v[2],v[1]], [v[2],0,-v[0]], [-v[1],v[0],0]])
         return v_hat
 
-    def calculate_force(self,i,j,k):
+    def calculate_force(self,i,j,k,least_square=False):
         effortT = np.transpose(self.effort["larm"]["actual"])
-        effortT_small = np.array([effortT[i-1],effortT[j-1],effortT[k-1]])
-        self.force = np.matmul(np.linalg.inv(self.small_jacobiT),effortT_small)
+        if least_square:
+            self.force = np.linalg.lstsq(np.transpose(self.jacobian[:,1:8]),effortT)[0][0:3]
+            #self.force = np.linalg.lstsq(np.transpose(self.jacobian),np.vstack([effortT[:,0:10445],np.transpose(self.effort["torso"]["actual"])]))[0]
+        else:
+            print "else"
+            effortT_small = np.array([effortT[i-1],effortT[j-1],effortT[k-1]])
+            self.force = np.matmul(np.linalg.inv(self.small_jacobiT),effortT_small)
         fig, axs = plt.subplots(3, 1)
         axs[0].plot(np.transpose(self.force[0]))
         axs[1].plot(np.transpose(self.force[1]))
         axs[2].plot(np.transpose(self.force[2]))
         plt.show()
+
+    def debug_force(self,i,j,k):
+        effortT = np.transpose(self.effort["larm"]["actual"])
+
+        #calculate force with least squares
+        force = np.linalg.lstsq(np.transpose(self.jacobian[:,1:8]),effortT)[0]
+        fig, axs = plt.subplots(3, 1)
+        axs[0].plot(np.transpose(force[0]),label='least squares')
+        axs[1].plot(np.transpose(force[1]),label='least squares')
+        axs[2].plot(np.transpose(force[2]),label='least squares')
+
+        #calculate force with small matrix
+        effortT_small = np.array([effortT[i-1],effortT[j-1],effortT[k-1]])
+        force = np.matmul(np.linalg.inv(self.small_jacobiT),effortT_small)
+        axs[0].plot(np.transpose(force[0]),label='choose small matrix')
+        axs[1].plot(np.transpose(force[1]),label='choose small matrix')
+        axs[2].plot(np.transpose(force[2]),label='choose small matrix')
+
+        axs[0].legend()
+        axs[1].legend()
+        axs[2].legend()
+
+
+        plt.show()
+
+
+    def transform_force_radial(self,phi):
+        r = np.array([np.cos(phi+np.pi/2),np.sin(phi+np.pi/2),0])
+        print r
+        print np.shape(self.force)
+        self.force_radial = np.matmul(r,self.force)
+
+
 
     def plot_data(self,datatype):
         fig, axs = plt.subplots(8, 1)
