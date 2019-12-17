@@ -5,8 +5,8 @@
 (ros::load-ros-package "jsk_2019_10_spatula")
 (load "package://pr2eus/pr2-interface.l")
 (ros::roseus "pr2_send_joints")
-;;(ros::advertise "start_scraping" std_msgs::bool 1)
-;;(ros::advertise "action_r_arm" std_msgs::string 1)
+(ros::advertise "scrape_left_jacobian" jsk_2019_10_spatula::Jacobian 1)
+(ros::advertise "scrape_right_jacobian" jsk_2019_10_spatula::Jacobian 1)
 (ros::advertise "semantic_annotation" std_msgs::string 1)
 (setq *ri* (instance pr2-interface :init))
 (pr2-init t)
@@ -59,6 +59,75 @@
 ;;function definitions;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun publish-semantic-annotation (annotation-str)
+  (setq msg (instance std_msgs::string :init))
+  (send msg :data annotation-str)
+  (ros::ros-info "msg [~A]" (send msg :data))
+  (ros::publish "semantic_annotation" msg)
+  )
+
+
+(defun publish-jacobi (arm)
+  ;;get the line components of the jacobi
+  (setq selection #f(1 0 0 0 0 0))
+  (setq jacobi-x (transform selection jacobi))
+  (setq selection #f(0 1 0 0 0 0)) 
+  (setq jacobi-y (transform selection jacobi))
+  (setq selection #f(0 0 1 0 0 0))
+  (setq jacobi-z (transform selection jacobi))
+  (setq selection #f(0 0 0 1 0 0))
+  (setq jacobi-roll (transform selection jacobi))
+  (setq selection #f(0 0 0 0 1 0))
+  (setq jacobi-pitch (transform selection jacobi))
+  (setq selection #f(0 0 0 0 0 1))
+  (setq jacobi-yaw (transform selection jacobi))
+  ;;pack the line components into Jacobian msg
+  (setq msg (instance jsk_2019_10_spatula::Jacobian :init))
+  (send msg :x jacobi-x)
+  (send msg :y jacobi-y)
+  (send msg :z jacobi-z)
+  (send msg :roll jacobi-yaw)
+  (send msg :pitch jacobi-pitch)
+  (send msg :yaw jacobi-yaw)
+  ;;print the msg
+  ;;(ros::ros-info "msg [~A]" (send msg :x))
+  ;;publish the msg
+  (if (= arm 0)
+      (ros::publish "scrape_left_jacobian" msg)
+      (ros::publish "scrape_right_jacobian" msg)
+      )
+  )
+
+;;get jacobian in world coordinate frame
+(defun get-jacobi-l-world ()
+  (setq link-list (send *pr2* :link-list (send (send *pr2* :larm :end-coords) :parent)))
+  (setq joint-list (send-all link-list :joint))
+  (setq jacobi
+	(send *pr2* :calc-jacobian-from-link-list
+	      link-list
+	      :move-target (send *pr2* :larm :end-coords)
+	      :transform-coords (make-coords) ;;in world coords, if left out it is in local coords
+	      :rotation-axis t
+	      ))
+  ;;(format-array jacobi) ;; print
+  (publish-jacobi 0)
+  )
+
+
+(defun get-jacobi-r-world ()
+  (setq link-list (send *pr2* :link-list (send (send *pr2* :rarm :end-coords) :parent)))
+  (setq joint-list (send-all link-list :joint))
+  (setq jacobi
+	(send *pr2* :calc-jacobian-from-link-list
+	      link-list
+	      :move-target (send *pr2* :rarm :end-coords)
+	      :transform-coords (make-coords) ;;jacobian is in world coords
+	      :rotation-axis t
+	      ))
+  ;;(format-array jacobi) ;; print
+  (publish-jacobi 1)
+ )
+
 (defun move-left-arm (d)
   ;;(send *l-tcp* :translate (float-vector 0 0 (* -1 (* d 10)))) ;;new bowl
   (send *l-tcp* :translate (float-vector (* d 10) 0 0)) ;;new bowl
@@ -96,11 +165,12 @@
   (print "clean")
   ;;slight offset of 0.3 on the position as inverse-linematics fail for i=0 -> position=0
   ;;(setq position (+ (* 1.0 (mod i *n-bowl-position*)) 0.3))
-  (setq position (+ (* 1.0 (mod i *n-bowl-position*)) 1 ))
+  ;;(setq position (+ (* 1.0 (mod i *n-bowl-position*)) 1 ))
+  (setq position (+ (mod i *n-bowl-position*) 1 ))
 
   ;;(setq step-size (/ 360 (* 4  *n-bowl-position*)))
   (setq step-size (/ 360 (* 4  5)))
-  (setq omega (* (* (/ (- 90 (+ (* position  step-size) (/ step-size 2))) 360) 2) pi))
+  (setq omega (* (* (/ (- 90 (+ (* (* 1.0 position)  step-size) (/ step-size 2))) 360) 2) pi))
   (if (< i *n-bowl-position*)
       (setq type 0)
       (if (< i (* 2 *n-bowl-position*)) ;;elseif
@@ -112,7 +182,7 @@
 	  )
       )
   ;;quick workaround to make experiment work
-  (setq oldtype -5)
+  ;;(setq oldtype -5)
   (unless (= oldtype type)
      (send *pr2* :angle-vector *av-base*)	  
      (send *ri* :angle-vector (send *pr2* :angle-vector) 500 :rarm-controller)	  
@@ -173,10 +243,12 @@
   )
 
 
+
 ;;scraping movement of the right arm to scrape the wall of the bowl
 (defun scrape-wall (speed type bowl-position)
   ;;decide where to scrape
   ;;scrape the side of handle
+  (get-jacobi-l-world)
   (when (= type 3)
     (setq *av1-wall* #f(324.807 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -31.7304 18.8068 -77.3953 -120.967 -93.5516 -70.375 265.871 0.006701 72.0))
     (setq *av2-wall* #f(324.807 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -23.0904 12.2131 -93.6752 -117.796 -100.776 -70.1569 275.7 0.006701 72.0))
@@ -205,62 +277,95 @@
     (setq *av3-wall*  #f(324.807 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -18.3619 10.089 -92.1263 -113.945 -100.031 -88.7665 367.505 0.006701 72))
     )
 
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "av1wall_~a_~a" type bowl-position))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+  
 
   ;;start with home pos
   (unless (= oldtype type)
     (send *pr2* :angle-vector *av4-wall*)
     (unless (arm-collision-check)
       (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-      (send *ri* :wait-interpolation) 
+      ;;(send *ri* :wait-interpolation)
+        (while (send *ri* :interpolatingp :rarm-controller)
+	  (send *ri* :spin-once)
+	  (ros::spin-once);;to see if chatter published
+	  (get-jacobi-r-world)
+	  (if (send *ri* :simulation-modep)  
+	      (send *ri* :robot-interface-simulation-callback))
+	  )
+	
       )
     )
   
+  
   (send *pr2* :angle-vector *av1-wall*)
   (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av1wall_~a_~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    (send *ri* :wait-interpolation)
+    ;;(send *ri* :wait-interpolation)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if chatter published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback))
+      )
+    (publish-semantic-annotation (format nil "av1wall_~a_~a_end" type bowl-position))
     )
-  ;;publish that the scraping starts
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "av2wall_~a_~a" type bowl-position))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+  
   
   (send *pr2* :angle-vector *av2-wall*)
   (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av2wall_~a_~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    (send *ri* :wait-interpolation)
+    ;;(send *ri* :wait-interpolation)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if chatter published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback))
+      )
+    (publish-semantic-annotation (format nil "av2wall_~a_~a_end" type bowl-position))
+    
     )
-  ;;publish that the scraping stopped
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "av3wall_~a_~a" type bowl-position))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+
 
   (send *pr2* :angle-vector *av3-wall*)
   (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av3wall_~a_~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    (send *ri* :wait-interpolation)
+    ;;(send *ri* :wait-interpolation)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if chatter published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback))
+      )
+    (publish-semantic-annotation (format nil "av3wall_~a_~a_end" type bowl-position))
+    
     )
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "av4wall_~a_~a" type bowl-position))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+
   
   (send *pr2* :angle-vector *av4-wall*)
   (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av4wall_~a_~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    (send *ri* :wait-interpolation)
+    ;;(send *ri* :wait-interpolation)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if chatter published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback))
+      )
+    (publish-semantic-annotation (format nil "av4wall_~a_~a_end" type bowl-position))
+    
     )
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "end_~a_~a" type bowl-position))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+
+  ;;(publish-semantic-annotation (format nil "end_~a_~a" type bowl-position))
   )
+
 
 (defun prepare-robot ()
   (send *pr2* :angle-vector  *av-reset-pose-high*)
@@ -294,12 +399,16 @@
   (send *pr2* :start-grasp :rarm)
   (send *ri* :start-grasp :rarm :gain 0.05)
   (send *ri* :wait-interpolation)
+
+  (publish-semantic-annotation (format nil "av_new_bowl"))
   
   ;;start position
   (send *pr2* :angle-vector *av-newbowl*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
   (send *ri* :wait-interpolation)
 
+  (publish-semantic-annotation (format nil "hand_bowl"))
+  
   ;;hand the robot the bowl
   (unix:sleep 2)
   (send *pr2* :start-grasp :larm)
@@ -337,56 +446,51 @@
   (unix:usleep 10000) ;;sleep 1/100 of a second to make sure /tf is fresh
   ;;passthrough the pointcloud data
   (ros::service-call "passthrough_points/request" (instance std_srvs::EmptyRequest :init))
-  ;;publish semantic annotation
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "vision_0"))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
-
+  (publish-semantic-annotation (format nil "vision_0"))
+  
   (send *pr2* :angle-vector *look-right*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   (unix:usleep 10000) ;;sleep 1/100 of a second to make sure /tf is fresh
   (ros::service-call "passthrough_points/request" (instance std_srvs::EmptyRequest :init))
-  ;;publish semantic annotation
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "vision_1"))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+  (publish-semantic-annotation (format nil "vision_1"))
 
   (send *pr2* :angle-vector *look-back*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   ;;(unix:sleep 1)
   (ros::service-call "passthrough_points/request" (instance std_srvs::EmptyRequest :init))
-  ;;publish semantic annotation
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "vision_2"))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+  (publish-semantic-annotation (format nil "vision_2"))
 
   (send *pr2* :angle-vector *look-left*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   (unix:usleep 10000) ;;sleep 1/100 of a second to make sure /tf is fresh
   (ros::service-call "passthrough_points/request" (instance std_srvs::EmptyRequest :init))
-  ;;publish semantic annotation
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "vision_3"))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+  (publish-semantic-annotation (format nil "vision_3"))
 
   (send *pr2* :angle-vector *av-snapshot*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   (unix:usleep 10000) ;;sleep 1/100 of a second to make sure /tf is fresh
   (ros::service-call "passthrough_points/request" (instance std_srvs::EmptyRequest :init))
-  ;;publish semantic annotation
-  (setq msg (instance std_msgs::string :init))
-  (send msg :data (format nil "vision_end"))
-  (ros::ros-info "msg [~A]" (send msg :data))
-  (ros::publish "semantic_annotation" msg)
+  (publish-semantic-annotation (format nil "vision_end"))
   )
+
+(defun get-pctloud-piece (i)
+  (clean i)
+  (get-dense-ptcloud)
+  )
+
+(defun get-pctloud-all-clean ()
+  ;;clean the whole bowl
+  (dolist (i (list 0 1 2 3 4 5 6 8 9 10 11 12 13 14 15)) ;;7 is front, does not need to be cleaned!
+  (clean i)
+  (get-dense-ptcloud)
+  )
+  )
+
+
 
 ;;;;;;;;;;;;;;;;
 ;;subcriptions;;
@@ -401,39 +505,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (prepare-robot)
-;;(clean 0)
-(get-dense-ptcloud)
-
-;;can be used for hardcoding the vision
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;(send *pr2* :angle-vector *av-snapshot*)
-;;(send *pr2* :angle-vector *look-front*)
-;;(send *pr2* :angle-vector *look-right*)
-;;(send *pr2* :angle-vector *look-back*)
-;;(send *pr2* :angle-vector *look-left*)
-;;(send *pr2* :angle-vector *av-snapshot*)
-
-;;(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-;;(setq *r-tcp* (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-;;(send *r-tcp* :translate (float-vector 0 0 10) :world)
-;;(send *pr2* :rarm :inverse-kinematics *r-tcp*)
-;;(send *r-tcp* :rotate (+ 0 (/ pi 2)) :z :world)
-
-
 
 ;;can be used to gather the vision data (make sure to launch launchfiles first)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#|
 ;;clean one specific part of bowl (0,1,2,3,4,5,6, ,8,9,10,11,12,13,14,15)
-(clean i)
-;;move the bowl to gather dense pointcloud
-(setq *joint-angle-time* (list 1000 1000 1000 1000 1000)) 
-(setq *joint-angle-list* (list *look-front* *look-right* *look-back* *look-left* *av-snapshot*))
-(ros::service-call "passthrough_points/request" (instance std_srvs::EmptyRequest :init))
-(send *ri* :angle-vector-sequence *joint-angle-list* *joint-angle-time*)
-(send *ri* :wait-interpolation)
-|#
-
+;;(setq i 0)
+;;(clean i)
 
 
 ;;can be used to gather the effort data
@@ -455,27 +531,6 @@ once the result is published, the scraping can start planned with the labels
   )
 |#
 
-
-#|
-;;scrape the bowl hardcoded
-(print "schedule hardcoded scraping now")
-(setq *label* (list t t t t t t t t t t nil nil nil nil nil nil nil nil nil nil))
-(setq i 0)
-(dolist (dirty *label*)
-  (print dirty)
-  (when dirty
-    (print "scrape!")
-    (clean i)
-    )
-  (setq i (+ i 1))
-  )
-|#
-
-#|
-;;clean the whole bowl
-(dolist (i (list 0 1 2 3 4 5 6 8 9 10 11 12 13 14 15)) ;;7 is fron tdioes not need to be cleaned!
-  (clean i))
-|#
 
 #|
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -533,16 +588,5 @@ once the result is published, the scraping can start planned with the labels
 (send *ri* :angle-vector-sequence *joint-angle-list-rb* *joint-angle-time-rb*)
 (send *ri* :wait-interpolation)
 (unix:sleep 1)
-  )
-|#
-
-
-#|
-(dolist (i (list 0 1 2 3 ))
-  (setq position (+ (* 1.0 (mod i *n-bowl-position*)) 1 ))
-  (setq step-size (/ 360 (* 4 5)))
-  (setq omega (* (* (/ (- 90 (+ (* position  step-size) (/ step-size 2))) 360) 2) pi))
-  (position-left-arm omega)
-  (scrape-wall 1000 2 position)
   )
 |#
