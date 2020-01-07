@@ -19,19 +19,41 @@ def main():
 class DirtDetector():
     def __init__(self):
         #0:clean, 1:dirty
-
         #########################
         ### Parameters to set ###
         #########################
         self.debug = True  #if the cut pointcloud should be published, set to True
-        n_bowl_positions = 5
+        #hier passt was nicht mit n_pieces
+        #(0,1,2,3,4,5,6, ,8,9,10,11,12,13,14,15)
+        n_bowl_positions = 4
         self.n_pieces = 4 * n_bowl_positions  #determine how many different positions the bowl has (has to be the same than in scrape-bowl.l) 
         #determine parameters for cutting off the ptcloud
-        self.m = [0.14,0,0]
+        #self.m = [0.14,0,0]
+        #changed due to gripper change
+        self.m = [0.16,0,0]
         self.r_middle = 0.05
         self.r_bowl = 0.1
         self.z_max = 0.1
         self.z_min = -0.1
+
+        self.all_borders = dict()
+        self.all_borders[0] = [0,0.5/8]
+        self.all_borders[1] = [0.5/8,1.0/8]
+        self.all_borders[2] = [1.0/8,1.5/8] #nochmal checken!!!
+        self.all_borders[3] = [1.3/8,1.9/8]
+        self.all_borders[4] = [1.7/8,2.5/8]
+        self.all_borders[5] = [2.0/8,2.7/8]
+
+        self.all_borders[6] = [2.6/8,3.4/8]
+        self.all_borders[7] = [3.0/8,3.9/8]
+        self.all_borders[8] = [5.2/8,5.8/8]
+        self.all_borders[9] = [5.5/8,6.1/8]
+        self.all_borders[10] = [5.9/8,6.5/8]
+        self.all_borders[11] = [6.2/8,6.8/8]
+        self.all_borders[12] = [6.4/8,6.9/8]
+        self.all_borders[13] = [6.7/8,7.2/8]
+        self.all_borders[14] = [7.0/8,7.5/8]
+        self.all_borders[15] = [7.3/8,7.9/8]
         #########################
 
         self.pub = rospy.Publisher("dirt_label", BoolArray, queue_size=2)
@@ -131,23 +153,21 @@ class DirtDetector():
     def calculate_percentage(self):
         percentage = np.zeros(self.n_pieces)
         for i in range(self.n_pieces):
-            phi_min = (i)*2*np.pi/self.n_pieces - np.pi
-            phi_max = (i+1)*2*np.pi/self.n_pieces - np.pi
+            #phi_min = (i)*2*np.pi/self.n_pieces - np.pi
+            #phi_max = (i+1)*2*np.pi/self.n_pieces - np.pi
+            phi_min = self.all_borders[i][0]*2*np.pi - np.pi
+            phi_max = self.all_borders[i][1]*2*np.pi - np.pi
             points_cut_brown = self.cut_points(self.xyz_brown,phi_min,phi_max)
             points_cut_white = self.cut_points(self.xyz_white,phi_min,phi_max)
             shape_brown = np.shape(points_cut_brown)
             shape_white = np.shape(points_cut_white)
             n_brown = shape_brown[0]
-            print shape_brown
             n_white = shape_white[0]
-            print shape_white
             percentage[i] = float(n_brown) / float(n_brown + n_white)
-            print percentage[i]
         return percentage
 
     def cut_points(self,xyz,phi_min,phi_max):    
         r_phi = np.transpose(np.array([np.sqrt(np.power((xyz[:,0]-self.m[0]),2) + np.power((xyz[:,1]-self.m[1]),2)),np.arctan2(xyz[:,1]-self.m[1],xyz[:,0]-self.m[0])]));
-        #r_phi[r_phi[:,1] < 0,1] =  r_phi[r_phi[:,1] < 0,1] + (2* np.pi)
         #(r_middle < r < r_bowl) & (phi_min < phi < phi_max) & (z_min < z < z_max)
         xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
         return xyz_cut
