@@ -12,7 +12,8 @@ from jsk_2019_10_spatula.msg import BoolArray
 def main():
     rospy.init_node('detect_dirt', anonymous=True)
     Detector = DirtDetector()
-    rospy.Subscriber("/pcl_nodelet/hsi_filter_white/output", PointCloud2, Detector.callback_ptcloud_white)
+    #rospy.Subscriber("/pcl_nodelet/hsi_filter_white/output", PointCloud2, Detector.callback_ptcloud_white)
+    rospy.Subscriber("/pcl_nodelet/point_cloud_sequence_merged", PointCloud2, Detector.callback_ptcloud_white)
     rospy.Subscriber("/pcl_nodelet/hsi_filter_brown/output", PointCloud2, Detector.callback_ptcloud_brown)
     rospy.spin()
 
@@ -30,8 +31,10 @@ class DirtDetector():
         #determine parameters for cutting off the ptcloud
         #self.m = [0.14,0,0]
         #changed due to gripper change
-        self.m = [0.16,0,0]
-        self.r_middle = 0.05
+        #self.m = [0.16,0,0]
+        self.m = [0.16,-0.02,0]
+        #self.r_middle = 0.05
+        self.r_middle = 0.065
         self.r_bowl = 0.1
         self.z_max = 0.1
         self.z_min = -0.1
@@ -39,13 +42,14 @@ class DirtDetector():
         self.all_borders = dict()
         self.all_borders[0] = [0,0.5/8]
         self.all_borders[1] = [0.5/8,1.0/8]
-        self.all_borders[2] = [1.0/8,1.5/8] #nochmal checken!!!
+        self.all_borders[2] = [1.0/8,1.5/8]
         self.all_borders[3] = [1.3/8,1.9/8]
         self.all_borders[4] = [1.7/8,2.5/8]
         self.all_borders[5] = [2.0/8,2.7/8]
-
         self.all_borders[6] = [2.6/8,3.4/8]
+        #self.all_borders[6] = [0,4.0/8]
         self.all_borders[7] = [3.0/8,3.9/8]
+        #there is some space inbetween 7 and 8, as this part does not need to be clean
         self.all_borders[8] = [5.2/8,5.8/8]
         self.all_borders[9] = [5.5/8,6.1/8]
         self.all_borders[10] = [5.9/8,6.5/8]
@@ -115,9 +119,11 @@ class DirtDetector():
         rgb = np.array(rgb)
         rgb = np.reshape(rgb,[len(rgb),1])
 
-        for i in range(self.n_pieces):
-            phi_min = (i)*2*np.pi/self.n_pieces - np.pi
-            phi_max = (i+1)*2*np.pi/self.n_pieces - np.pi
+        for i in [6]:#range(self.n_pieces):
+            #phi_min = (i)*2*np.pi/self.n_pieces - np.pi
+            #phi_max = (i+1)*2*np.pi/self.n_pieces - np.pi
+            phi_min = self.all_borders[i][0]*2*np.pi - np.pi
+            phi_max = self.all_borders[i][1]*2*np.pi - np.pi
 
             r_phi = np.transpose(np.array([np.sqrt(np.power((xyz[:,0]-self.m[0]),2) + np.power((xyz[:,1]-self.m[1]),2)),np.arctan2(xyz[:,1]-self.m[1],xyz[:,0]-self.m[0])]));
             xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
@@ -132,7 +138,15 @@ class DirtDetector():
     def generate_pointcloud(self,ptcloud,point_list,color):
         header =  ptcloud.header
         fields = ptcloud.fields
+
+        #header.frame_id = "/l_gripper_tool_frame"
+        #apparently 'ptcloud_merged.fields[3].datatype = 7' later changes also self.ptcloud.fields[3].datatype = 7
+        #call by reference! in case of debugging it messes up the colors, thats why this line is needed
+        #fields[3].datatype = 6
+
         ptcloud_merged = pc2.create_cloud(header, fields, point_list)
+        #ptcloud_merged.fields[3].datatype = 7
+
         if color is "white":
             self.pub_white_pieces.publish(ptcloud_merged)
         else:
