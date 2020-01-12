@@ -5,7 +5,6 @@ from scipy.signal import butter, lfilter, freqz, filtfilt
 from matplotlib import interactive
 
 def main(): 
-    
     bag_spatula_and_bowl = '/home/leus/force_test_bag/experiment_with_spatula_and_bowl_2019-10-07-21-45-53.bag'
     bag_no_spatula = '/home/leus/force_test_bag/experiment_without_spatula_2019-10-07-22-00-52.bag'
     bag_no_bowl = '/home/leus/force_test_bag/experiment_without_bowl_2019-10-07-21-51-21.bag'
