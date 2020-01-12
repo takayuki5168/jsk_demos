@@ -7,6 +7,9 @@
   <license>BSD</license>
   <author email="anne@koepken.de">Anne Koepken</author>
 
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+  
   <depend>catkin</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>
