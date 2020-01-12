@@ -10,8 +10,9 @@ def main():
     #path = "/home/leus/force_clean_dirty_bag/test"
     fig, axs = plt.subplots(6, 1)
 
-    for label in ["clean","dirty","partlydirty"]:
+    for label in ["clean","dirty"]:#["clean","dirty","partlydirty"]:
         path = "/home/leus/force_clean_dirty_bag/clean8_%s_speed4000" % label
+        #path = "/home/leus/force_clean_dirty_bag/whole_bowl_%s_sleep05" % label
 
         
         first = True
@@ -37,11 +38,13 @@ def main():
                 if topic == "/semantic_annotation":
                     print msg
                     [av,scrape_type,bowl_position,flag_type] = msg.data.split("_")
-                    #if av == "av1wall" and flag_type == "start":
-                    if av == "av1wall" and flag_type == "end":
+                    if av == "av1wall" and flag_type == "start":
+                    #if av == "av1wall" and flag_type == "end":
+                    #if msg.data == "av1wall_0_1_start":
                         start_ts = t
-                    #if av == "av4wall" and flag_type == "end":
-                    if av == "av2wall" and flag_type == "end":
+                    if av == "av4wall" and flag_type == "end":
+                    #if av == "av2wall" and flag_type == "end":
+                    #if msg.data == "av4wall_3_4_end":
                         stop_ts = t
 
             ts = np.array(ts)
