@@ -13,14 +13,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (setq *av3* #f(324.807 51.8719 24.8194 124.823 -101.389 -6.18697 -32.6134 135.062 -29.0716 -9.25665 -86.0776 -118.804 -76.2328 -66.8658 270.291 3.0727 72.0))
-
+(setq *perfect-av* #f(324.807 52.2956 26.3949 124.149 -100.069 -5.19275 -35.2495 136.315 -29.0716 -9.25665 -86.0776 -118.804 -76.2328 -66.8658 270.291 3.0727 72.0))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; define functions ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defun get-jacobi-l ()
+(defun get-jacobi-l-local ()
   (setq link-list (send *pr2* :link-list (send (send *pr2* :larm :end-coords) :parent)))
   (setq joint-list (send-all link-list :joint))
 
@@ -28,12 +28,26 @@
 	(send *pr2* :calc-jacobian-from-link-list
 	      link-list
 	      :move-target (send *pr2* :larm :end-coords)
-	      :transform-coords (make-coords)
 	      :rotation-axis t
 	      ))
   (format-array jacobi) ;; print
   (publish-jacobi 0)
  )
+
+(defun get-jacobi-l-world ()
+  (setq link-list (send *pr2* :link-list (send (send *pr2* :larm :end-coords) :parent)))
+  (setq joint-list (send-all link-list :joint))
+
+  (setq jacobi
+	(send *pr2* :calc-jacobian-from-link-list
+	      link-list
+	      :move-target (send *pr2* :larm :end-coords)
+	      :transform-coords (make-coords) ;;in world coords, if left out it is in local coords
+	      :rotation-axis t
+	      ))
+  (format-array jacobi) ;; print
+  (publish-jacobi 0)
+  )
 
 (defun get-jacobi-r ()
   (setq link-list (send *pr2* :link-list (send (send *pr2* :rarm :end-coords) :parent)))
@@ -89,11 +103,10 @@
 ;; move the robot ;;
 ;;;;;;;;;;;;;;;;;;;;
 
-(send *pr2* :angle-vector *av3*) 
-(send *ri* :angle-vector (send *pr2* :angle-vector) 2000 :larm-controller)
-(send *ri* :wait-interpolation)
-(get-jacobi-r)
-(get-jacobi-l)
+;;(send *pr2* :angle-vector *av3*) 
+;;(send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+;;(send *ri* :wait-interpolation)
+(get-jacobi-l t)
 
 
 
