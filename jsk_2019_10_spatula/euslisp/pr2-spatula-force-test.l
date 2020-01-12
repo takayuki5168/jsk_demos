@@ -106,6 +106,7 @@
 ;;scrape the bottom of the bowl 40 times
 (dotimes (i 4)
   (send *ri* :angle-vector-sequence (list *av1* *av2* *av3*))
+  (send *ri* :rarm-angle-vector )
   (send *ri* :wait-interpolation)  
   )
 
