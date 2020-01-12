@@ -33,7 +33,7 @@
 (send *pr2* :stop-grasp)
 (send *ri* :stop-grasp)
 (send *ri* :wait-interpolation)
-;;(unix:sleep 5)
+(unix:sleep 5)
 (send *pr2* :start-grasp :rarm)
 (send *ri* :start-grasp :rarm :gain 0.05)
 (send *ri* :wait-interpolation)
@@ -54,7 +54,7 @@
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
 (send *ri* :wait-interpolation)
 ;;hand the robot the bowl
-;;(unix:sleep 2)
+(unix:sleep 2)
 (send *pr2* :start-grasp :larm)
 (send *ri* :start-grasp :larm :gain 0.05)
 (send *ri* :wait-interpolation)
@@ -68,18 +68,54 @@
 (setq *ltargetframe* (send *pr2* :larm :end-coords))
 
 ;;adjust the bowl for the best starting position
-(send *l-tcp* :translate (float-vector 20 -20 -20))
-(send *pr2* :larm :inverse-kinematics *l-tcp*)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 700 :larm-controller)
-(send *ri* :wait-interpolation)
+;;(send *l-tcp* :translate (float-vector 20 -20 -20))
+;;(send *pr2* :larm :inverse-kinematics *l-tcp*)
+;;(send *ri* :angle-vector (send *pr2* :angle-vector) 700 :larm-controller)
+;;(send *ri* :wait-interpolation)
 
 
 ;;as a start use *av3*
-(send *pr2* :angle-vector *av3*)
+;;(send *pr2* :angle-vector *av3*)
+;;(send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
+;;(send *ri* :wait-interpolation)
+
+(setq *r-tcp* (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+
+(setq *av1-wall* #f(49.9246 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -20.7298 -3.36521 -84.946 -116.734 -83.5788 -70.6311 277.265 0.006701 -2.298))
+(setq *av2-wall* #f(49.9246 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -15.2191 9.85133 -94.9152 -114.105 -101.092 -67.2035 280.509 0.006701 -2.298))
+(setq *av3-wall* #f(49.9246 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -27.7253 2.64068 -84.0543 -120.025 -86.5879 -74.2459 273.116 0.006701 -2.298))
+
+
+(send *pr2* :angle-vector *av3-wall*)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
+(send *ri* :wait-interpolation)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
 (send *ri* :wait-interpolation)
 
-(setq *r-tcp* (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+(send *pr2* :angle-vector *av1-wall*)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
+(send *ri* :wait-interpolation)
+
+(send *pr2* :angle-vector *av2-wall*)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
+(send *ri* :wait-interpolation)
+
+(send *pr2* :angle-vector *av3-wall*)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
+(send *ri* :wait-interpolation)
+
+;;larm start position -> *av3-wall*
+;;#f(49.9246 49.4965 26.2457 123.885 -101.996 -6.95641 -29.4629 135.943 -29.0716 -9.25665 -86.0776 -118.804 -76.2328 -66.8673 270.29 0.006701 -2.298)
+
+;;av1-wall
+;;#f(49.9246 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -20.7298 -3.36521 -84.946 -116.734 -83.5788 -70.6311 277.265 0.006701 -2.298)
+
+;;av2-wall
+;;#f(49.9246 49.5519 26.3404 123.787 -101.985 -6.62817 -29.4461 135.656 -15.2191 9.85133 -94.9152 -114.105 -101.092 -67.2035 280.509 0.006701 -2.298)
+
+;;
+
+#|
 ;;and move 6 cm forward
 (send *r-tcp* :translate (float-vector 0 60 0))
 (send *pr2* :rarm :inverse-kinematics *r-tcp*)
@@ -115,4 +151,4 @@
 (send *pr2* :angle-vector *av3-wall*)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
 (send *ri* :wait-interpolation)
-
+|#
