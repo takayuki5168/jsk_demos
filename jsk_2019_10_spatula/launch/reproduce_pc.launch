@@ -2,7 +2,7 @@
 
   <arg name="manager" default="ishi"/>
 
-  <arg name="fetch" default="true"/>
+  <arg name="fetch" default="false"/>
   <arg name="camera" default="head_camera" if="$(arg fetch)"/>
   <arg name="camera" default="kinect_head" unless="$(arg fetch)"/>
 
