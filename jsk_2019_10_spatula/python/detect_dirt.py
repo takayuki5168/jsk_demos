@@ -32,14 +32,17 @@ class DirtDetector():
         #determine parameters for cutting off the ptcloud
         #self.m = [0.14,0,0]
         #changed due to gripper change
-        self.m = [0.16,0,0]
+        #self.m = [0.16,0,0]
         #self.m = [0.16,-0.02,0]
+        self.m = [0.16,0.02,0]
         #self.r_middle = 0.05
         self.r_middle = 0.065
+        #self.r_middle = 0.07
+        #self.r_bowl = 0.1
         self.r_bowl = 0.1
         self.z_max = 0.1
-        #self.z_min = -0.1
-        self.z_min = -0.07
+        self.z_min = -0.1
+        #self.z_min = -0.07
 
         self.all_borders = dict()
         self.all_borders[0] = [0,0.5/8]
@@ -130,8 +133,11 @@ class DirtDetector():
             #phi_max = self.all_borders[i][1]*2*np.pi - np.pi
 
             #workaroudnd fuer veranschaulichung
-            phi_min = self.all_borders[0][1]*2*np.pi - np.pi
-            phi_max = self.all_borders[15][1]*2*np.pi - np.pi
+            #phi_min = self.all_borders[0][1]*2*np.pi - np.pi
+            #phi_max = self.all_borders[15][1]*2*np.pi - np.pi
+            #with old version
+            phi_min = (0)*2*np.pi/self.n_pieces - np.pi
+            phi_max = (16)*2*np.pi/self.n_pieces - np.pi
 
             r_phi = np.transpose(np.array([np.sqrt(np.power((xyz[:,0]-self.m[0]),2) + np.power((xyz[:,1]-self.m[1]),2)),np.arctan2(xyz[:,1]-self.m[1],xyz[:,0]-self.m[0])]));
             xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
@@ -147,13 +153,13 @@ class DirtDetector():
         header =  ptcloud.header
         fields = ptcloud.fields
 
-        #header.frame_id = "/l_gripper_tool_frame"
+        header.frame_id = "/l_gripper_tool_frame"
         #apparently 'ptcloud_merged.fields[3].datatype = 7' later changes also self.ptcloud.fields[3].datatype = 7
         #call by reference! in case of debugging it messes up the colors, thats why this line is needed
-        #fields[3].datatype = 6
+        fields[3].datatype = 6
 
         ptcloud_merged = pc2.create_cloud(header, fields, point_list)
-        #ptcloud_merged.fields[3].datatype = 7
+        ptcloud_merged.fields[3].datatype = 7
 
         if color is "white":
             self.pub_white_pieces.publish(ptcloud_merged)
