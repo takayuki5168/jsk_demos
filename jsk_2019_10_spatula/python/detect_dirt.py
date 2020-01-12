@@ -32,15 +32,17 @@ class DirtDetector():
         #determine parameters for cutting off the ptcloud
         #self.m = [0.14,0,0]
         #changed due to gripper change
-        #self.m = [0.16,0,0]
+        self.m = [0.16,0,0]
         #self.m = [0.16,-0.02,0]
-        self.m = [0.16,0.02,0]
+        #self.m = [0.16,0.02,0]
         #self.r_middle = 0.05
-        self.r_middle = 0.065
-        #self.r_middle = 0.07
-        #self.r_bowl = 0.1
+        #self.r_middle = 0.065
+        self.r_middle = 0.07
+        #self.r_middle = 0.0
         self.r_bowl = 0.1
-        self.z_max = 0.1
+        #self.r_bowl = 0.3
+        #self.z_max = 0.1
+        self.z_max = 0.05
         self.z_min = -0.1
         #self.z_min = -0.07
 
@@ -140,8 +142,11 @@ class DirtDetector():
             phi_max = (16)*2*np.pi/self.n_pieces - np.pi
 
             r_phi = np.transpose(np.array([np.sqrt(np.power((xyz[:,0]-self.m[0]),2) + np.power((xyz[:,1]-self.m[1]),2)),np.arctan2(xyz[:,1]-self.m[1],xyz[:,0]-self.m[0])]));
-            xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
-            rgb_cut = rgb[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max))]        
+            #xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
+            #rgb_cut = rgb[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max))]        
+            #mitte als zylinder abschneiden
+            xyz_cut = xyz[np.logical_and(np.logical_and(np.logical_and(np.logical_or(r_phi[:,0] > self.r_middle, xyz[:,2] < self.z_max), r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), xyz[:,2] > self.z_min),:]
+            rgb_cut = rgb[np.logical_and(np.logical_and(np.logical_and(np.logical_or(r_phi[:,0] > self.r_middle, xyz[:,2] < self.z_max), r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), xyz[:,2] > self.z_min)]   
 
             point_array = np.hstack([xyz_cut,rgb_cut])
             point_list = list(point_array)
