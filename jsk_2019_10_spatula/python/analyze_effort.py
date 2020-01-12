@@ -196,7 +196,7 @@ class AnalyzeEffort():
         if simulation_hack:
             effortT = np.transpose(self.position[arm]["error"]) #necessary as effort is not published in simulation
         else:
-            effortT = np.transpose(np.transpose(self.effort[arm]["actual"]))
+            effortT = np.transpose(self.effort[arm]["actual"])
         print arm
         print np.shape(self.jacobian[arm][:,1:8])
         print np.shape(effortT)
