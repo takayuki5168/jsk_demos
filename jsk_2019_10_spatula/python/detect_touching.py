@@ -25,7 +25,7 @@ class detect_touching:
 
 		self.i = 0
 
-		self.data_kind=["/r_arm_controller/state","error"]
+		self.data_kind=["/r_arm_controller/state","actual"] #actual,desired, error
 
 		self.joint_name = "r_forearm_roll_joint"
 		self.diff_touch_array = []
@@ -96,22 +96,22 @@ class detect_touching:
 			diff_no_touch = sum(abs(avg_sequence_no_touch_window - act_sequence))
 
 			#KO have to add something if window is not 1 
-			if (avg_sequence_touch_window >= act_sequence >= avg_sequence_no_touch_window) or (avg_sequence_touch_window <= act_sequence <= avg_sequence_no_touch_window):
+			if sum((avg_sequence_touch_window >= act_sequence >= avg_sequence_no_touch_window) or (avg_sequence_touch_window <= act_sequence <= avg_sequence_no_touch_window)) > 1/3 * self.window:
 				#print "in between the two"
 				#cmd = 1.0
-				cmd = abs((act_sequence - avg_sequence_touch_window) / (avg_sequence_no_touch_window - avg_sequence_touch_window))
+				cmd = sum(abs(act_sequence - avg_sequence_touch_window)) / sum(abs(avg_sequence_no_touch_window - avg_sequence_touch_window))
 				if self.scrape_movement:
 					self.reaction.append(cmd)
-			elif (act_sequence >= avg_sequence_touch_window >= avg_sequence_no_touch_window) or (act_sequence <= avg_sequence_touch_window <= avg_sequence_no_touch_window):
+			elif sum((act_sequence >= avg_sequence_touch_window >= avg_sequence_no_touch_window) or (act_sequence <= avg_sequence_touch_window <= avg_sequence_no_touch_window)) > 1/3 * self.window:
 				#print "touching too much"
 				if abs(act_sequence - avg_sequence_touch_window) <= abs(avg_sequence_no_touch_window - avg_sequence_touch_window) :
 					#-1.0
-					cmd = -1 * abs((act_sequence - avg_sequence_touch_window) / (avg_sequence_no_touch_window - avg_sequence_touch_window))
+					cmd = -1 * sum(abs(act_sequence - avg_sequence_touch_window)) / sum(abs(avg_sequence_no_touch_window - avg_sequence_touch_window))
 				else:
 					cmd = -1
 				if self.scrape_movement:
 					self.reaction.append(cmd)
-			elif (act_sequence >= avg_sequence_no_touch_window >= avg_sequence_touch_window) or (act_sequence <= avg_sequence_no_touch_window <= avg_sequence_touch_window):
+			elif sum((act_sequence >= avg_sequence_no_touch_window >= avg_sequence_touch_window) or (act_sequence <= avg_sequence_no_touch_window <= avg_sequence_touch_window)) > 1/3 * self.window:
 				#print "even less than not touching"
 				#cmd = 1.0
 				#should not happen if it does it should be some noise or other accident -> no reaction
@@ -214,7 +214,7 @@ def main():
 
 	DetectTouch = detect_touching()
 
-	f = h5py.File("/home/leus/force_test_bag/desired_trajectory.hdf5","r")
+	f = h5py.File("/home/leus/scraping-bowl-v1/desired_trajectory.hdf5","r")
 	DetectTouch.avg_sequence_touch = f["touching/avg_position"][0::]
 	DetectTouch.max_sequence_touch = f["touching/max_position"][0::]
 	DetectTouch.min_sequence_touch = f["touching/min_position"][0::]
