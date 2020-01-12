@@ -6,14 +6,15 @@ import sensor_msgs.point_cloud2 as pc2
 import numpy as np
 
 from jsk_2019_10_spatula.msg import BoolArray
+from jsk_2019_10_spatula.msg import FloatArray
 
 
 
 def main():
     rospy.init_node('detect_dirt', anonymous=True)
     Detector = DirtDetector()
-    #rospy.Subscriber("/pcl_nodelet/hsi_filter_white/output", PointCloud2, Detector.callback_ptcloud_white)
-    rospy.Subscriber("/pcl_nodelet/point_cloud_sequence_merged", PointCloud2, Detector.callback_ptcloud_white)
+    rospy.Subscriber("/pcl_nodelet/hsi_filter_white/output", PointCloud2, Detector.callback_ptcloud_white)
+    #rospy.Subscriber("/pcl_nodelet/point_cloud_sequence_merged", PointCloud2, Detector.callback_ptcloud_white)
     rospy.Subscriber("/pcl_nodelet/hsi_filter_brown/output", PointCloud2, Detector.callback_ptcloud_brown)
     rospy.spin()
 
@@ -31,13 +32,14 @@ class DirtDetector():
         #determine parameters for cutting off the ptcloud
         #self.m = [0.14,0,0]
         #changed due to gripper change
-        #self.m = [0.16,0,0]
-        self.m = [0.16,-0.02,0]
+        self.m = [0.16,0,0]
+        #self.m = [0.16,-0.02,0]
         #self.r_middle = 0.05
         self.r_middle = 0.065
         self.r_bowl = 0.1
         self.z_max = 0.1
-        self.z_min = -0.1
+        #self.z_min = -0.1
+        self.z_min = -0.07
 
         self.all_borders = dict()
         self.all_borders[0] = [0,0.5/8]
@@ -61,6 +63,7 @@ class DirtDetector():
         #########################
 
         self.pub = rospy.Publisher("dirt_label", BoolArray, queue_size=2)
+        self.pub_percent = rospy.Publisher("dirt_percent", FloatArray, queue_size=2)
         if self.debug:
             self.pub_white_pieces = rospy.Publisher("white_pieces", PointCloud2, queue_size=2)
             self.pub_brown_pieces = rospy.Publisher("brown_pieces", PointCloud2, queue_size=2)
@@ -119,11 +122,16 @@ class DirtDetector():
         rgb = np.array(rgb)
         rgb = np.reshape(rgb,[len(rgb),1])
 
-        for i in [6]:#range(self.n_pieces):
+        for i in [0]:#range(self.n_pieces):
             #phi_min = (i)*2*np.pi/self.n_pieces - np.pi
             #phi_max = (i+1)*2*np.pi/self.n_pieces - np.pi
-            phi_min = self.all_borders[i][0]*2*np.pi - np.pi
-            phi_max = self.all_borders[i][1]*2*np.pi - np.pi
+            #aktuelle version
+            #phi_min = self.all_borders[i][0]*2*np.pi - np.pi
+            #phi_max = self.all_borders[i][1]*2*np.pi - np.pi
+
+            #workaroudnd fuer veranschaulichung
+            phi_min = self.all_borders[0][1]*2*np.pi - np.pi
+            phi_max = self.all_borders[15][1]*2*np.pi - np.pi
 
             r_phi = np.transpose(np.array([np.sqrt(np.power((xyz[:,0]-self.m[0]),2) + np.power((xyz[:,1]-self.m[1]),2)),np.arctan2(xyz[:,1]-self.m[1],xyz[:,0]-self.m[0])]));
             xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
@@ -159,10 +167,11 @@ class DirtDetector():
         percentage = self.calculate_percentage()
         self.pub_brown = False
         self.pub_white = False
-        labels = percentage > 0.07
+        labels = percentage > 0.1
         print percentage
         print labels
         self.pub.publish(labels)
+        self.pub_percent.publish(percentage)
 
     def calculate_percentage(self):
         percentage = np.zeros(self.n_pieces)
@@ -177,7 +186,10 @@ class DirtDetector():
             shape_white = np.shape(points_cut_white)
             n_brown = shape_brown[0]
             n_white = shape_white[0]
-            percentage[i] = float(n_brown) / float(n_brown + n_white)
+            try:
+                percentage[i] = float(n_brown) / float(n_brown + n_white)
+            except:
+                percentage[i] = -1
         return percentage
 
     def cut_points(self,xyz,phi_min,phi_max):    
