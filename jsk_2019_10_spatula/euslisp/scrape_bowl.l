@@ -1,4 +1,8 @@
 #!/usr/bin/env roseus
+
+;;hint use 543 l to put down the bowl
+
+
 ;;;;
 ;;;; make scraping movement with right hand, move the bowl with the left Hand until the spatula touches the bowl. 
 ;;;;
@@ -26,10 +30,57 @@
 ;;VORSICHT der leetzte Eintrag also head-neck-p war immer 72 jetzt habe ich auf 65 geandert koennte vision aendern
 ;;av for second task: transfer dough into microwave bowl
 (setq *av-transfer-1-l* #f(324.727 73.7608 17.5589 88.5586 -102.323 49.8802 -55.4643 86.229 -14.631 -6.05283 -70.5321 -113.413 -86.3516 -71.2529 275.089 3.3247 65.0))
-(setq *av-transfer-2-l* #f(324.727 57.3726 11.5584 70.3762 -85.6418 41.5876 -43.7777 72.9619 -2.62254 -1.1235 -29.9869 -71.9554 -103.053 -108.609 247.565 3.5227 65.0))
+(setq *av-transfer-2-l* #f(324.727 78.4127 12.5465 74.5283 -119.755 48.2976 -33.0429 57.8385 -8.52889 -6.26122 -36.7605 -108.919 -83.5428 -103.244 287.37 3.5227 65.0))
+(setq *av-transfer-3-l* #f(324.727 57.3726 11.5584 70.3762 -85.6418 41.5876 -43.7777 72.9619 -2.62254 -1.1235 -29.9869 -71.9554 -103.053 -108.609 247.565 3.5227 65.0))
+;;(setq *av-transfer-23-l* #f(324.727 49.1392 8.10351 66.651 -66.1788 32.738 -80.1196 81.5531 -2.62254 -1.1235 -29.9869 -71.9554 -103.053 -108.609 247.565 3.5227 65.0))
+;;(setq *av-transfer-4-l* #f(324.727 43.5481 -1.73256 74.1272 -54.1437 38.4265 -88.7928 66.507 -2.62254 -1.1235 -29.9869 -71.9554 -103.053 -108.609 247.565 3.5227 65.0))
+(setq *av-transfer-4-l* #f(324.727 39.169 -2.50683 74.1303 -44.4216 38.922 -92.8235 69.9557 -2.62254 -1.1235 -29.9869 -71.9554 -103.053 -108.609 247.565 3.5227 65.0))
+(setq *av-transfer-5-l* #f(324.725 18.9602 -20.2598 71.4169 -56.4978 83.9532 -114.592 42.7006 -15.9041 0.834661 -33.0648 -75.6798 -92.4236 -105.273 242.276 3.6787 65.0))
 ;;left arm should stay like this the whole time
-(setq *av-transfer-3-l* #f(324.725 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -15.9041 0.834661 -33.0648 -75.6798 -92.4236 -105.273 242.276 3.6787 65.0))
+;;(setq *av-transfer-3-l* *av-transfer-3-l* #f(324.725 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -15.9041 0.834661 -33.0648 -75.6798 -92.4236 -105.273 242.276 3.6787 65.0))
+;;bending bowl more so that dough drops on its own
+(setq *av-transfer-6-l* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -15.9041 0.834661 -33.0648 -75.6798 -92.4236 -105.273 242.276 3.6787 65.0))
 ;;right arm scrapes the dough out of the bowl
+
+(setq *av-transfer-1-r* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -28.4123 16.9925 -48.915 -84.8914 -75.3846 -70.132 228.752 3.6787 65.0))
+(setq *av-transfer-2-r* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -18.4922 18.4249 -45.0658 -84.9585 -79.3029 -61.9935 232.675 3.6787 65.0))
+;;(setq *av-transfer-corner-up* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -16.6155 17.0585 -47.6567 -84.2676 -79.789 -58.5942 233.763 3.6787 65.0))
+(setq *av-transfer-3-r* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -16.4289 14.1929 -46.6901 -83.8275 -84.4789 -66.9546 238.359 3.6787 65.0))
+(setq *av-transfer-4-r* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -15.5477 23.0645 -44.2259 -86.0191 -90.1839 -68.6696 234.73 3.6787 65.0))
+;;(setq *av-scrape-down-inb* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -18.7505 25.3882 -47.5374 -86.5683 -88.3817 -66.7407 231.283 3.6787 65.0))
+(setq *av-transfer-5-r* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -19.4516 17.0562 -52.7388 -85.6592 -88.4225 -69.494 237.505 3.6787 65.0))
+;;(setq *av-transfer-front* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -29.1982 27.2563 -50.9862 -85.9775 -80.2227 -69.1172 221.889 3.6787 65.0))
+(setq *av-transfer-6-r* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -25.5828 9.3502 -58.8294 -84.9185 -82.8962 -73.3403 237.406 3.6787 65.0))
+(setq *av-transfer-7-r* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -27.4487 8.66088 -58.8635 -84.6987 -80.9801 -73.935 235.978 3.6787 65.0))
+
+
+(setq *av-transfer-2-r-2* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -17.1542 18.0736 -46.5857 -84.2049 -79.7697 -59.9635 232.715 3.6787 65.0))
+(setq *av-transfer-3-r-2* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -15.1236 14.1922 -48.191 -83.0236 -85.1003 -65.0439 238.31 3.6787 65.0))
+(setq *av-transfer-4-r-2* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -14.4147 22.839 -46.0778 -84.9921 -90.5314 -66.3371 234.607 3.6787 65.0))
+(setq *av-transfer-5-r-2* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -18.177 17.3638 -54.1617 -84.8241 -89.2111 -67.6208 237.42 3.6787 65.0))
+(setq *av-transfer-6-r-2* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -24.3623 10.2087 -60.0122 -84.606 -84.1507 -71.8101 237.526 3.6787 65.0))
+(setq *av-transfer-7-r-2* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -26.2438 9.54795 -60.0348 -84.5253 -82.2693 -72.4082 236.166 3.6787 65.0))
+
+(setq *av-transfer-2-r-middle* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -17.8015 16.9746 -45.018 -80.2835 -77.0769 -62.5586 229.133 3.6787 65.0))
+(setq *av-transfer-3-r-middle* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -15.5406 12.0386 -47.0725 -76.7125 -81.2851 -67.169 232.905 3.6787 65.0))
+(setq *av-transfer-4-r-middle* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -14.7141 20.5711 -44.2653 -79.0314 -87.136 -68.5865 229.721 3.6787 65.0))
+(setq *av-transfer-5-r-middle* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -18.1693 15.2403 -52.2396 -78.75 -85.98 -69.9646 232.378 3.6787 65.0))
+(setq *av-transfer-6-r-middle* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -23.8776 8.20188 -58.1735 -77.9787 -81.4684 -74.4102 232.407 3.6787 65.0))
+(setq *av-transfer-7-r-middle* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -25.6463 7.53952 -58.2331 -77.7287 -79.7022 -75.1222 231.069 3.6787 65.0))
+
+(setq *av-transfer-2-r-right* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -16.3755 14.8596 -44.4219 -72.8554 -74.2483 -64.0969 223.843 3.6787 65.0))
+(setq *av-transfer-3-r-right* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -14.0543 10.0898 -46.5399 -69.0627 -78.8664 -68.4306 227.384 3.6787 65.0))
+(setq *av-transfer-4-r-right* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -13.5632 17.9748 -44.1639 -71.5068 -84.1646 -68.9518 224.472 3.6787 65.0))
+(setq *av-transfer-5-r-right* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -16.8308 12.9281 -52.453 -71.2576 -83.0053 -70.1984 209.004 3.6787 65.0))
+(setq *av-transfer-6-r-right* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -21.3155 7.30358 -57.9637 -70.3528 -80.6228 -74.9026 209.243 3.6787 65.0))
+(setq *av-transfer-7-r-right* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -23.5946 6.20178 -57.6157 -70.1983 -78.5053 -76.451 225.981 3.6787 65.0))
+
+(setq *av-clean-edge-1* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -30.0029 10.0113 -59.6523 -80.4367 -78.8258 -74.8351 228.636 3.6787 65.0))
+(setq *av-clean-edge-2* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -27.1219 10.1303 -60.8156 -85.3835 -82.2072 -71.8032 235.887 3.6787 65.0))
+(setq *av-clean-edge-3* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -23.4152 8.33887 -60.1222 -72.3778 -79.686 -73.2618 226.639 3.6787 65.0))
+(setq *av-clean-edge-4* #f(324.725 20.0318 -20.2598 74.1229 -59.1428 82.1448 -112.093 41.4772 -25.9126 8.35045 -60.0381 -72.2042 -78.0432 -74.4924 224.429 3.6787 65.0))
+
+#|
 (setq *av-transfer-1-r* #f(324.614 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -25.1065 16.6412 -61.037 -81.4337 -66.833 -52.1656 223.334 3.8467 65.0))
 (setq *av-transfer-23-r* #f(324.614 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -24.1663 -4.36478 -64.5608 -76.2565 -79.5034 -86.9976 240.178 3.8467 65.0))
 (setq *av-transfer-2-r* #f(324.614 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -19.2368 -0.878139 -69.4984 -76.3789 -79.318 -72.8306 241.614 3.8467 65.0))
@@ -38,6 +89,8 @@
 (setq *av-transfer-1b-r* #f(324.614 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -22.3132 15.1798 -58.6991 -71.8084 -63.4397 -56.3024 216.773 3.8467 65.0))
 (setq *av-transfer-2b-r* #f(324.614 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -16.645 -1.05296 -68.1146 -66.5337 -78.5049 -75.3376 234.32 3.8467 65.0))
 (setq *av-transfer-3b-r* #f(324.614 32.206 -7.16045 63.6233 -75.0411 75.1326 -81.1609 39.1286 -19.0922 -9.9072 -68.4757 -63.1837 -80.4358 -93.6603 233.637 3.8467 65.0))
+|#
+
 
 (setq *av-reset-pose-high* #f(324.834 59.9994 74.0014 69.9995 -119.999 20.0009 -30.0145 180.014 -60.0002 74.0039 -69.9992 -119.999 -20.0041 -30.0008 180.001 3.0667 65.0))
 (setq *av-base* #f(324.807 40.8419 14.9609 135.498 -100.854 -34.67 -39.7441 158.407 -33.4418 -10.5944 -86.243 -121.259 -73.9459 -64.4677 278.291 2.2447 65.0))
@@ -496,16 +549,277 @@
     (clean i)
     ;;(unix:usleep 2000000)
   ;;(get-dense-ptcloud)
-  )
-  )
+    )
 
+  (defun prepare-bowl-transfer ()
+    (send *pr2* :angle-vector *av3*)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+    (send *ri* :wait-interpolation)
+    (setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000))
+    (setq *joint-angle-list-l* (list *av-transfer-1-l*  *av-transfer-2-l* *av-transfer-3-l* *av-transfer-4-l*  *av-transfer-5-l* *av-transfer-6-l*))
+    (send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
+    (send *ri* :wait-interpolation)
+    )
 
+  (defun prepare-bowl-transfer-backwards ()
+    (setq *joint-angle-time-l-back* (list 1000 1000 1000 1000 1000 1000))
+    (setq *joint-angle-list-l-back* (list *av-transfer-6-l*  *av-transfer-5-l* *av-transfer-4-l* *av-transfer-3-l*  *av-transfer-2-l* *av-transfer-1-l*))
+    (send *ri* :angle-vector-sequence *joint-angle-list-l-back* *joint-angle-time-l-back*)
+    (send *ri* :wait-interpolation)
+    (send *pr2* :angle-vector *av3*)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+    (send *ri* :wait-interpolation)
+    )
+  
+  (defun transfer-dough-13-1 ()
+    (get-jacobi-l-world)
+    (get-jacobi-r-world)
+    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
+    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
+    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
+    ;;(send *ri* :wait-interpolation)
+    
+    (send *pr2* :angle-vector *av-transfer-1-r*)
+    (publish-semantic-annotation (format nil "av1transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av1transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-2-r*)
+    (publish-semantic-annotation (format nil "av2transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av2transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-3-r*)
+    (publish-semantic-annotation (format nil "av3transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av3transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-4-r*)
+    (publish-semantic-annotation (format nil "av4transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av4transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector  *av-transfer-5-r*)
+    (publish-semantic-annotation (format nil "av5transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av5transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-6-r*)
+    (publish-semantic-annotation (format nil "av6transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av6transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-7-r*)
+    (publish-semantic-annotation (format nil "av7transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av7transfer_end"))
+    (get-jacobi-r-world)
+    )
+
+    (defun transfer-dough-13-1-middle ()
+    (get-jacobi-l-world)
+    (get-jacobi-r-world)
+    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
+    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
+    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
+    ;;(send *ri* :wait-interpolation)
+    
+    (send *pr2* :angle-vector *av-transfer-1-r*)
+    (publish-semantic-annotation (format nil "av1transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av1transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-2-r-middle*)
+    (publish-semantic-annotation (format nil "av2transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av2transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-3-r-middle*)
+    (publish-semantic-annotation (format nil "av3transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av3transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-4-r-middle*)
+    (publish-semantic-annotation (format nil "av4transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av4transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector  *av-transfer-5-r-middle*)
+    (publish-semantic-annotation (format nil "av5transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av5transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-6-r-middle*)
+    (publish-semantic-annotation (format nil "av6transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av6transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-7-r-middle*)
+    (publish-semantic-annotation (format nil "av7transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av7transfer_end"))
+    (get-jacobi-r-world)
+    )
+
+  (defun transfer-dough-13-1-right ()
+    (get-jacobi-l-world)
+    (get-jacobi-r-world)
+    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
+    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
+    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
+    ;;(send *ri* :wait-interpolation)
+    
+    (send *pr2* :angle-vector *av-transfer-1-r*)
+    (publish-semantic-annotation (format nil "av1transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av1transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-2-r-right*)
+    (publish-semantic-annotation (format nil "av2transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av2transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-3-r-right*)
+    (publish-semantic-annotation (format nil "av3transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av3transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-4-r-right*)
+    (publish-semantic-annotation (format nil "av4transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av4transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector  *av-transfer-5-r-right*)
+    (publish-semantic-annotation (format nil "av5transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av5transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-6-r-right*)
+    (publish-semantic-annotation (format nil "av6transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av6transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-7-r-right*)
+    (publish-semantic-annotation (format nil "av7transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av7transfer_end"))
+    (get-jacobi-r-world)
+    )
+
+   (defun transfer-dough-13-1-2 ()
+    (get-jacobi-l-world)
+    (get-jacobi-r-world)
+    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
+    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
+    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
+    ;;(send *ri* :wait-interpolation)
+    
+    (send *pr2* :angle-vector *av-transfer-1-r*)
+    (publish-semantic-annotation (format nil "av1transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av1transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-2-r-2*)
+    (publish-semantic-annotation (format nil "av2transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av2transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-3-r-2*)
+    (publish-semantic-annotation (format nil "av3transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av3transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-4-r-2*)
+    (publish-semantic-annotation (format nil "av4transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av4transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector  *av-transfer-5-r-2*)
+    (publish-semantic-annotation (format nil "av5transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av5transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-6-r-2*)
+    (publish-semantic-annotation (format nil "av6transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av6transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-7-r-2*)
+    (publish-semantic-annotation (format nil "av7transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av7transfer_end"))
+    (get-jacobi-r-world)
+    )
+  
+
+(defun demo ()
+  (prepare-robot)
+  (setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (get-dense-ptcloud)
+  ;;once the result is published, the scraping can start planned with the labels
+  (while (not label-published)
+    (ros::spin-once);;to see if labels where published
+    )
+  )
 
 ;;;;;;;;;;;;;;;;
 ;;subcriptions;;
 ;;;;;;;;;;;;;;;;
 
 (ros::subscribe "pcl_nodelet/dirt_label" jsk_2019_10_spatula::BoolArray #'schedule-scraping)
+;;(ros::subscribe "endeffector_force" jsk_2019_10_spatula::Force #'adapt-to-force)
 ;;(ros::subscribe "feedback_touching" std_msgs::float64 #'string-cb)
 
 
@@ -532,12 +846,12 @@
 |#
 
 
-;;(prepare-robot)
-
+#|
+(prepare-robot)
 (setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
 (get-dense-ptcloud)
 ;;once the result is published, the scraping can start planned with the labels
-#|
+
 (while (not label-published)
   (ros::spin-once);;to see if labels where published
   )
