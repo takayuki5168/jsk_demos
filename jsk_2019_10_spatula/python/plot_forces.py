@@ -4,16 +4,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
+task = "transfer"
+window = 1
 
 def main():
     #path = "/home/leus/force_clean_dirty_bag/clean8_dirty_speed1000"
     #path = "/home/leus/force_clean_dirty_bag/test"
     fig, axs = plt.subplots(6, 1)
 
-    for label in ["clean","dirty"]:#["clean","dirty","partlydirty"]:
-        path = "/home/leus/force_clean_dirty_bag/clean8_%s_speed4000" % label
+    for label in ["long","longer","shorter"]:#["long","short"]:#["clean","dirty"]:#["clean","dirty","partlydirty"]:
+        #path = "/home/leus/force_clean_dirty_bag/clean8_%s_speed4000" % label
         #path = "/home/leus/force_clean_dirty_bag/whole_bowl_%s_sleep05" % label
-
+        path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
         
         first = True
         for doc in os.listdir(path):
@@ -36,16 +38,25 @@ def main():
                     ts.append(t)
 
                 if topic == "/semantic_annotation":
-                    print msg
-                    [av,scrape_type,bowl_position,flag_type] = msg.data.split("_")
-                    if av == "av1wall" and flag_type == "start":
-                    #if av == "av1wall" and flag_type == "end":
-                    #if msg.data == "av1wall_0_1_start":
-                        start_ts = t
-                    if av == "av4wall" and flag_type == "end":
-                    #if av == "av2wall" and flag_type == "end":
-                    #if msg.data == "av4wall_3_4_end":
-                        stop_ts = t
+                    if task == "scrape":
+                        print msg
+                        [av,scrape_type,bowl_position,flag_type] = msg.data.split("_")
+                        #if av == "av1wall" and flag_type == "start":
+                        if av == "av2wall" and flag_type == "end":
+                        #if msg.data == "av1wall_0_1_start":
+                            start_ts = t
+                        #if av == "av4wall" and flag_type == "end":
+                        if av == "av3wall" and flag_type == "end":
+                        #if msg.data == "av4wall_3_4_end":
+                            stop_ts = t
+
+                    elif task == "transfer":
+                        [av,flag_type] = msg.data.split("_")
+                        if av == "av5transfer" and flag_type == "start":
+                            start_ts = t
+                        if av == "av7transfer" and flag_type == "end":
+                            stop_ts = t
+
 
             ts = np.array(ts)
             start_index = np.argmin(np.abs(ts-start_ts))
@@ -58,12 +69,17 @@ def main():
                 plot_force(force,label,start_index,stop_index,fig,axs,False)
     plt.show()
 
-
+def mean_filter(signal,window):
+    if window == 1:
+        return signal
+    filtered_signal = 1/float(window) * np.convolve(signal, np.ones([window]))
+    return filtered_signal[window:len(filtered_signal)-window]
 
 def plot_force(force,label,start_index,stop_index,fig=None,axs=None,set_label = True):
-    if label == "dirty":
+    print label
+    if label == "dirty" or label == "short" or label == "shorter":
         color = "maroon"
-    elif label == "partlydirty":
+    elif label == "partlydirty" or label == "long":
         color = "lightcoral"
     else:
         color = "lightseagreen"
@@ -71,13 +87,13 @@ def plot_force(force,label,start_index,stop_index,fig=None,axs=None,set_label = 
     if fig is None or axs is None:
         fig, axs = plt.subplots(6, 1)
 
-    line0, = axs[0].plot(np.transpose(force["larm"])[0][start_index:stop_index],color)
-    line1, = axs[1].plot(np.transpose(force["larm"])[1][start_index:stop_index],color)
-    line2, = axs[2].plot(np.transpose(force["larm"])[2][start_index:stop_index],color)
+    line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    line1, = axs[1].plot(mean_filter(np.transpose(force["larm"])[1][start_index:stop_index],window),color)
+    line2, = axs[2].plot(mean_filter(np.transpose(force["larm"])[2][start_index:stop_index],window),color)
 
-    line3, = axs[3].plot(np.transpose(force["rarm"])[0][start_index:stop_index],color)
-    line4, = axs[4].plot(np.transpose(force["rarm"])[1][start_index:stop_index],color)
-    line5, = axs[5].plot(np.transpose(force["rarm"])[2][start_index:stop_index],color)
+    line3, = axs[3].plot(mean_filter(np.transpose(force["rarm"])[0][start_index:stop_index],window),color)
+    line4, = axs[4].plot(mean_filter(np.transpose(force["rarm"])[1][start_index:stop_index],window),color)
+    line5, = axs[5].plot(mean_filter(np.transpose(force["rarm"])[2][start_index:stop_index],window),color)
 
     if set_label:
         line0.set_label(label)
