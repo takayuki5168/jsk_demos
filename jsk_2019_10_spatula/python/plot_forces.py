@@ -3,18 +3,50 @@ import rosbag
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import time
 
 task = "transfer"
 window = 1
 
 def main():
-    #path = "/home/leus/force_clean_dirty_bag/clean8_dirty_speed1000"
-    #path = "/home/leus/force_clean_dirty_bag/test"
-    fig, axs = plt.subplots(6, 1)
+    #read_bag()
+    read_json()
 
-    for label in ["long","longer","shorter"]:#["long","short"]:#["clean","dirty"]:#["clean","dirty","partlydirty"]:
-        #path = "/home/leus/force_clean_dirty_bag/clean8_%s_speed4000" % label
-        #path = "/home/leus/force_clean_dirty_bag/whole_bowl_%s_sleep05" % label
+def read_json():
+    path_bag = "/home/leus/force_different_spatula_pos/test"
+    path_json = "%s/force.json" % path_bag
+
+    fig, axs = plt.subplots(6, 1)
+    t1 = time.time()
+    f = open(path_json,"r")
+    test = f.read()
+    f.close()
+    exec("dict1 = %s" % test)
+    dict2 = dict1["force"]
+    t2 = time.time()
+    print t2-t1
+    print dict1["n_exp"]
+    print dict2.keys()
+
+
+
+    action = "av6transfer"
+
+    for i in range(dict1["n_exp"][action]):
+        label = dict1["label"][i]
+        n_t = dict1["n_t"][action]
+        force_l = np.array(dict2[action]["larm"])
+        force_r = np.array(dict2[action]["rarm"])
+        force = {}
+        force["larm"] = force_l[0:n_t[i],:,i]
+        force["rarm"] = force_r[0:n_t[i],:,i]
+        plot_force(force,label,fig=fig,axs=axs)
+    plt.show()
+
+
+def read_bag():
+    fig, axs = plt.subplots(6, 1)
+    for label in ["long","longer","shorter"]:
         path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
         
         first = True
@@ -52,9 +84,9 @@ def main():
 
                     elif task == "transfer":
                         [av,flag_type] = msg.data.split("_")
-                        if av == "av5transfer" and flag_type == "start":
+                        if av == "av6transfer" and flag_type == "start":
                             start_ts = t
-                        if av == "av7transfer" and flag_type == "end":
+                        if av == "av6transfer" and flag_type == "end":
                             stop_ts = t
 
 
@@ -75,7 +107,7 @@ def mean_filter(signal,window):
     filtered_signal = 1/float(window) * np.convolve(signal, np.ones([window]))
     return filtered_signal[window:len(filtered_signal)-window]
 
-def plot_force(force,label,start_index,stop_index,fig=None,axs=None,set_label = True):
+def plot_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
     print label
     if label == "dirty" or label == "short" or label == "shorter":
         color = "maroon"
