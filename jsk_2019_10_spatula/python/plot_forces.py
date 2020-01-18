@@ -6,7 +6,7 @@ import os
 import time
 
 task = "transfer"
-window = 1
+window = 7
 
 def main():
     #read_bag()
@@ -16,42 +16,42 @@ def read_json():
     path_bag = "/home/leus/force_different_spatula_pos/test"
     path_json = "%s/force.json" % path_bag
 
-    fig, axs = plt.subplots(6, 1)
+    #KO hack to debug compare_force
+    fig, axs = plt.subplots(2, 1)
     t1 = time.time()
     f = open(path_json,"r")
     test = f.read()
     f.close()
     exec("dict1 = %s" % test)
     dict2 = dict1["force"]
-    t2 = time.time()
-    print t2-t1
-    print dict1["n_exp"]
-    print dict2.keys()
-
-
-
-    action = "av6transfer"
+    action = "av5transfer"
 
     for i in range(dict1["n_exp"][action]):
         label = dict1["label"][i]
+        if label != "longer" and label != "shorter":
+            continue
         n_t = dict1["n_t"][action]
         force_l = np.array(dict2[action]["larm"])
         force_r = np.array(dict2[action]["rarm"])
         force = {}
         force["larm"] = force_l[0:n_t[i],:,i]
         force["rarm"] = force_r[0:n_t[i],:,i]
-        plot_force(force,label,fig=fig,axs=axs)
+        plot_force_deub_compare_force(force,label,fig=fig,axs=axs)
     plt.show()
 
 
 def read_bag():
     fig, axs = plt.subplots(6, 1)
-    for label in ["long","longer","shorter"]:
+    for label in ["longer","shorter"]:
         path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
         
         first = True
         for doc in os.listdir(path):
+            if doc.split(".")[-1] != "bag":
+                print "skipping file %s as it is not a bag file" % doc
+                continue
             print doc
+
             force = {"larm":[],"rarm":[]}
 
             effort = {"larm": {"desired":[],"error":[],"actual":[]},"rarm": {"desired":[],"error":[],"actual":[]}}
@@ -107,8 +107,16 @@ def mean_filter(signal,window):
     filtered_signal = 1/float(window) * np.convolve(signal, np.ones([window]))
     return filtered_signal[window:len(filtered_signal)-window]
 
+def mean_filter_strided(signal, window):
+    if window == 1:
+        return signal
+    m = int(round(len(signal)/window))
+    filtered_signal = 1/float(window) * np.matmul(np.ones([1,window]),np.transpose(np.reshape(signal[0:window*m],[m,window])))
+    filtered_signal = filtered_signal.flatten()
+    return filtered_signal.tolist()
+
+
 def plot_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
-    print label
     if label == "dirty" or label == "short" or label == "shorter":
         color = "maroon"
     elif label == "partlydirty" or label == "long":
@@ -149,6 +157,26 @@ def plot_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set
     axs[4].legend()
     axs[5].legend()
     
+def plot_force_deub_compare_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
+    if label == "dirty" or label == "short" or label == "shorter":
+        color = "maroon"
+    elif label == "partlydirty" or label == "long":
+        color = "lightcoral"
+    else:
+        color = "lightseagreen"
+
+    if fig is None or axs is None:
+        fig, axs = plt.subplots(6, 1)
+
+    line0, = axs[0].plot(mean_filter_strided(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    line1, = axs[1].plot(mean_filter_strided(np.transpose(force["larm"])[2][start_index:stop_index],window),color)
+
+
+    if set_label:
+        line1.set_label(label)
+
+    axs[1].set_ylabel("Fyz")
+    axs[1].legend()
 
 if __name__ == "__main__":
     main()
