@@ -5,6 +5,7 @@ import numpy as np
 from jsk_2019_10_spatula.msg import Jacobian, Force
 from control_msgs.msg import JointTrajectoryControllerState
 import rospy
+import tf
 
 offline = False
 #if published seperate ~100Hz, togetehr ~50Hz
@@ -13,6 +14,8 @@ simulation_hack = False
 
 
 def main():
+    if not offline:
+        rospy.init_node('calculate_force', anonymous=True)
     Analyzer = AnalyzeEffort()
     path = "/home/leus/bag_trafo_jacobi/2019-12-13-17-34-48.bag"
 
@@ -40,11 +43,9 @@ def main():
         Analyzer.plot_data(["effort","larm","actual"])
         """
     else:
-        rospy.init_node('calculate_force', anonymous=True)
         rospy.Subscriber("/scrape_left_jacobian", Jacobian, Analyzer.callback_left_jacobian)
         rospy.Subscriber("/torso_controller/state", JointTrajectoryControllerState, Analyzer.callback_torso_controller)
         rospy.Subscriber("/l_arm_controller/state", JointTrajectoryControllerState, Analyzer.callback_larm_controller)
-        #for right now only left_arm, if both arms desired change somethign in publishing method nee dnew bagfile
         rospy.Subscriber("/scrape_right_jacobian", Jacobian, Analyzer.callback_right_jacobian)
         rospy.Subscriber("/r_arm_controller/state", JointTrajectoryControllerState, Analyzer.callback_rarm_controller)
         rospy.spin()
@@ -62,6 +63,7 @@ class AnalyzeEffort():
         self.force_radial = {"larm":[],"rarm":[]}
         self.joint_names = {"larm":[],"rarm":[]}
         if not offline:
+            self.listener = tf.TransformListener()
             self.jacobian_published_left = False
             self.jacobian_published_right = False
             self.force_calculated_left = False
@@ -106,6 +108,7 @@ class AnalyzeEffort():
 
     def callback_larm_controller(self,msg):
         #empty the arrrays for left arm -> only newest values in there
+        #print "larm controller"
         self.effort["larm"] = {"desired":[],"error":[],"actual":[]}
         self.position["larm"] = {"desired":[],"error":[],"actual":[]}
         self.velocity["larm"] = {"desired":[],"error":[],"actual":[]}
@@ -124,6 +127,10 @@ class AnalyzeEffort():
             
     def publish_force(self):
         force = Force()
+        print "larm"
+        print np.shape(self.force["larm"])
+        print "rarm"
+        print np.shape(self.force["rarm"])
         force.larm = self.force["larm"]
         force.rarm = self.force["rarm"]
         self.pub.publish(force)
@@ -132,7 +139,8 @@ class AnalyzeEffort():
 
 
     def callback_rarm_controller(self,msg):
-        #empty the arrrays for left arm -> only newest values in there
+        #print "rarm controller"
+        #empty the arrays for left arm -> only newest values in there
         self.effort["rarm"] = {"desired":[],"error":[],"actual":[]}
         self.position["rarm"] = {"desired":[],"error":[],"actual":[]}
         self.velocity["rarm"] = {"desired":[],"error":[],"actual":[]}
@@ -197,17 +205,61 @@ class AnalyzeEffort():
             effortT = np.transpose(self.position[arm]["error"]) #necessary as effort is not published in simulation
         else:
             effortT = np.transpose(self.effort[arm]["actual"])
-        print arm
-        print np.shape(self.jacobian[arm][:,1:8])
-        print np.shape(effortT)
         if least_square:
-            self.force[arm] = np.linalg.lstsq(np.transpose(self.jacobian[arm][:,1:8]),effortT)[0][0:3]
+            #self.force[arm] = np.linalg.lstsq(np.transpose(self.jacobian[arm][:,1:8]),effortT)[0][0:3]
+            force_local = np.linalg.lstsq(np.transpose(self.jacobian[arm][:,1:8]),effortT)[0][0:3]
             #self.force = np.linalg.lstsq(np.transpose(self.jacobian),np.vstack([effortT[:,0:10445],np.transpose(self.effort["torso"]["actual"])]))[0]
         else:
             self.get_small_jacobi(i,j,k,"larm")
             effortT_small = np.array([effortT[i-1],effortT[j-1],effortT[k-1]])
             self.force[arm] = np.matmul(np.linalg.inv(self.small_jacobiT[arm]),effortT_small)
+        if not offline:
+            r = self.calculate_r()
+            #Fr = np.dot(self.force[arm].flatten(),r) #r is unit vector in radial direction
+            Fr = np.dot(force_local.flatten(),r) #r is unit vector in radial direction
+            #self.force[arm] = np.append(self.force[arm],Fr)
+            self.force[arm] = np.append(force_local,Fr)
 
+
+    def calculate_r(self):
+        trafo_r = self.get_transform('/r_gripper_tool_frame')
+        trafo_l = self.get_transform('/l_gripper_tool_frame')
+        #np.transpose(np.matmul(trafo,np.transpose(xyz1)))
+        yr = np.matmul(trafo_r, np.transpose([0,1,0,0]))[0:3]
+        yr = yr * (1/np.linalg.norm(yr))
+        zl = np.matmul(trafo_l, np.transpose([0,0,1,0]))[0:3]
+        zl = zl * (1/np.linalg.norm(zl))
+        r = yr - (np.dot(yr,zl) * zl)
+        return (r * (1/np.linalg.norm(r)))
+
+    def get_transform(self,target_frame):
+        """
+        input           none
+        output          trafo:  transformation matrix that transforms from target_frame to '/base_link'
+        """
+        (trans,rot) = self.listener.lookupTransform('/base_link',target_frame, rospy.Time(0))
+        rotmat = self.quat2mat(rot)
+        trans_v = np.array(trans)
+        trans_v = np.reshape(trans,[3,1])
+        trafo = np.vstack([np.hstack([rotmat,trans_v]),np.array([0,0,0,1])])
+        return trafo
+
+    def quat2mat(self,quat):
+        """
+        input           quat 4-element list/array representing a quaternion in the order x,y,z,w
+        output          mat, 3x3 array representing a rotation matrix
+        description     converts quaternion to rotation matrix
+        resources       - http://docs.ros.org/melodic/api/geometry_msgs/html/msg/Quaternion.html
+                        - implementation from https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
+        """
+        x = quat[0]
+        y = quat[1]
+        z = quat[2]
+        w = quat[3]
+        mat = np.array([[1-(2*(y**2))-(2*(z**2)), 2*x*y-(2*z*w), 2*x*z+(2*y*w)],
+                        [2*x*y + 2*z*w, 1-(2*(x**2))-(2*(z**2)), 2*y*z-(2*x*w)],
+                        [2*x*z-(2*y*w), 2*y*z + 2*x*w, 1-(2*(x**2))-(2*(y**2))]])
+        return mat
 
     def debug_force(self,arm,i=1,j=3,k=4):
         self.calculate_force(arm,least_square=True)
