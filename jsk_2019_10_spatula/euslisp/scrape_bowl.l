@@ -1,4 +1,4 @@
-#!/usr/bin/env roseus
+ #!/usr/bin/env roseus
 
 ;;hint use 543 l to put down the bowl
 
@@ -19,7 +19,6 @@
 ;;define global variables;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "angle-vectors.l")
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -148,7 +147,7 @@
 	      (setq type 3) ;;else
 	      )
 	  )
-      )
+    )
   ;;quick workaround to make experiment work
   ;;(setq oldtype -5)
   (unless (= oldtype type)
@@ -460,7 +459,7 @@
     (clean i)
     ;;(unix:usleep 2000000)
   ;;(get-dense-ptcloud)
-    )
+    ))
 
   (defun prepare-bowl-transfer ()
     (send *pr2* :angle-vector *av3*)
@@ -533,6 +532,64 @@
     (get-jacobi-r-world)
     
     (send *pr2* :angle-vector *av-transfer-7-r*)
+    (publish-semantic-annotation (format nil "av7transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av7transfer_end"))
+    (get-jacobi-r-world)
+    )
+
+  (defun transfer-dough-13-1-short ()
+    (get-jacobi-l-world)
+    (get-jacobi-r-world)
+    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
+    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
+    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
+    ;;(send *ri* :wait-interpolation)
+    
+    (send *pr2* :angle-vector *av-transfer-1-r*)
+    (publish-semantic-annotation (format nil "av1transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av1transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-2-r-short*)
+    (publish-semantic-annotation (format nil "av2transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av2transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-3-r-short*)
+    (publish-semantic-annotation (format nil "av3transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av3transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-4-r-short*)
+    (publish-semantic-annotation (format nil "av4transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av4transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector  *av-transfer-5-r-short*)
+    (publish-semantic-annotation (format nil "av5transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av5transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-6-r-short*)
+    (publish-semantic-annotation (format nil "av6transfer_start"))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    (publish-semantic-annotation (format nil "av6transfer_end"))
+    (get-jacobi-r-world)
+    
+    (send *pr2* :angle-vector *av-transfer-7-r-short*)
     (publish-semantic-annotation (format nil "av7transfer_start"))
     (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
     (send *ri* :wait-interpolation)
@@ -715,8 +772,9 @@
     )
   
 
-(defun demo ()
-  (prepare-robot)
+   (defun demo ()
+     (print "start demo now")
+  ;;(prepare-robot)
   (setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (get-dense-ptcloud)
   ;;once the result is published, the scraping can start planned with the labels
@@ -724,6 +782,7 @@
     (ros::spin-once);;to see if labels where published
     )
   )
+
 (defun grasp-cup ()
   (send *pr2* :stop-grasp :rarm)
   (send *ri* :stop-grasp :rarm)
@@ -743,14 +802,18 @@
 
 (defun adjust-force (msg)
   (print msg.data)
+  (setq gain msg.data)
+  (setq av-diff (v- av-20mm av-0mm))
+  (setq adjustment-av (scale gain av-diff))
+  (setq adjusted-av (v+ av-0mm adjustment-av))
   )
+
 
 ;;;;;;;;;;;;;;;;
 ;;subcriptions;;
 ;;;;;;;;;;;;;;;;
-
 (ros::subscribe "pcl_nodelet/dirt_label" jsk_2019_10_spatula::BoolArray #'schedule-scraping)
-(ros::subscribe "/force_gain"  std_msgs::float64 #'adjust-force)
+(ros::subscribe "force_gain"  std_msgs::float64 #'adjust-force)
 ;;(ros::subscribe "endeffector_force" jsk_2019_10_spatula::Force #'adapt-to-force)
 ;;(ros::subscribe "feedback_touching" std_msgs::float64 #'string-cb)
 
@@ -758,6 +821,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;fixed movement in beginning;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;(demo)
 
 ;;(prepare-robot)
 
