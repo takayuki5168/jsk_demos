@@ -7,7 +7,10 @@ import json
 import matplotlib.pyplot as plt
 
 
-path_json = "/home/leus/force_different_spatula_pos/test/force.json"
+#path_json = "/home/leus/force_different_spatula_pos/test/force.json"
+path = "/home/leus/force_feedack_exp_19_01"
+path_json = "%s/force.json" % path
+
 offline = False
 debug = True
 
@@ -38,9 +41,9 @@ class CompareForce:
 		#######################
 		self.window = 7 #the time window over which th mean is calculated
 		#maybe save this dicitonary in a json file in case it becomes larger
-		self.action_force = {"av5transfer":{"arm":"larm","direction":2}} #dictionary mapping the relevant force to an action
-		self.label_up = "longer"
-		self.label_down = "shorter"
+		self.action_force = {"av5transfer":{"arm":"larm","direction":2},"av3wall-0-1":{"arm":"larm","direction":2}} #dictionary mapping the relevant force to an action
+		self.label_up = "long"
+		self.label_down = "short"
 
 		self.pub = rospy.Publisher("force_gain", Float64, queue_size=2)
 		self.force = {}
@@ -74,6 +77,7 @@ class CompareForce:
 
 
 	def callback_force(self,msg):
+		print "action status: %d" % self.action_status
 		if self.action_status == 0:
 			return True
 		self.time = self.time + 1
@@ -131,12 +135,22 @@ class CompareForce:
 		arm = self.action_force[self.action]["arm"]
 		direction = self.action_force[self.action]["direction"]
 		actual = self.mean_filter(np.array(self.force[arm])[:,direction]) 
+		print "shape actual"
+		print np.shape(actual)
 		self.save_actual.append(actual)
 		self.force["larm"] = []
 		self.force["rarm"] = []
 
+		print "shape force des up down"
+		print np.shape(self.force_des[arm]["up"])
+		print np.shape(self.force_des[arm]["down"])
+
+		#self.force_des["up"][time,direction,experiments]
 		up = self.force_des[arm]["up"][self.time - self.window : self.time , direction, :]
 		down = self.force_des[arm]["down"][self.time - self.window : self.time , direction, :]
+		print "shape up down"
+		print np.shape(up)
+		print np.shape(down)
 		#averaging over time first 
 		up_mean = []
 		down_mean = []
@@ -145,10 +159,13 @@ class CompareForce:
 				up_mean.append(0)
 			else:
 				up_mean.append(self.mean_filter(up[:,i]))
+
+		for i in range(np.shape(down)[1]):
 			if np.any(down[:,i]==0):
 				down_mean.append(0)
 			else:
 				down_mean.append(self.mean_filter(down[:,i]))
+
 		up_mean = np.array(up_mean)
 		down_mean= np.array(down_mean)
 		self.save_up["all"].append(up_mean)
@@ -157,6 +174,8 @@ class CompareForce:
 		up_dict = {}
 		down_dict = {}
 		#don't compute gain if the data available is less than 50%
+		print np.shape(up_mean)
+		print np.shape(down_mean)
 		if float(len(up_mean[up_mean != 0])) / len(up_mean) < 0.5 or float(len(down_mean[down_mean != 0])) / len(down_mean) < 0.5:
 			print "too little signals"
 			return True
@@ -194,7 +213,8 @@ class CompareForce:
 		d2 = up["mean"] - down["mean"]
 		if d2 == 0:
 			return -1.0
-		gain = abs(d1/d2)
+		else:
+			gain = abs(d1/d2)
 		return gain
 
 	def plot_signal(self,signal,color = "royalblue"):
