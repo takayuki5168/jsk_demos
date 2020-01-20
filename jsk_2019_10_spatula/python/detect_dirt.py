@@ -42,7 +42,9 @@ class DirtDetector():
         self.r_bowl = 0.1
         #self.r_bowl = 0.3
         #self.z_max = 0.1
-        self.z_max = 0.05
+        #self.z_max = 0.05
+        #self.z_max = 0.03
+        self.z_max = 0.08
         self.z_min = -0.1
         #self.z_min = -0.07
 
@@ -135,8 +137,8 @@ class DirtDetector():
             #phi_max = self.all_borders[i][1]*2*np.pi - np.pi
 
             #workaroudnd fuer veranschaulichung
-            #phi_min = self.all_borders[0][1]*2*np.pi - np.pi
-            #phi_max = self.all_borders[15][1]*2*np.pi - np.pi
+            #phi_min = self.all_borders[7][0]*2*np.pi - np.pi
+            #phi_max = self.all_borders[7][1]*2*np.pi - np.pi
             #with old version
             phi_min = (0)*2*np.pi/self.n_pieces - np.pi
             phi_max = (16)*2*np.pi/self.n_pieces - np.pi
@@ -197,6 +199,7 @@ class DirtDetector():
             shape_white = np.shape(points_cut_white)
             n_brown = shape_brown[0]
             n_white = shape_white[0]
+            #KO debug!!!
             try:
                 percentage[i] = float(n_brown) / float(n_brown + n_white)
             except:
@@ -206,7 +209,8 @@ class DirtDetector():
     def cut_points(self,xyz,phi_min,phi_max):    
         r_phi = np.transpose(np.array([np.sqrt(np.power((xyz[:,0]-self.m[0]),2) + np.power((xyz[:,1]-self.m[1]),2)),np.arctan2(xyz[:,1]-self.m[1],xyz[:,0]-self.m[0])]));
         #(r_middle < r < r_bowl) & (phi_min < phi < phi_max) & (z_min < z < z_max)
-        xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
+        #xyz_cut = xyz[np.logical_and(np.logical_and( np.logical_and(r_phi[:,0] > self.r_middle, r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), np.logical_and(xyz[:,2] > self.z_min,xyz[:,2] < self.z_max)),:]
+        xyz_cut = xyz[np.logical_and(np.logical_and(np.logical_and(np.logical_or(r_phi[:,0] > self.r_middle, xyz[:,2] < self.z_max), r_phi[:,0] < self.r_bowl), np.logical_and(r_phi[:,1] > phi_min,r_phi[:,1] < phi_max)), xyz[:,2] > self.z_min),:]
         return xyz_cut
 
 
