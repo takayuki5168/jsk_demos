@@ -5,14 +5,15 @@ import numpy as np
 import os
 import time
 
-task = "transfer"
+task = "scrape"
 window = 7
+plot_radial_force = True
 
 def main():
-    #read_bag()
-    read_json()
+    read_bag()
+    #read_json()
 
-def read_json():
+def read_json_debug():
     path_bag = "/home/leus/force_different_spatula_pos/test"
     path_json = "%s/force.json" % path_bag
 
@@ -39,11 +40,39 @@ def read_json():
         plot_force_deub_compare_force(force,label,fig=fig,axs=axs)
     plt.show()
 
+def read_json():
+    path = "/home/leus/force_feedack_exp_19_01"
+    path_json = "%s/force.json" % path
+
+    #KO hack to debug compare_force
+    fig, axs = plt.subplots(8, 1)
+    t1 = time.time()
+    f = open(path_json,"r")
+    test = f.read()
+    f.close()
+    exec("dict1 = %s" % test)
+    dict2 = dict1["force"]
+    action = "av3wall-0-1"
+    print dict1["n_exp"].keys()
+    for i in range(dict1["n_exp"][action]):
+        label = dict1["label"][i]
+        if label != "long" and label != "short":
+            continue
+        n_t = dict1["n_t"][action]
+        force_l = np.array(dict2[action]["larm"])
+        force_r = np.array(dict2[action]["rarm"])
+        force = {}
+        force["larm"] = force_l[0:n_t[i],:,i]
+        force["rarm"] = force_r[0:n_t[i],:,i]
+        plot_force(force,label,fig=fig,axs=axs)
+    plt.show()
+
 
 def read_bag():
-    fig, axs = plt.subplots(6, 1)
-    for label in ["longer","shorter"]:
-        path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
+    fig, axs = plt.subplots(8, 1)
+    for label in ["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+        #path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
+        path = "/home/leus/force_feedack_exp_19_01/%s" % label
         
         first = True
         for doc in os.listdir(path):
@@ -53,10 +82,12 @@ def read_bag():
             print doc
 
             force = {"larm":[],"rarm":[]}
+            #force_ts = {}
 
             effort = {"larm": {"desired":[],"error":[],"actual":[]},"rarm": {"desired":[],"error":[],"actual":[]}}
             position = {"larm": {"desired":[],"error":[],"actual":[]},"rarm": {"desired":[],"error":[],"actual":[]}}
             velocity = {"larm": {"desired":[],"error":[],"actual":[]},"rarm": {"desired":[],"error":[],"actual":[]}}
+
 
             bag = rosbag.Bag("%s/%s" % (path,doc))
             start_ts = None
@@ -72,34 +103,56 @@ def read_bag():
                 if topic == "/semantic_annotation":
                     if task == "scrape":
                         print msg
-                        [av,scrape_type,bowl_position,flag_type] = msg.data.split("_")
+                        [av,flag_type] = msg.data.split("_")
+                        #[av,scrape_type,bowl_position,flag_type] = msg.data.split("_")
                         #if av == "av1wall" and flag_type == "start":
-                        if av == "av2wall" and flag_type == "end":
+                        if av == "av3wall-0-1" and flag_type == "start":
                         #if msg.data == "av1wall_0_1_start":
                             start_ts = t
                         #if av == "av4wall" and flag_type == "end":
-                        if av == "av3wall" and flag_type == "end":
+                        if av == "av3wall-0-1" and flag_type == "end":
                         #if msg.data == "av4wall_3_4_end":
                             stop_ts = t
 
                     elif task == "transfer":
                         [av,flag_type] = msg.data.split("_")
-                        if av == "av6transfer" and flag_type == "start":
+                        if av == "av3transfer" and flag_type == "start":
                             start_ts = t
-                        if av == "av6transfer" and flag_type == "end":
+                        if av == "av7transfer" and flag_type == "end":
                             stop_ts = t
 
-
             ts = np.array(ts)
+            #force_ts{doc} = ts
             start_index = np.argmin(np.abs(ts-start_ts))
             stop_index = np.argmin(np.abs(ts-stop_ts))
-
+            ts_action = ts_to_sec(ts[start_index:stop_index])
+            print "task length in time:"
+            print type(stop_ts) #.sec - start_ts.sec
+            print stop_ts.to_sec() - start_ts.to_sec()
+            print "task length in samples"
+            print stop_index - start_index
             if first:
-                plot_force(force,label,start_index,stop_index,fig,axs,True)
+                plot_force_resampled(ts_action,force,label,start_index,stop_index,fig,axs,True)
                 first = False
             else:
-                plot_force(force,label,start_index,stop_index,fig,axs,False)
+                plot_force_resampled(ts_action,force,label,start_index,stop_index,fig,axs,False)
     plt.show()
+
+def ts_to_sec(ts):
+    ts_sec = []
+    first = True
+    for t in ts:
+        if first:
+            first_ts = t
+            first = False
+        ts_sec.append(t.to_sec()-first_ts.to_sec())
+
+    return ts_sec
+
+def resample(ts,signal,length):
+    #stretched_signal = np.interp(np.linspace(0,len(signal),length),range(len(signal)),signal)
+    stretched_signal = np.interp(np.linspace(ts[0],ts[-1],length),ts,signal)
+    return stretched_signal
 
 def mean_filter(signal,window):
     if window == 1:
@@ -115,25 +168,40 @@ def mean_filter_strided(signal, window):
     filtered_signal = filtered_signal.flatten()
     return filtered_signal.tolist()
 
-
-def plot_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
-    if label == "dirty" or label == "short" or label == "shorter":
-        color = "maroon"
-    elif label == "partlydirty" or label == "long":
-        color = "lightcoral"
-    else:
+def plot_force_resampled(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
+    if label == "short" or label == "shorter" or label == "short_2" or label == "short_3":
         color = "lightseagreen"
+    elif label == "long_2" or label == "long":
+        color = "maroon"
+    elif label == "long_adapted":
+        color = "navy"
+    else:
+        color = "grey"
 
     if fig is None or axs is None:
         fig, axs = plt.subplots(6, 1)
 
-    line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
-    line1, = axs[1].plot(mean_filter(np.transpose(force["larm"])[1][start_index:stop_index],window),color)
-    line2, = axs[2].plot(mean_filter(np.transpose(force["larm"])[2][start_index:stop_index],window),color)
+    print np.shape(force["larm"])
 
-    line3, = axs[3].plot(mean_filter(np.transpose(force["rarm"])[0][start_index:stop_index],window),color)
-    line4, = axs[4].plot(mean_filter(np.transpose(force["rarm"])[1][start_index:stop_index],window),color)
-    line5, = axs[5].plot(mean_filter(np.transpose(force["rarm"])[2][start_index:stop_index],window),color)
+    #line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    print "---shape resample----"
+    print np.shape(resample(ts,np.transpose(force["larm"])[0][start_index:stop_index],100))
+    line0, = axs[0].plot(resample(ts,np.transpose(force["larm"])[0][start_index:stop_index],100),color)
+    line1, = axs[1].plot(resample(ts,np.transpose(force["larm"])[1][start_index:stop_index],100),color)
+    line2, = axs[2].plot(resample(ts,np.transpose(force["larm"])[2][start_index:stop_index],100),color)
+    
+
+    line3, = axs[3].plot(resample(ts,np.transpose(force["rarm"])[0][start_index:stop_index],100),color)
+    line4, = axs[4].plot(resample(ts,np.transpose(force["rarm"])[1][start_index:stop_index],100),color)
+    line5, = axs[5].plot(resample(ts,np.transpose(force["rarm"])[2][start_index:stop_index],100),color)
+
+    if plot_radial_force:
+        line6, = axs[6].plot(resample(ts,np.transpose(force["larm"])[3][start_index:stop_index],100),color)
+        line7, = axs[7].plot(resample(ts,np.transpose(force["rarm"])[3][start_index:stop_index],100),color)
+        axs[6].set_ylabel("Fr larm")
+        axs[7].set_ylabel("Fr rarm")
+        axs[6].legend()
+        axs[7].legend()
 
     if set_label:
         line0.set_label(label)
@@ -142,6 +210,182 @@ def plot_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set
         line3.set_label(label)
         line4.set_label(label)
         line5.set_label(label)
+        if plot_radial_force:
+            line6.set_label(label)
+            line7.set_label(label)
+
+    axs[0].set_ylabel("Fx larm")
+    axs[1].set_ylabel("Fy larm")
+    axs[2].set_ylabel("Fz larm")
+    axs[3].set_ylabel("Fx rarm")
+    axs[4].set_ylabel("Fy rarm")
+    axs[5].set_ylabel("Fz rarm")
+
+    axs[0].legend()
+    axs[1].legend()
+    axs[2].legend()
+    axs[3].legend()
+    axs[4].legend()
+    axs[5].legend()
+
+def plot_force(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
+    if label == "dirty" or label == "short" or label == "shorter":
+        color = "maroon"
+    elif label == "partlydirty" or label == "long":
+        color = "lightcoral"
+    elif label == "short_2":
+        color = "navy"
+    else:
+        color = "lightseagreen"
+
+    if fig is None or axs is None:
+        fig, axs = plt.subplots(6, 1)
+
+    print np.shape(force["larm"])
+
+    #line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    line0, = axs[0].plot(np.transpose(force["larm"])[0][start_index:stop_index],color)
+    line1, = axs[1].plot(np.transpose(force["larm"])[1][start_index:stop_index],color)
+    line2, = axs[2].plot(np.transpose(force["larm"])[2][start_index:stop_index],color)
+    
+
+    line3, = axs[3].plot(np.transpose(force["rarm"])[0][start_index:stop_index],color)
+    line4, = axs[4].plot(np.transpose(force["rarm"])[1][start_index:stop_index],color)
+    line5, = axs[5].plot(np.transpose(force["rarm"])[2][start_index:stop_index],color)
+
+    if plot_radial_force:
+        line6, = axs[6].plot(np.transpose(force["larm"])[3][start_index:stop_index],color)
+        line7, = axs[7].plot(np.transpose(force["rarm"])[3][start_index:stop_index],color)
+        axs[6].set_ylabel("Fr larm")
+        axs[7].set_ylabel("Fr rarm")
+        axs[6].legend()
+        axs[7].legend()
+
+    if set_label:
+        line0.set_label(label)
+        line1.set_label(label)
+        line2.set_label(label)
+        line3.set_label(label)
+        line4.set_label(label)
+        line5.set_label(label)
+        if plot_radial_force:
+            line6.set_label(label)
+            line7.set_label(label)
+
+    axs[0].set_ylabel("Fx larm")
+    axs[1].set_ylabel("Fy larm")
+    axs[2].set_ylabel("Fz larm")
+    axs[3].set_ylabel("Fx rarm")
+    axs[4].set_ylabel("Fy rarm")
+    axs[5].set_ylabel("Fz rarm")
+
+    axs[0].legend()
+    axs[1].legend()
+    axs[2].legend()
+    axs[3].legend()
+    axs[4].legend()
+    axs[5].legend()
+
+def plot_force_mean_filter(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
+    if label == "dirty" or label == "short" or label == "shorter":
+        color = "maroon"
+    elif label == "partlydirty" or label == "long":
+        color = "lightcoral"
+    elif label == "short_2":
+        color = "navy"
+    else:
+        color = "lightseagreen"
+
+    if fig is None or axs is None:
+        fig, axs = plt.subplots(6, 1)
+
+    print np.shape(force["larm"])
+
+    #line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    line1, = axs[1].plot(mean_filter(np.transpose(force["larm"])[1][start_index:stop_index],window),color)
+    line2, = axs[2].plot(mean_filter(np.transpose(force["larm"])[2][start_index:stop_index],window),color)
+    
+
+    line3, = axs[3].plot(mean_filter(np.transpose(force["rarm"])[0][start_index:stop_index],window),color)
+    line4, = axs[4].plot(mean_filter(np.transpose(force["rarm"])[1][start_index:stop_index],window),color)
+    line5, = axs[5].plot(mean_filter(np.transpose(force["rarm"])[2][start_index:stop_index],window),color)
+
+    if plot_radial_force:
+        line6, = axs[6].plot(mean_filter(np.transpose(force["larm"])[3][start_index:stop_index],window),color)
+        line7, = axs[7].plot(mean_filter(np.transpose(force["rarm"])[3][start_index:stop_index],window),color)
+        axs[6].set_ylabel("Fr larm")
+        axs[7].set_ylabel("Fr rarm")
+        axs[6].legend()
+        axs[7].legend()
+
+    if set_label:
+        line0.set_label(label)
+        line1.set_label(label)
+        line2.set_label(label)
+        line3.set_label(label)
+        line4.set_label(label)
+        line5.set_label(label)
+        if plot_radial_force:
+            line6.set_label(label)
+            line7.set_label(label)
+
+    axs[0].set_ylabel("Fx larm")
+    axs[1].set_ylabel("Fy larm")
+    axs[2].set_ylabel("Fz larm")
+    axs[3].set_ylabel("Fx rarm")
+    axs[4].set_ylabel("Fy rarm")
+    axs[5].set_ylabel("Fz rarm")
+
+    axs[0].legend()
+    axs[1].legend()
+    axs[2].legend()
+    axs[3].legend()
+    axs[4].legend()
+    axs[5].legend()
+
+def plot_force_strided(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
+    if label == "dirty" or label == "short" or label == "shorter":
+        color = "maroon"
+    elif label == "partlydirty" or label == "long":
+        color = "lightcoral"
+    elif label == "short_2":
+        color = "navy"
+    else:
+        color = "lightseagreen"
+
+    if fig is None or axs is None:
+        fig, axs = plt.subplots(6, 1)
+
+    print np.shape(force["larm"])
+
+    line0, = axs[0].plot(mean_filter_strided(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    line1, = axs[1].plot(mean_filter_strided(np.transpose(force["larm"])[1][start_index:stop_index],window),color)
+    line2, = axs[2].plot(mean_filter_strided(np.transpose(force["larm"])[2][start_index:stop_index],window),color)
+    
+
+    line3, = axs[3].plot(mean_filter_strided(np.transpose(force["rarm"])[0][start_index:stop_index],window),color)
+    line4, = axs[4].plot(mean_filter_strided(np.transpose(force["rarm"])[1][start_index:stop_index],window),color)
+    line5, = axs[5].plot(mean_filter_strided(np.transpose(force["rarm"])[2][start_index:stop_index],window),color)
+
+    if plot_radial_force:
+        line6, = axs[6].plot(mean_filter_strided(np.transpose(force["larm"])[3][start_index:stop_index],window),color)
+        line7, = axs[7].plot(mean_filter_strided(np.transpose(force["rarm"])[3][start_index:stop_index],window),color)
+        axs[6].set_ylabel("Fr larm")
+        axs[7].set_ylabel("Fr rarm")
+        axs[6].legend()
+        axs[7].legend()
+
+    if set_label:
+        line0.set_label(label)
+        line1.set_label(label)
+        line2.set_label(label)
+        line3.set_label(label)
+        line4.set_label(label)
+        line5.set_label(label)
+        if plot_radial_force:
+            line6.set_label(label)
+            line7.set_label(label)
 
     axs[0].set_ylabel("Fx larm")
     axs[1].set_ylabel("Fy larm")
