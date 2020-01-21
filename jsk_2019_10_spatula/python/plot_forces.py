@@ -10,8 +10,8 @@ window = 7
 plot_radial_force = True
 
 def main():
-    read_bag()
-    #read_json()
+    #read_bag()
+    read_json()
 
 def read_json_debug():
     path_bag = "/home/leus/force_different_spatula_pos/test"
@@ -59,12 +59,22 @@ def read_json():
         if label != "long" and label != "short":
             continue
         n_t = dict1["n_t"][action]
+        ts = np.array(dict1["ts"][action])[0:n_t[i],i]
         force_l = np.array(dict2[action]["larm"])
         force_r = np.array(dict2[action]["rarm"])
         force = {}
         force["larm"] = force_l[0:n_t[i],:,i]
         force["rarm"] = force_r[0:n_t[i],:,i]
-        plot_force(force,label,fig=fig,axs=axs)
+        print "--- shapes ts larm rarm ---"
+        print np.shape(ts)
+        print np.shape(force["larm"])
+        print np.shape(force["rarm"])
+        print "-------"
+        first = True
+        if first:
+            plot_force(ts,force,label,fig=fig,axs=axs)
+        else:
+            plot_force(ts,force,label,fig=fig,axs=axs,set_label=False)
     plt.show()
 
 
@@ -132,10 +142,10 @@ def read_bag():
             print "task length in samples"
             print stop_index - start_index
             if first:
-                plot_force_resampled(ts_action,force,label,start_index,stop_index,fig,axs,True)
+                plot_force(ts_action,force,label,start_index,stop_index,fig,axs,True)
                 first = False
             else:
-                plot_force_resampled(ts_action,force,label,start_index,stop_index,fig,axs,False)
+                plot_force(ts_action,force,label,start_index,stop_index,fig,axs,False)
     plt.show()
 
 def ts_to_sec(ts):
@@ -241,21 +251,29 @@ def plot_force(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,
     if fig is None or axs is None:
         fig, axs = plt.subplots(6, 1)
 
+    if stop_index == -1:
+        stop_index = np.shape(np.transpose(force["larm"]))[1]
+        print "stop_index"
+        print stop_index
+
+    print "in plot shapes x y "
     print np.shape(force["larm"])
+    print np.shape(np.transpose(force["larm"])[0][start_index:stop_index])
+    print np.shape(ts)
 
     #line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
-    line0, = axs[0].plot(np.transpose(force["larm"])[0][start_index:stop_index],color)
-    line1, = axs[1].plot(np.transpose(force["larm"])[1][start_index:stop_index],color)
-    line2, = axs[2].plot(np.transpose(force["larm"])[2][start_index:stop_index],color)
+    line0, = axs[0].plot(ts,np.transpose(force["larm"])[0][start_index:stop_index],color)
+    line1, = axs[1].plot(ts,np.transpose(force["larm"])[1][start_index:stop_index],color)
+    line2, = axs[2].plot(ts,np.transpose(force["larm"])[2][start_index:stop_index],color)
     
 
-    line3, = axs[3].plot(np.transpose(force["rarm"])[0][start_index:stop_index],color)
-    line4, = axs[4].plot(np.transpose(force["rarm"])[1][start_index:stop_index],color)
-    line5, = axs[5].plot(np.transpose(force["rarm"])[2][start_index:stop_index],color)
+    line3, = axs[3].plot(ts,np.transpose(force["rarm"])[0][start_index:stop_index],color)
+    line4, = axs[4].plot(ts,np.transpose(force["rarm"])[1][start_index:stop_index],color)
+    line5, = axs[5].plot(ts,np.transpose(force["rarm"])[2][start_index:stop_index],color)
 
     if plot_radial_force:
-        line6, = axs[6].plot(np.transpose(force["larm"])[3][start_index:stop_index],color)
-        line7, = axs[7].plot(np.transpose(force["rarm"])[3][start_index:stop_index],color)
+        line6, = axs[6].plot(ts,np.transpose(force["larm"])[3][start_index:stop_index],color)
+        line7, = axs[7].plot(ts,np.transpose(force["rarm"])[3][start_index:stop_index],color)
         axs[6].set_ylabel("Fr larm")
         axs[7].set_ylabel("Fr rarm")
         axs[6].legend()
