@@ -127,10 +127,10 @@ class AnalyzeEffort():
             
     def publish_force(self):
         force = Force()
-        print "larm"
-        print np.shape(self.force["larm"])
-        print "rarm"
-        print np.shape(self.force["rarm"])
+        #print "larm"
+        #print np.shape(self.force["larm"])
+        #print "rarm"
+        #print np.shape(self.force["rarm"])
         force.larm = self.force["larm"]
         force.rarm = self.force["rarm"]
         self.pub.publish(force)
