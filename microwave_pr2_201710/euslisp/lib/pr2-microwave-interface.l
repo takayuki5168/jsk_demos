@@ -35,6 +35,14 @@
         (if use-ri
             (send *pr2* :move-to (send *ri* :state :worldcoords) :world))
 
+	;;KO
+	(setq av-ri (send *ri* :state :potentio-vector))
+	(send *pr2* :angle-vector av-ri)
+	(send *pr2* :torso-waist-z :joint-angle 50)
+	(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+        (send *ri* :wait-interpolation)
+	
+
         ;; init microwave
         (unless (boundp '*microwave*) (setq *microwave* (microwave-init)))
         (send *microwave* :move-to (send (send *scene* :spot "/eng2/7f/room73B2-counter-side") :worldcoords) :world)
@@ -318,6 +326,35 @@
      (send *ri* :wait-interpolation))
    )
 
+  (:put-cup-handle 
+   ()
+   (send *pr2* :rarm :angle-vector #f(-6.62506 -3.96955 -41.286 -121.526 -151.42 -91.9334 236.595))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(4.8101 10.4514 -23.4935 -95.4876 -158.274 -72.0419 203.178))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(20.6674 -13.5168 -27.0534 -14.591 -136.61 -23.4884 171.545))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(17.61 -5.36846 -32.4696 -26.94 -143.034 -24.1605 184.046))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation)
+	 (send *ri* :stop-grasp :rarm)
+	 (send *ri* :wait-interpolation))
+   ;;move back to initial pos
+   (send *pr2* :rarm :angle-vector #f(20.6674 -13.5168 -27.0534 -14.591 -136.61 -23.4884 171.545))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(4.8101 10.4514 -23.4935 -95.4876 -158.274 -72.0419 203.178))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation))
+   
+   (print "put cup with handle into microwave"))
+
+  
   (:put-object
    (&optional (wait? nil))
    (send *microwave* :move-to (make-coords :pos microwave-pos :rpy (car microwave-rpy)) :world)
@@ -560,24 +597,27 @@
   )
 
 (defun execute ()
-  (setq *pmi* (instance pr2-microwave-interface :init t))
+  (setq *pmi* (instance pr2-microwave-interface :init t)) ;;added low torso instead of reset-pose
 
   ;;(send *pmi* :go-to-microwave-roughly)
+  ;;need to change av, pr2 goes into reset pose
   (send *pmi* :go-to-microwave-accurately)
 
   ;; put object in microwave
-  (send *pmi* :open-microwave)
+  ;;have tomove right arm collision left arm with cup!!!!
+  (send *pmi* :open-microwave) ;;works even with my grippers and gloves!
 
   (send *pmi* :go-forward)
-  (send *pmi* :put-object)
+  ;;(send *pmi* :put-object) ;;need to change for cup, careful with infinity joint
+  (send *pmi* :put-cup-handle)
 
   (send *pmi* :go-backward)
   (send *pmi* :close-microwave)
 
   ;; push button
   (send *pmi* :go-to-microwave-accurately)
-  (send *pmi* :push-heat-button)
-  (send *pmi* :push-start-button)
+  (send *pmi* :push-heat-button) ;;needs tuning!!
+  (send *pmi* :push-start-button) ;;needs tuning
 
   ;; wait for baking
   (unix::sleep (* 2 60))
@@ -586,7 +626,7 @@
   (send *pmi* :open-microwave)
 
   (send *pmi* :go-forward)
-  (send *pmi* :take-object)
+  (send *pmi* :take-object) ;;carefu with infinity joint!
 
   (send *pmi* :go-backward)
   (send *pmi* :close-microwave)
