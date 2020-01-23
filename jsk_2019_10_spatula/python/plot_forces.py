@@ -11,7 +11,8 @@ plot_radial_force = True
 
 def main():
     #read_bag()
-    read_json()
+    #read_json()
+    read_json_no_time()
 
 def read_json_debug():
     path_bag = "/home/leus/force_different_spatula_pos/test"
@@ -56,7 +57,8 @@ def read_json():
     print dict1["n_exp"].keys()
     for i in range(dict1["n_exp"][action]):
         label = dict1["label"][i]
-        if label != "long" and label != "short":
+        #if label != "long" and label != "short":
+        if label not in ["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
             continue
         n_t = dict1["n_t"][action]
         ts = np.array(dict1["ts"][action])[0:n_t[i],i]
@@ -65,18 +67,42 @@ def read_json():
         force = {}
         force["larm"] = force_l[0:n_t[i],:,i]
         force["rarm"] = force_r[0:n_t[i],:,i]
-        print "--- shapes ts larm rarm ---"
-        print np.shape(ts)
-        print np.shape(force["larm"])
-        print np.shape(force["rarm"])
-        print "-------"
         first = True
         if first:
             plot_force(ts,force,label,fig=fig,axs=axs)
+            first = False
         else:
             plot_force(ts,force,label,fig=fig,axs=axs,set_label=False)
     plt.show()
 
+def read_json_no_time():
+    path = "/home/leus/force_feedack_exp_19_01"
+    path_json = "%s/force.json" % path
+
+    #KO hack to debug compare_force
+    fig, axs = plt.subplots(8, 1)
+    t1 = time.time()
+    f = open(path_json,"r")
+    test = f.read()
+    f.close()
+    exec("dict1 = %s" % test)
+    dict2 = dict1["force"]
+    action = "av3wall-0-1"
+    print dict1["n_exp"].keys()
+    for i in range(dict1["n_exp"][action]):
+        label = dict1["label"][i]
+        #if label != "long" and label != "short":
+        if label not in ["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+            continue
+        n_t = dict1["n_t"][action]
+        force_l = np.array(dict2[action]["larm"])
+        force_r = np.array(dict2[action]["rarm"])
+        force = {}
+        force["larm"] = force_l[:,:,i]
+        force["rarm"] = force_r[:,:,i]
+
+        plot_force_no_time(force,label,fig=fig,axs=axs,set_label=False)
+    plt.show()
 
 def read_bag():
     fig, axs = plt.subplots(8, 1)
@@ -237,6 +263,70 @@ def plot_force_resampled(ts,force,label,start_index = 0,stop_index = -1,fig=None
     axs[3].legend()
     axs[4].legend()
     axs[5].legend()
+
+def plot_force_no_time(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
+    if label == "dirty" or label == "short" or label == "shorter":
+        color = "maroon"
+    elif label == "partlydirty" or label == "long":
+        color = "lightcoral"
+    elif label == "short_2":
+        color = "navy"
+    else:
+        color = "lightseagreen"
+
+    if fig is None or axs is None:
+        fig, axs = plt.subplots(6, 1)
+
+    if stop_index == -1:
+        stop_index = np.shape(np.transpose(force["larm"]))[1]
+        print "stop_index"
+        print stop_index
+
+
+
+    #line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    line0, = axs[0].plot(np.transpose(force["larm"])[0][start_index:stop_index],color)
+    line1, = axs[1].plot(np.transpose(force["larm"])[1][start_index:stop_index],color)
+    line2, = axs[2].plot(np.transpose(force["larm"])[2][start_index:stop_index],color)
+    
+
+    line3, = axs[3].plot(np.transpose(force["rarm"])[0][start_index:stop_index],color)
+    line4, = axs[4].plot(np.transpose(force["rarm"])[1][start_index:stop_index],color)
+    line5, = axs[5].plot(np.transpose(force["rarm"])[2][start_index:stop_index],color)
+
+    if plot_radial_force:
+        line6, = axs[6].plot(np.transpose(force["larm"])[3][start_index:stop_index],color)
+        line7, = axs[7].plot(np.transpose(force["rarm"])[3][start_index:stop_index],color)
+        axs[6].set_ylabel("Fr larm")
+        axs[7].set_ylabel("Fr rarm")
+        axs[6].legend()
+        axs[7].legend()
+
+    if set_label:
+        line0.set_label(label)
+        line1.set_label(label)
+        line2.set_label(label)
+        line3.set_label(label)
+        line4.set_label(label)
+        line5.set_label(label)
+        if plot_radial_force:
+            line6.set_label(label)
+            line7.set_label(label)
+
+    axs[0].set_ylabel("Fx larm")
+    axs[1].set_ylabel("Fy larm")
+    axs[2].set_ylabel("Fz larm")
+    axs[3].set_ylabel("Fx rarm")
+    axs[4].set_ylabel("Fy rarm")
+    axs[5].set_ylabel("Fz rarm")
+
+    axs[0].legend()
+    axs[1].legend()
+    axs[2].legend()
+    axs[3].legend()
+    axs[4].legend()
+    axs[5].legend()
+
 
 def plot_force(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
     if label == "dirty" or label == "short" or label == "shorter":
