@@ -1068,10 +1068,30 @@
 
 (defun move-base-transfer ()
   ;;(send *ri* :go-pos-unsafe 0.3 0 0)
+   ;;(send *ri* :go-pos-unsafe -0.3 0 0)
   ;;(send *ri* :go-pos-unsafe 0 0 -90)
   ;;(send *ri* :go-pos-unsafe 1.4 0 0)
   ;;(send *ri* :go-pos-unsafe 0 0 -90)
   (print "this function is unsafe!"))
+
+(defun exec ()
+  (prepare-robot)
+  (get-dense-ptcloud)
+  (send *ri* :go-pos-unsafe 0.3 0 0)
+  (prepare-bowl-transfer-safe)
+  (place-bowl)
+  (pick-up-cup)
+  ;;later all this should be one function
+  (send *ri* :go-pos-unsafe -0.3 0 0)
+  (send *pr2* :angle-vector *av-prepare-move-microwave1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+  (send *ri* :wait-interpolation)
+  (send *ri* :go-pos-unsafe 0 0 -90)
+  (send *ri* :go-pos-unsafe 1.4 0 0)
+  (send *ri* :go-pos-unsafe 0 0 -90)
+  ;;now microwave demo
+  )
+
 
 ;;;;;;;;;;;;;;;;
 ;;subcriptions;;
