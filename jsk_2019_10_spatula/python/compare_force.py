@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 #path_json = "/home/leus/force_different_spatula_pos/test/force.json"
 path = "/home/leus/force_feedack_exp_19_01"
 path_json = "%s/force.json" % path
-
+resample = True
 offline = False
-debug = True
+debug = False
 
 def main():
 	Compare = CompareForce()
@@ -39,7 +39,14 @@ class CompareForce:
 		#######################
 		###general parameter###
 		#######################
-		self.window = 7 #the time window over which th mean is calculated
+		self.window = None#7 #the time window over which th mean is calculated
+		self.logging_rate = 100
+		window_approx = 10
+		if not resample:
+			self.window = window_approx
+		self.time_window = window_approx * 1.0 / self.logging_rate; #averaging over 1/10 second which is around 6-10 samples depending on the Force publishing rate
+		#KO not integrated yet
+		self.min_sample = 5 #if the number of samples is less than min_sample the force is not compared
 		#maybe save this dicitonary in a json file in case it becomes larger
 		self.action_force = {"av5transfer":{"arm":"larm","direction":2},"av3wall-0-1":{"arm":"larm","direction":2}} #dictionary mapping the relevant force to an action
 		self.label_up = "long"
@@ -56,9 +63,13 @@ class CompareForce:
 		self.label = []
 		self.n_exp = {}
 		self.n_t = {}
-		self.time = 0 #is used to count up the time during one task to synchronize
+		self.n_sample = 0 #is used to count up the time during one task to synchronize
 		self.action_status = 0
 		self.action = None
+		self.start_time_action = 0
+		self.start_time_window = 0
+		self.time_sequence = 0
+		self.ts =[]
 
 		#to see if filter work correct
 		if debug:
@@ -77,35 +88,50 @@ class CompareForce:
 
 
 	def callback_force(self,msg):
-		print "action status: %d" % self.action_status
 		if self.action_status == 0:
 			return True
-		self.time = self.time + 1
+		self.n_sample = self.n_sample + 1
+		if self.resample:
+			time = rospy.get_time()
+			action_time = time - self.start_time_action
+			self.time_sequence =  time - self.start_time_window
+			self.ts.append(action_time)
+			#print "+++++++ relative time ++++++"
+			#print self.time_sequence
 		self.force["larm"].append(msg.larm)
 		self.force["rarm"].append(msg.rarm)
+		#print "**************shapes*************"
+		#print np.shape(self.ts)
 		if self.action not in self.action_force.keys():
 			return True
-		if np.shape(self.force[self.action_force[self.action]["arm"]])[0] == self.window:# and np.all(self.time < np.array(self.n_t[self.action])):
+		if not resample and np.shape(self.force[self.action_force[self.action]["arm"]])[0] == self.window:# and np.all(self.n_sample < np.array(self.n_t[self.action])):
 			self.compare()
-		#if not np.all(self.time < np.array(self.n_t[self.action])):
-		#	print "a sequence is too short"
+		if resample and self.time_sequence > self.time_window:
+			self.compare()
 
 	def callback_annotation(self,msg):
 		[self.action,flag] = msg.data.split("_")
-		print "action: %s" % self.action
+		print "action: %s , type: %s" % (self.action,flag)
 		if flag == "start":
-			self.action_status = 1
+			if self.action not in self.action_force.keys():
+				print "action not in action_force -> ignored"
+				self.action_status = 0
+				return True
+			if resample:
+				self.start_time_action = rospy.get_time()
+				self.start_time_window = rospy.get_time()
 			self.read_force()
-			self.time = 0
+			self.n_sample = 0
 			self.force["larm"] = []
 			self.force["rarm"] = []
+			self.action_status = 1
+
 		if flag == "end":
 			self.action_status = 0
-			#self.action = None
+			self.ts = []
 
 		if debug and self.action == "av5transfer" and flag == "end":
 			self.plot_save_up_down()
-		print "action status: %d" % self.action_status
 
 	def read_json(self,path):
 		f = open(path,"r")
@@ -132,30 +158,50 @@ class CompareForce:
 		self.force_des["rarm"]["down"] = force_des_rarm_down
 
 	def compare(self):
-		arm = self.action_force[self.action]["arm"]
-		direction = self.action_force[self.action]["direction"]
-		actual = self.mean_filter(np.array(self.force[arm])[:,direction]) 
-		print "shape actual"
-		print np.shape(actual)
-		self.save_actual.append(actual)
+
+		if resample:
+			ts = self.ts
+			self.ts = []
+			self.start_time_window = rospy.get_time() #start of a new time sequence
+			start_ts = ts[0]
+			stop_ts = ts[-1]
+			start_index = int(round(start_ts*self.logging_rate))
+			stop_index = int(round(stop_ts*self.logging_rate))
+			arm = self.action_force[self.action]["arm"]
+			direction = self.action_force[self.action]["direction"]
+			#KO
+			if stop_index > np.shape(self.force_des[arm]["up"])[0]:
+				stop_index = np.shape(self.force_des[arm]["up"])[0]
+			self.window = stop_index - start_index
+		
+		if resample:
+			actual = self.mean_filter(self.resample(ts,np.array(self.force[arm])[:,direction])) 
+		else:
+			actual = self.mean_filter(np.array(self.force[arm])[:,direction]) 
+		if debug:
+			self.save_actual.append(actual)
 		self.force["larm"] = []
 		self.force["rarm"] = []
 
-		print "shape force des up down"
-		print np.shape(self.force_des[arm]["up"])
-		print np.shape(self.force_des[arm]["down"])
+		#print "shape force des up down"
+		#print np.shape(self.force_des[arm]["up"])
+		#print np.shape(self.force_des[arm]["down"])
 
-		#self.force_des["up"][time,direction,experiments]
-		up = self.force_des[arm]["up"][self.time - self.window : self.time , direction, :]
-		down = self.force_des[arm]["down"][self.time - self.window : self.time , direction, :]
-		print "shape up down"
-		print np.shape(up)
-		print np.shape(down)
+		#self.force_des["up"][n_sample,direction,experiments]
+		if resample:
+			up = self.force_des[arm]["up"][start_index:stop_index, direction, :]
+			down = self.force_des[arm]["down"][start_index:stop_index, direction, :]
+		else:
+			up = self.force_des[arm]["up"][self.n_sample - self.window : self.n_sample , direction, :]
+			down = self.force_des[arm]["down"][self.n_sample - self.window : self.n_sample , direction, :]
+		#print "shape up down"
+		#print np.shape(up)
+		#print np.shape(down)
 		#averaging over time first 
 		up_mean = []
 		down_mean = []
 		for i in range(np.shape(up)[1]):
-			if np.any(up[:,i]==0):
+			if np.any(up[:,i]==0): #in reality a signal is never exactly 0, only if it still consits of the default value
 				up_mean.append(0)
 			else:
 				up_mean.append(self.mean_filter(up[:,i]))
@@ -168,14 +214,13 @@ class CompareForce:
 
 		up_mean = np.array(up_mean)
 		down_mean= np.array(down_mean)
-		self.save_up["all"].append(up_mean)
-		self.save_down["all"].append(down_mean)
+		if debug:
+			self.save_up["all"].append(up_mean)
+			self.save_down["all"].append(down_mean)
 		#averaging/maximum/minimum over experiments next
 		up_dict = {}
 		down_dict = {}
-		#don't compute gain if the data available is less than 50%
-		print np.shape(up_mean)
-		print np.shape(down_mean)
+		#don't compute gain if the data available is less than 50%, only necessary if not resampled
 		if float(len(up_mean[up_mean != 0])) / len(up_mean) < 0.5 or float(len(down_mean[down_mean != 0])) / len(down_mean) < 0.5:
 			print "too little signals"
 			return True
@@ -197,11 +242,21 @@ class CompareForce:
 		if not offline:
 			self.pub.publish(gain)
 
+	def resample(self,ts,signal):
+		#print "-------resample--------"
+		#print np.shape(ts)
+		#print np.shape(signal)
+		stretched_signal = np.interp(np.linspace(ts[0],ts[-1],self.window),ts,signal)
+		#print np.shape(stretched_signal)
+		return stretched_signal
 
 	def mean_filter(self,signal):
 		if len(signal) != self.window:
 			print "CAUTION window size:%d  singal length:%d " % (self.window,len(signal))
+		#print "mean filter"
+		#print len(signal)
 		mean = sum(signal)/len(signal)
+		#print mean
 		return mean
 
 	def compute_gain(self,up,down,actual):
