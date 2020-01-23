@@ -168,6 +168,7 @@
   (setq oldtype type)
   )
 
+;;KO add speed here to use for adjustement as well as initial movement
 (defun position-left-arm (position)
   (setq fail nil)
   (if (= position 1) (send *pr2* :angle-vector *av-circulate-bowl-larm-1*)
@@ -1100,99 +1101,3 @@
 (ros::subscribe "force_gain"  std_msgs::float64 #'adjust-force)
 ;;(ros::subscribe "endeffector_force" jsk_2019_10_spatula::Force #'adapt-to-force)
 ;;(ros::subscribe "feedback_touching" std_msgs::float64 #'string-cb)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;fixed movement in beginning;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;(demo)
-
-;;(prepare-robot)
-
-;;can be used to gather the vision data (make sure to launch launchfiles first)
-;;clean one specific part of bowl (0,1,2,3,4,5,6, ,8,9,10,11,12,13,14,15)
-;;(setq i 0)
-;;(clean i)
-
-
-;;can be used to gather the effort data
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#|
-(setq i 0)
-(setq position (+ (* 1.0 (mod i *n-bowl-position*)) 1 ))
-(setq step-size (/ 360 (* 4  5)))
-(setq omega (* (* (/ (- 90 (+ (* position  step-size) (/ step-size 2))) 360) 2) pi))
-(position-left-arm omega)
-|#
-
-
-#|
-(prepare-robot)
-(setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-(get-dense-ptcloud)
-;;once the result is published, the scraping can start planned with the labels
-
-(while (not label-published)
-  (ros::spin-once);;to see if labels where published
-  )
-|#
-
-
-#|
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; transfer the dough to the other bowl ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;(send *ri* :go-pos-unsafe 0.4 0 0)
-
-(send *pr2* :angle-vector *av3*)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-(send *ri* :wait-interpolation)
-
-(send *pr2* :angle-vector *av-transfer-1-l*)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-(send *ri* :wait-interpolation)
-
-(send *pr2* :angle-vector *av-transfer-2-l*)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-(send *ri* :wait-interpolation)
-
-(send *pr2* :angle-vector *av-transfer-3-l*)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-(send *ri* :wait-interpolation)
-
-(send *pr2* :angle-vector *av-transfer-1-r*)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-(send *ri* :wait-interpolation)
-
-
-(setq *joint-angle-time-l* (list 1000 1000 1000)) 
-(setq *joint-angle-list-l* (list *av-transfer-1-l*  *av-transfer-2-l* *av-transfer-3-l*))
-(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
-(send *ri* :wait-interpolation)
-
-;;(setq *joint-angle-time* (list 2000 2000 2000 2000 2000 2000 ))
-(setq *joint-angle-time* (list 1000 1000 1000 1000 1000 1000 )) 
-(setq *joint-angle-list* (list *av-transfer-3-l*  *av-transfer-2-r* *av-transfer-3-r* *av-transfer-3-l*  *av-transfer-2b-r* *av-transfer-3b-r*))
-(dotimes (i 3)
- (send *ri* :angle-vector-sequence *joint-angle-list* *joint-angle-time*)
-(send *ri* :wait-interpolation)
-  )
-
-(setq *joint-angle-time-r* (list 1000 1000 1000 1000 1000 1000)) 
-(setq *joint-angle-list-r* (list *av-transfer-1-r*  *av-transfer-2-r* *av-transfer-3-r* *av-transfer-1b-r*  *av-transfer-2b-r* *av-transfer-3b-r*))
-(send *ri* :angle-vector-sequence *joint-angle-list-r* *joint-angle-time-r*)
-
-(dotimes (i 3)
-(setq *joint-angle-time-ra* (list 700 700 700 400)) 
-(setq *joint-angle-list-ra* (list *av-transfer-3-l*  *av-transfer-2-r* *av-transfer-23-r* *av-transfer-3-r*))
-(send *ri* :angle-vector-sequence *joint-angle-list-ra* *joint-angle-time-ra*)
-(send *ri* :wait-interpolation)
-(unix:sleep 1)
-(setq *joint-angle-time-rb* (list 700 700 700)) 
-(setq *joint-angle-list-rb* (list *av-transfer-3-l*  *av-transfer-2b-r* *av-transfer-3b-r*))
-(send *ri* :angle-vector-sequence *joint-angle-list-rb* *joint-angle-time-rb*)
-(send *ri* :wait-interpolation)
-(unix:sleep 1)
-  )
-|#
