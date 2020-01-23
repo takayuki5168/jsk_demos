@@ -36,10 +36,11 @@
             (send *pr2* :move-to (send *ri* :state :worldcoords) :world))
 
 	;;KO
-	(setq av-ri (send *ri* :state :potentio-vector))
-	(send *pr2* :angle-vector av-ri)
+	;;(setq av-ri (send *ri* :state :potentio-vector))
+	;;(send *pr2* :angle-vector av-ri)
+	(send *pr2* :angle-vector #f(50.0193 59.9994 74.0014 70.0087 -119.999 20.0076 -30.0019 180.001 -39.4936 26.0339 -93.5104 -120.297 -203.777 -58.4382 258.91 7.7887 28.32))
 	(send *pr2* :torso-waist-z :joint-angle 50)
-	(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+	(send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
         (send *ri* :wait-interpolation)
 	
 
@@ -88,6 +89,15 @@
 
   (:go-to-microwave-accurately
    ()
+   ;;KO instead of moving PR2 in init the torso is moved down here
+   ;;(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+   ;;(send *ri* :wait-interpolation)
+   ;;KO make sure that cup does not crash cupboard
+   (send *pr2* :rarm :angle-vector #f(-39.4936 26.0339 -93.5104 -120.297 -203.777 -6.0 258.91))
+   (when use-ri
+       (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+       (send *ri* :wait-interpolation))
+   
    (let ((recog-flag nil)
          (cds))
      (if (null use-ri)
@@ -165,6 +175,11 @@
            )
          )
      )
+   ;;KO move arm back into previous position
+   (send *pr2* :rarm :angle-vector #f(-39.4936 26.0339 -93.5104 -120.297 -203.777 -58.4382 258.91))
+   (when use-ri
+       (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+       (send *ri* :wait-interpolation))
    )
 
   (:open-microwave
@@ -329,31 +344,76 @@
   (:put-cup-handle 
    ()
    (send *pr2* :rarm :angle-vector #f(-6.62506 -3.96955 -41.286 -121.526 -151.42 -91.9334 236.595))
-   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
 	 (send *ri* :wait-interpolation))
    (send *pr2* :rarm :angle-vector #f(4.8101 10.4514 -23.4935 -95.4876 -158.274 -72.0419 203.178))
-   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
 	 (send *ri* :wait-interpolation))
    (send *pr2* :rarm :angle-vector #f(20.6674 -13.5168 -27.0534 -14.591 -136.61 -23.4884 171.545))
-   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
 	 (send *ri* :wait-interpolation))
-   (send *pr2* :rarm :angle-vector #f(17.61 -5.36846 -32.4696 -26.94 -143.034 -24.1605 184.046))
-   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+   ;;change lowerposition due to workaround for spinning
+   ;;(send *pr2* :rarm :angle-vector #f(17.61 -5.36846 -32.4696 -26.94 -143.034 -24.1605 184.046))
+   ;;(send *pr2* :rarm :angle-vector #f(17.2599 -7.17866 -36.8263 -25.4638 -139.507 -23.7161 176.153))
+   ;;change to pick up better
+   (send *pr2* :rarm :angle-vector #f(15.1359 -7.46127 -43.6881 -32.3907 -137.927 -31.4548 183.473))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
 	 (send *ri* :wait-interpolation))
-   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
-	 (send *ri* :wait-interpolation)
-	 (send *ri* :stop-grasp :rarm)
+   (when use-ri (send *ri* :stop-grasp :rarm)
 	 (send *ri* :wait-interpolation))
    ;;move back to initial pos
    (send *pr2* :rarm :angle-vector #f(20.6674 -13.5168 -27.0534 -14.591 -136.61 -23.4884 171.545))
-   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
 	 (send *ri* :wait-interpolation))
    (send *pr2* :rarm :angle-vector #f(4.8101 10.4514 -23.4935 -95.4876 -158.274 -72.0419 203.178))
-   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
 	 (send *ri* :wait-interpolation))
-   
+   (send *pr2* :rarm :angle-vector #f(-6.62506 -3.96955 -41.286 -121.526 -151.42 -91.9334 236.595))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(-39.4936 26.0339 -93.5104 -120.297 -203.777 -58.4382 258.91))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
    (print "put cup with handle into microwave"))
 
+  
+  (:take-cup-handle 
+   ()
+   (send *pr2* :rarm :angle-vector #f(-6.62506 -3.96955 -41.286 -121.526 -151.42 -91.9334 236.595))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(4.8101 10.4514 -23.4935 -95.4876 -158.274 -72.0419 203.178))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(20.6674 -13.5168 -27.0534 -14.591 -136.61 -23.4884 171.545))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   ;;(send *pr2* :rarm :angle-vector #f(17.61 -5.36846 -32.4696 -26.94 -143.034 -24.1605 184.046))
+   ;;(send *pr2* :rarm :angle-vector #f(17.2599 -7.17866 -36.8263 -25.4638 -139.507 -23.7161 176.153))
+   (send *pr2* :rarm :angle-vector #f(15.1359 -7.46127 -43.6881 -32.3907 -137.927 -31.4548 183.473))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+	 (send *ri* :wait-interpolation))
+   ;;move towards object slowly
+   (send *pr2* :rarm :angle-vector #f(21.5466 -13.8811 -34.5959 -8.59437 -122.618 -23.8449 155.107))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+	 (send *ri* :wait-interpolation))
+   ;;close gripper
+   (when use-ri (send *ri* :start-grasp :rarm :gain 0.05)
+	 (send *ri* :wait-interpolation))
+   ;;move back to initial pos
+   (send *pr2* :rarm :angle-vector #f(20.6674 -13.5168 -27.0534 -14.591 -136.61 -23.4884 171.545))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(4.8101 10.4514 -23.4935 -95.4876 -158.274 -72.0419 203.178))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(-6.62506 -3.96955 -41.286 -121.526 -151.42 -91.9334 236.595))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   (send *pr2* :rarm :angle-vector #f(-39.4936 26.0339 -93.5104 -120.297 -203.777 -58.4382 258.91))
+   (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+	 (send *ri* :wait-interpolation))
+   (print "put cup with handle into microwave"))
   
   (:put-object
    (&optional (wait? nil))
@@ -510,17 +570,37 @@
      (send *pr2* :rarm :inverse-kinematics heat-button-front
            :rotation-axis t)
      (if wait? (wait-enter))
-     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
            (send *ri* :wait-interpolation))
-     (unix::sleep 1)
+     ;;(unix::sleep 1)
 
 
      (send *pr2* :rarm :inverse-kinematics heat-button
            :rotation-axis t)
      (if wait? (wait-enter))
-     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
            (send *ri* :wait-interpolation))
 
+     ;;KO add movement to left right up and down to touch button even if vision imperfect
+     (setq *r-tcp* (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+     ;;one centimeter up
+     (send *r-tcp* :translate (float-vector 0 0 10) :world)
+     (send *pr2* :rarm :inverse-kinematics *r-tcp*)
+     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+           (send *ri* :wait-interpolation))
+     ;;one centimeter down
+     (send *r-tcp* :translate (float-vector 0 0 -20) :world)
+     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+           (send *ri* :wait-interpolation))
+     ;;one centimeter left
+     (send *r-tcp* :translate (float-vector 0 10 0) :world)
+     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+           (send *ri* :wait-interpolation))
+     ;;one centimeter right
+     (send *r-tcp* :translate (float-vector 0 -20 0) :world)
+     (when use-ri (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+           (send *ri* :wait-interpolation))
+     
      (send *pr2* :rarm :inverse-kinematics heat-button-front
            :rotation-axis t)
      (if wait? (wait-enter))
@@ -601,21 +681,22 @@
 
   ;;(send *pmi* :go-to-microwave-roughly)
   ;;need to change av, pr2 goes into reset pose
+  ;;ADD AV to avoid hitting the cupboard with cup!!
   (send *pmi* :go-to-microwave-accurately)
 
   ;; put object in microwave
   ;;have tomove right arm collision left arm with cup!!!!
   (send *pmi* :open-microwave) ;;works even with my grippers and gloves!
 
-  (send *pmi* :go-forward)
+  ;;(send *pmi* :go-forward)
   ;;(send *pmi* :put-object) ;;need to change for cup, careful with infinity joint
   (send *pmi* :put-cup-handle)
 
-  (send *pmi* :go-backward)
+  ;;(send *pmi* :go-backward)
   (send *pmi* :close-microwave)
 
   ;; push button
-  (send *pmi* :go-to-microwave-accurately)
+  ;;(send *pmi* :go-to-microwave-accurately)
   (send *pmi* :push-heat-button) ;;needs tuning!!
   (send *pmi* :push-start-button) ;;needs tuning
 
@@ -624,10 +705,30 @@
 
   ;; take object from microwave
   (send *pmi* :open-microwave)
+  (send *pmi* :take-cup-handle)
+  ;;(send *pmi* :go-forward)
+  ;;(send *pmi* :take-object) ;;carefu with infinity joint!
 
-  (send *pmi* :go-forward)
-  (send *pmi* :take-object) ;;carefu with infinity joint!
-
-  (send *pmi* :go-backward)
+  ;;(send *pmi* :go-backward)
   (send *pmi* :close-microwave)
+  )
+
+(defun execute-anne ()
+  (setq *pmi* (instance pr2-microwave-interface :init t)) ;;added low torso instead of reset-pose
+  (send *pmi* :go-to-microwave-accurately)
+  (speak-en "I am sorry I was not able to find the microwave, can you give me a second try with a fresh start")
+  (send *pmi* :open-microwave)
+  (send *pmi* :put-cup-handle)
+  (send *pmi* :close-microwave)
+  ;;(send *pmi* :push-heat-button) ;;needs tuning!!
+  ;;(send *pmi* :push-start-button) ;;needs tuning
+  ;; wait for baking
+  (speak-en "I can not push the buttons yet. I am sorry I still have a lot to learn, could you help me this time")
+  ;;(unix::sleep (* 2 60))
+  ;; take object from microwave
+  (send *pmi* :open-microwave)
+  (send *pmi* :take-cup-handle)
+  (send *pmi* :close-microwave)
+  (send *ri* :go-pos-unsafe 0 0 120)
+  (speak-en "who wants cake")
   )
