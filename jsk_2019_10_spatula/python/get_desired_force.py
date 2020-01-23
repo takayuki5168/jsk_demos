@@ -3,7 +3,7 @@ import rosbag
 import os
 import numpy as np
 
-
+resample = True
 #path_bag = "/home/leus/force_different_spatula_pos/test"
 path = "/home/leus/force_feedack_exp_19_01"
 path_json = "%s/force.json" % path
@@ -14,6 +14,9 @@ ts_dict = {}
 indices = {}
 n_t_dict = {}
 labels = []
+#probably good to move as much as posssible to offline computation
+n_time_action = {"av3wall-0-1":1} #specifies how long an action taks in seconds
+#if we have a publishing rate of 100 Hz we have n_sample = 100 * n_time
 
 
 def main():
@@ -55,15 +58,22 @@ def read_bag():
 
                 if topic == "/semantic_annotation":
                     [action,flag_type] = msg.data.split("_")
+                    if resample and action not in n_time_action.keys():
+                        continue
                     if flag_type == "start":
                         start_ts[action] = t.to_sec()
                         print action
+                        if resample:
+                            n_time = n_time_action[action]
+                            n_sample = 100*n_time
                     if flag_type == "end":
                         stop_ts[action] = t.to_sec()
+            if resample:
+                split_sequence(ts,force,start_ts,stop_ts,n_exp,n_time,n_sample)
+            else:
+                split_sequence(ts,force,start_ts,stop_ts,n_exp)
 
-            split_sequence(ts,force,start_ts,stop_ts,n_exp)
-
-def split_sequence(ts,force,start_ts,stop_ts,n_exp):
+def split_sequence(ts,force,start_ts,stop_ts,n_exp,n_time=None,n_sample=None):
     force_action = {}
     force_action["larm"] = []
     force_action["rarm"] = []
@@ -80,37 +90,67 @@ def split_sequence(ts,force,start_ts,stop_ts,n_exp):
         force_action["rarm"] = force["rarm"][start_index:stop_index]
 
         if action in force_dict.keys():
-            update_force_dict(action,force_action,ts_list_action)
+            if n_time and n_sample:
+                update_force_dict(action,force_action,ts_list_action,n_time,n_sample)   
+            else:
+                update_force_dict(action,force_action,ts_list_action)
         else:
             n_t = np.shape(force_action["larm"])[0]
-            force_array = np.zeros([int(round(1.5*n_t)) ,np.shape(force_action["larm"])[1],n_exp])
-            ts_array = np.zeros([int(round(1.5*n_t)),n_exp])
-            print "-------------"
-            print np.shape(ts_array)
+            if n_time and n_sample:
+                print n_time
+                print n_sample
+                force_array = np.zeros([n_sample,np.shape(force_action["larm"])[1],n_exp])
+            else:
+                force_array = np.zeros([int(round(1.5*n_t)) ,np.shape(force_action["larm"])[1],n_exp])
+                ts_array = np.zeros([int(round(1.5*n_t)),n_exp])
+                ts_dict[action] = ts_array
+
             force_dict[action] = {}
             force_dict[action]["larm"] = force_array
             force_dict[action]["rarm"] = force_array
             indices[action] = 0
             n_t_dict[action] = []
-            ts_dict[action] = ts_array
-            update_force_dict(action,force_action,ts_list_action)                      
+            
+            if n_time and n_sample:
+                update_force_dict(action,force_action,ts_list_action,n_time,n_sample)   
+            else:
+                update_force_dict(action,force_action,ts_list_action)
+                
 
-def update_force_dict(action,force,ts):
+
+def resample(ts,signal,n_time,n_sample):
+    stretched_signal = np.interp(np.linspace(0,n_time,n_sample),ts,signal)
+    return stretched_signal
+
+def update_force_dict(action,force,ts,n_time=None,n_sample=None):
     for arm in ["larm","rarm"]:
         force_array = np.array(force_dict[action][arm])
-        n_t = np.shape(force[arm])[0]
-        force_array[0:n_t,0:np.shape(force[arm])[1],indices[action]] = force[arm]
+        if n_time and n_sample:
+            print "----------------"
+            for i in range(np.shape(force[arm])[1]):
+                print np.shape(force[arm])
+                print type(force[arm])
+                print np.shape(ts)
+                force_array[:,i,indices[action]] = resample(ts,np.array(force[arm])[:,i],n_time,n_sample)
+        else:
+            print "XXXXXXXXXXXXXXXXXXXX"
+            n_t = np.shape(force[arm])[0]
+            force_array[0:n_t,0:np.shape(force[arm])[1],indices[action]] = force[arm]
         force_dict[action][arm] = force_array.tolist()
-    print "ts shaope list"
-    print np.shape(ts)
-    ts_array = np.array(ts_dict[action])
-    print ",,,,,,,,,,,,,,,,,,,"
-    print np.shape(ts_array)
-    ts_array[0:n_t,indices[action]] = ts
-    ts_dict[action] = ts_array.tolist()
-    print "ts shape dict"
-    print np.shape(ts_dict[action])
-    n_t_dict[action].append(n_t)
+        #print "ts shaope list"
+        #print np.shape(ts)
+        if n_time and n_sample:
+            print ",.,.,.,.,.,.,.,.,.,."
+        else:
+            print "xxxxxxxxxxxxxxxxxxx"
+            ts_array = np.array(ts_dict[action])
+            #print ",,,,,,,,,,,,,,,,,,,"
+            #print np.shape(ts_array)
+            ts_array[0:n_t,indices[action]] = ts
+            ts_dict[action] = ts_array.tolist()
+            #print "ts shape dict"
+            #print np.shape(ts_dict[action])
+            n_t_dict[action].append(n_t)
     indices[action] = indices[action] + 1
 
 def save_json():
@@ -118,7 +158,8 @@ def save_json():
     data["n_exp"] = indices
     data["label"] = labels
     data["n_t"] = n_t_dict
-    data["ts"] = ts_dict
+    if not resample:
+        data["ts"] = ts_dict
     json_dict = json.dumps(data)
     f = open(path_json,"w")
     f.write(json_dict)
