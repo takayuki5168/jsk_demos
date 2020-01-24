@@ -1,4 +1,4 @@
- #!/usr/bin/env roseus
+#!/usr/bin/env roseus
 
 ;;hint use 543 l to put down the bowl
 
@@ -19,7 +19,7 @@
 ;;define global variables;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (load "angle-vectors.l")
-
+(setq *gain* 0)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;function definitions;;
@@ -54,13 +54,10 @@
   (send msg :roll jacobi-yaw)
   (send msg :pitch jacobi-pitch)
   (send msg :yaw jacobi-yaw)
-  ;;print the msg
-  ;;(ros::ros-info "msg [~A]" (send msg :x))
   ;;publish the msg
   (if (= arm 0)
       (ros::publish "scrape_left_jacobian" msg)
-      (ros::publish "scrape_right_jacobian" msg)
-      )
+      (ros::publish "scrape_right_jacobian" msg))
   )
 
 ;;get jacobian in world coordinate frame
@@ -93,24 +90,6 @@
   (publish-jacobi 1)
  )
 
-(defun move-left-arm (d)
-  ;;(send *l-tcp* :translate (float-vector 0 0 (* -1 (* d 10)))) ;;new bowl
-  (send *l-tcp* :translate (float-vector (* d 10) 0 0)) ;;new bowl
-  (send *pr2* :larm :inverse-kinematics *l-tcp*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
-  (while (send *ri* :interpolatingp :larm-controller)
-    (send *ri* :spin-once))
-  )
-
-;;define callback function
-(defun string-cb (msg)
-  (print (list 'cb (sys::thread-self) (send msg :data)))
-  (if (= (send msg :data) 0)
-      (print "everything perfect!");;no reaction, touching
-      (move-left-arm (send msg :data))
-      )
-  )
-
 ;;define callback function
 (defun schedule-scraping (msg)
   (setq label-published t)
@@ -129,78 +108,40 @@
   )
 
 (defun clean (i)
-  (print "clean")
-  ;;(unix:sleep 3)
-  ;;slight offset of 0.3 on the position as inverse-linematics fail for i=0 -> position=0
-  ;;(setq position (+ (* 1.0 (mod i *n-bowl-position*)) 0.3))
-  ;;(setq position (+ (* 1.0 (mod i *n-bowl-position*)) 1 ))
   (setq position (+ (mod i *n-bowl-position*) 1 ))
-
-  ;;(setq step-size (/ 360 (* 4  *n-bowl-position*)))
   (setq step-size (/ 360 (* 4  5)))
-  ;;(setq omega (* (* (/ (- 90 (+ (* (* 1.0 position)  step-size) (/ step-size 2))) 360) 2) pi))
   (if (< i *n-bowl-position*)
       (setq type 0)
       (if (< i (* 2 *n-bowl-position*)) ;;elseif
 	  (setq type 1)
 	  (if (< i (* 3 *n-bowl-position*)) ;;elseif
 	      (setq type 2)
-	      (setq type 3) ;;else
-	      )
-	  )
-    )
-  ;;quick workaround to make experiment work
-  ;;(setq oldtype -5)
+	      (setq type 3))));;else
   (unless (= oldtype type)
      (send *pr2* :angle-vector *av-base*)	  
      (send *ri* :angle-vector (send *pr2* :angle-vector) 500 :rarm-controller)	  
-     (send *ri* :wait-interpolation)	  	
-     )
-  ;;(position-left-arm omega)
-  (position-left-arm position)
-  ;;(unix:usleep 500000)
-  ;;KO cheat!!
-  ;;(scrape-wall 1000 type position)
+     (send *ri* :wait-interpolation))
+  (position-left-arm position 1000)
+  (send *ri* :wait-interpolation)
   (scrape-wall 1000 type position)
-  ;;(unix:usleep 500000)
-  ;;(unix:usleep 1000000)
-  ;;(scrape-wall 4000 type position)
   (setq oldtype type)
   )
 
-;;KO add speed here to use for adjustement as well as initial movement
-(defun position-left-arm (position)
+;;CAUTION! no wait interpolation
+(defun position-left-arm (position speed)
+  (print "POSITION")
+  (print *gain*)
   (setq fail nil)
-  (if (= position 1) (send *pr2* :angle-vector *av-circulate-bowl-larm-1*)
-      (if (= position 2) (send *pr2* :angle-vector *av-circulate-bowl-larm-2*)   
-	  (if (= position 3) (send *pr2* :angle-vector *av-circulate-bowl-larm-3*)
-	      (if (= position 4) (send *pr2* :angle-vector *av-circulate-bowl-larm-4*)
+  (setq *av-circulate-bowl-larm-1* (v+ *av-circulate-bowl-larm-1-up* (scale *gain* (v-  *av-circulate-bowl-larm-1-down* *av-circulate-bowl-larm-1-up*))))
+  (if (= position 1) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-1*)
+      (if (= position 2) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-2*)   
+	  (if (= position 3) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-3*)
+	      (if (= position 4) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-4*)
 		  (setq fail t)))))
   (if fail
       (print "sorry the position you chose does not exist")
-      (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller))
-  (send *ri* :wait-interpolation)
-  )
-
-
-(defun position-left-arm-old (omega)
-  (print "position left arm")
-  ;;(setq r 97.5)
-  (setq r 125)
-  (send *l-tcp* :translate (float-vector r 0 0)) ;;move KS into middle of bowl
-  (send *l-tcp* :translate (float-vector (- 0 (* r (cos omega))) (- 0 (* r (sin omega))) 0) ) 
-  (send *l-tcp* :rotate omega :z)
-  (send *pr2* :larm :inverse-kinematics *l-tcp*)
-  (if (boundp '*irtviewer*)
-      (send *irtviewer* :draw-objects))
-  (unless (arm-collision-check)
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
-    (send *ri* :wait-interpolation)
-    )
-  ;;move KS back into original Position
-  (send *l-tcp* :rotate (- omega) :z) ;;rotate back
-  (send *l-tcp* :translate (float-vector (+ 0 (* r (cos omega))) (+ 0 (* r (sin omega))) 0) )
-  (send *l-tcp* :translate (float-vector (- 0 r) 0 0)) ;;move KS into middle
+      (send *ri* :angle-vector (send *pr2* :angle-vector) :fast :larm-controller 0 :min-time 0.0 :scale 20))
+      ;;(send *ri* :angle-vector (send *pr2* :angle-vector) 500 :larm-controller))
   )
 
 ;;collision check function
@@ -215,100 +156,60 @@
             (all-child-links (send *pr2* :rarm-elbow-p :parent-link))))
           ))
 
-;;reaction to feedback_touching, the left arm adjusts the bowl in order to make the spatula touch it
-(defun move-left-arm (msg)
-  (print "move left arm!!")
-  (setq d (send msg :data))
-  ;;(send *l-tcp* :translate (float-vector 0 0 (* -1 (* d 10)))) ;;new bowl
-  ;;for scraping the wall
-  (print "moving")
-  (print d)
-  (send *l-tcp* :translate (float-vector (* d 10) 0 0)) ;;new bowl
-  (send *pr2* :larm :inverse-kinematics *l-tcp*)
-  (unless (arm-collision-check)
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 500 :larm-controller)
-    )
-  (while (send *ri* :interpolatingp :larm-controller)
-    (send *ri* :spin-once))
-  )
-
-
-
 ;;scraping movement of the right arm to scrape the wall of the bowl
 (defun scrape-wall (speed type bowl-position)
   ;;CAUTION changed semantic annotation
   ;;decide where to scrape
   ;;scrape the side of handle
   (get-jacobi-l-world)
-  (when (= type 3)
-    (load "av-scrape-wall-3.l")
-    )
+  (when (= type 3) (load "av-scrape-wall-3.l"))
   ;;scrape the opposite of handle
-  (when (= type 1)
-    (load "av-scrape-wall-1.l")
-    )
+  (when (= type 1) (load "av-scrape-wall-1.l"))
   ;;scrape the back, close to robot
-  (when (= type 2)
-    (load "av-scrape-wall-2.l")
-    )
+  (when (= type 2) (load "av-scrape-wall-2.l"))
   ;;scrape the front, away from robot
-  (when (= type 0)
-    (load "av-scrape-wall-0.l")
-    )
+  (when (= type 0) (load "av-scrape-wall-0.l"))
 
   ;;start with home pos
   (unless (= oldtype type)
-    (send *pr2* :angle-vector *av4-wall*)
+    (send *pr2* :rarm :angle-vector *av4-wall*)
     (unless (arm-collision-check)
-
       (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
       ;;(send *ri* :wait-interpolation)
         (while (send *ri* :interpolatingp :rarm-controller)
 	  (send *ri* :spin-once)
-	  (ros::spin-once);;to see if chatter published
+	  (ros::spin-once);;to see if gain was published
 	  (get-jacobi-r-world)
 	  (if (send *ri* :simulation-modep)  
-	      (send *ri* :robot-interface-simulation-callback))
-	  )
-	
-      )
-    )
+	      (send *ri* :robot-interface-simulation-callback)))))
   
-  
-  (send *pr2* :angle-vector *av1-wall*)
+  (send *pr2* :rarm :angle-vector *av1-wall*)
   (unless (arm-collision-check)
     (publish-semantic-annotation (format nil "av1wall-~a-~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
     ;;(send *ri* :wait-interpolation)
     (while (send *ri* :interpolatingp :rarm-controller)
       (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
+      (ros::spin-once);;to see if gain was published
       (get-jacobi-r-world)
       (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      )
-    (publish-semantic-annotation (format nil "av1wall-~a-~a_end" type bowl-position))
-    )
+	  (send *ri* :robot-interface-simulation-callback)))
+    (publish-semantic-annotation (format nil "av1wall-~a-~a_end" type bowl-position)))
   
-  
-  (send *pr2* :angle-vector *av2-wall*)
+  (send *pr2* :rarm :angle-vector *av2-wall*)
   (unless (arm-collision-check)
     (publish-semantic-annotation (format nil "av2wall-~a-~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
     ;;(send *ri* :wait-interpolation)
     (while (send *ri* :interpolatingp :rarm-controller)
       (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
+      (ros::spin-once);;to see if gain was published
       (get-jacobi-r-world)
       (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      )
-    (publish-semantic-annotation (format nil "av2wall-~a-~a_end" type bowl-position))
-    
-    )
+	  (send *ri* :robot-interface-simulation-callback)))
+    (publish-semantic-annotation (format nil "av2wall-~a-~a_end" type bowl-position)))
 
-
-  (send *pr2* :angle-vector *av3-wall*)
+  (send *pr2* :rarm :angle-vector *av3-wall*)
   (unless (arm-collision-check)
     (publish-semantic-annotation (format nil "av3wall-~a-~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
@@ -319,13 +220,12 @@
       (get-jacobi-r-world)
       (if (send *ri* :simulation-modep)
 	  (send *ri* :robot-interface-simulation-callback))
+      (position-left-arm position 200)
       )
-    (publish-semantic-annotation (format nil "av3wall-~a-~a_end" type bowl-position))
     
-    )
+    (publish-semantic-annotation (format nil "av3wall-~a-~a_end" type bowl-position)))
 
-  
-  (send *pr2* :angle-vector *av4-wall*)
+  (send *pr2* :rarm :angle-vector *av4-wall*)
   (unless (arm-collision-check)
     (publish-semantic-annotation (format nil "av4wall-~a-~a_start" type bowl-position))
     (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
@@ -335,125 +235,12 @@
       (ros::spin-once);;to see if chatter published
       (get-jacobi-r-world)
       (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      )
-    (publish-semantic-annotation (format nil "av4wall-~a-~a_end" type bowl-position))
-    
-    )
-
+	  (send *ri* :robot-interface-simulation-callback)))
+    (publish-semantic-annotation (format nil "av4wall-~a-~a_end" type bowl-position)))
   ;;(publish-semantic-annotation (format nil "end_~a_~a" type bowl-position))
   )
 
 
-(defun scrape-wall-up (speed type bowl-position)
-  ;;CAUTION changed semantic annotation
-  ;;decide where to scrape
-  ;;scrape the side of handle
-  (print "CAUTION scraping up!!!")
-  (get-jacobi-l-world)
-  (when (= type 3)
-    (load "av-scrape-wall-3.l")
-    )
-  ;;scrape the opposite of handle
-  (when (= type 1)
-    (load "av-scrape-wall-1.l")
-    )
-  ;;scrape the back, close to robot
-  (when (= type 2)
-    (load "av-scrape-wall-2.l")
-    )
-  ;;scrape the front, away from robot
-  (when (= type 0)
-    (load "av-scrape-wall-0.l")
-    )
-
-  ;;start with home pos
-  (unless (= oldtype type)
-    (send *pr2* :angle-vector *av4-wall-up*)
-    (unless (arm-collision-check)
-
-      (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-      ;;(send *ri* :wait-interpolation)
-        (while (send *ri* :interpolatingp :rarm-controller)
-	  (send *ri* :spin-once)
-	  (ros::spin-once);;to see if chatter published
-	  (get-jacobi-r-world)
-	  (if (send *ri* :simulation-modep)  
-	      (send *ri* :robot-interface-simulation-callback))
-	  )
-	
-      )
-    )
-  
-  
-  (send *pr2* :angle-vector *av1-wall-up*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av1wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      )
-    (publish-semantic-annotation (format nil "av1wall-~a-~a_end" type bowl-position))
-    )
-  
-  
-  (send *pr2* :angle-vector *av2-wall-up*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av2wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      )
-    (publish-semantic-annotation (format nil "av2wall-~a-~a_end" type bowl-position))
-    
-    )
-
-
-  (send *pr2* :angle-vector *av3-wall-up*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av3wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      )
-    (publish-semantic-annotation (format nil "av3wall-~a-~a_end" type bowl-position))
-    
-    )
-
-  
-  (send *pr2* :angle-vector *av4-wall-up*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av4wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      )
-    (publish-semantic-annotation (format nil "av4wall-~a-~a_end" type bowl-position))
-    
-    )
-
-  ;;(publish-semantic-annotation (format nil "end_~a_~a" type bowl-position))
-  )
 
 (defun prepare-robot ()
   (send *pr2* :angle-vector  *av-reset-pose-high*)
@@ -993,7 +780,7 @@
 
 
 (defun place-bowl ()
-    (send *pr2* :angle-vector  *av-transfer-6-l*)
+  (send *pr2* :angle-vector  *av-transfer-6-l*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
   (send *ri* :wait-interpolation)
   (send *pr2* :angle-vector  *av-transfer-5-l*)
@@ -1037,12 +824,14 @@
   )
 
 (defun adjust-force (msg)
-  (print (send msg :data))
-  ;;(setq gain (send msg :data))
-  ;;(setq av-diff (v- av-20mm av-0mm))
-  ;;(setq adjustment-av (scale gain av-diff))
-  ;;(setq adjusted-av (v+ av-0mm adjustment-av))
-  )
+  ;;(print (send msg :data))
+  (let (gain)
+    (setq gain (+ *gain* (* 0.3 (send msg :data))))
+    ;;only interpolation betwen the two vectors, not etxrapolaiton
+    (if (> gain 1) (setq *gain* 1)
+    (if (< gain 0) (setq *gain* 0);;else if 
+    (setq *gain* gain)));;else
+  ))
 
 (defun pick-up-cup ()
   (send *pr2* :angle-vector *av-prepare-cup1*)
@@ -1099,5 +888,3 @@
 ;;;;;;;;;;;;;;;;
 (ros::subscribe "pcl_nodelet/dirt_label" jsk_2019_10_spatula::BoolArray #'schedule-scraping)
 (ros::subscribe "force_gain"  std_msgs::float64 #'adjust-force)
-;;(ros::subscribe "endeffector_force" jsk_2019_10_spatula::Force #'adapt-to-force)
-;;(ros::subscribe "feedback_touching" std_msgs::float64 #'string-cb)
