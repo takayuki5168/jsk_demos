@@ -13,6 +13,7 @@ path_json = "%s/force.json" % path
 resample = True
 offline = False
 debug = True
+feedback_whole_action = True
 
 def main():
 	Compare = CompareForce()
@@ -48,7 +49,8 @@ class CompareForce:
 		#KO not integrated yet
 		self.min_sample = 5 #if the number of samples is less than min_sample the force is not compared
 		#maybe save this dicitonary in a json file in case it becomes larger
-		self.action_force = {"av5transfer":{"arm":"larm","direction":2},"av3wall-0-1":{"arm":"larm","direction":2}} #dictionary mapping the relevant force to an action
+		#could add feedback for scraping?
+		self.action_force = {"av3wall-0-1":{"arm":"larm","direction":2,"indices":[0,30]}} #dictionary mapping the relevant force to an action
 		self.label_up = "long"
 		self.label_down = "short"
 
@@ -105,9 +107,9 @@ class CompareForce:
 		#print np.shape(self.ts)
 		if self.action not in self.action_force.keys():
 			return True
-		if not resample and np.shape(self.force[self.action_force[self.action]["arm"]])[0] == self.window:# and np.all(self.n_sample < np.array(self.n_t[self.action])):
+		if not feedback_whole_action and not resample and np.shape(self.force[self.action_force[self.action]["arm"]])[0] == self.window:# and np.all(self.n_sample < np.array(self.n_t[self.action])):
 			self.compare()
-		if resample and self.time_sequence > self.time_window:
+		if  not feedback_whole_action and resample and self.time_sequence > self.time_window:
 			self.compare()
 
 	def callback_annotation(self,msg):
@@ -128,6 +130,9 @@ class CompareForce:
 			self.action_status = 1
 
 		if flag == "end":
+			if self.time_sequence > self.time_window:
+				if self.action in self.action_force.keys():
+					self.compare()
 			self.action_status = 0
 			self.ts = []
 
@@ -165,10 +170,14 @@ class CompareForce:
 			#print "time stamps"
 			#print ts
 			self.start_time_window = rospy.get_time() #start of a new time sequence
-			start_ts = ts[0]
-			stop_ts = ts[-1]
-			start_index = int(round(start_ts*self.logging_rate))
-			stop_index = int(round(stop_ts*self.logging_rate))
+			if feedback_whole_action:
+				start_index = self.action_force[self.action]["indices"][0]
+				stop_index = self.action_force[self.action]["indices"][1]
+			else:
+				start_ts = ts[0]
+				stop_ts = ts[-1]
+				start_index = int(round(start_ts*self.logging_rate))
+				stop_index = int(round(stop_ts*self.logging_rate))
 			#print "start index: %d" % start_index
 			#print "stop_index: %d" % stop_index
 			arm = self.action_force[self.action]["arm"]
@@ -179,12 +188,15 @@ class CompareForce:
 			self.window = stop_index - start_index
 			print "window: %d" % self.window
 		
+
 		if resample:
-			actual = self.mean_filter(self.resample(ts,np.array(self.force[arm])[:,direction])) 
+			actual = self.mean_filter(self.resample(ts,np.array(self.force[arm])[:,direction])[start_index:stop_index]) 
 		else:
 			actual = self.mean_filter(np.array(self.force[arm])[:,direction]) 
+
 		if debug:
-			self.save_actual.append(actual)
+			self.save_actual = self.resample(ts,np.array(self.force[arm])[:,direction])[start_index:stop_index]
+			#self.save_actual = self.resample(ts,np.array(self.force[arm])[:,direction])
 		self.force["larm"] = []
 		self.force["rarm"] = []
 		self.ts = []
@@ -221,8 +233,12 @@ class CompareForce:
 		up_mean = np.array(up_mean)
 		down_mean= np.array(down_mean)
 		if debug:
-			self.save_up["all"].append(up_mean)
-			self.save_down["all"].append(down_mean)
+			#self.save_up["all"].append(up_mean)
+			#self.save_down["all"].append(down_mean)
+			self.save_up["all"].append(np.transpose(up))
+			self.save_down["all"].append(np.transpose(down))
+			#self.save_up["all"].append(np.transpose(self.force_des[arm]["up"][:, direction, :]))
+			#self.save_down["all"].append(np.transpose(self.force_des[arm]["down"][:, direction, :]))
 		#averaging/maximum/minimum over experiments next
 		up_dict = {}
 		down_dict = {}
@@ -252,8 +268,13 @@ class CompareForce:
 		#print "-------resample--------"
 		#print np.shape(ts)
 		#print np.shape(signal)
-		stretched_signal = np.interp(np.linspace(ts[0],ts[-1],self.window),ts,signal)
-		#print np.shape(stretched_signal)
+		if feedback_whole_action:
+			arm = self.action_force[self.action]["arm"]
+			stretched_signal = np.interp(np.linspace(ts[0],ts[-1],np.shape(self.force_des[arm]["up"])[0]),ts,signal)
+		else:
+			stretched_signal = np.interp(np.linspace(ts[0],ts[-1],self.window),ts,signal)
+		print "shape stretched signal"
+		print np.shape(stretched_signal)
 		return stretched_signal
 
 	def mean_filter(self,signal):
@@ -267,20 +288,21 @@ class CompareForce:
 
 	def compute_gain(self,up,down,actual):
 		#tolerance
-		if down["min"] < actual < down["max"] or down["max"] < actual < down["min"]:
-			return 0.0
+		#if down["min"] < actual < down["max"] or down["max"] < actual < down["min"]:
+		#	return 0.0
 		d1 = actual - down["mean"]
 		d2 = up["mean"] - down["mean"]
 		print "d1: %f" % d1
 		print "d2: %f" % d1
+		#only protection from division by 0
 		if d2 == 0:
 			return 0
 		else:
 			gain = d1/d2
-		if gain < -1:
-			gain = -1
-		if gain > 1:
-			gain = 1
+		#if gain < -1:
+		#	gain = -1
+		#if gain > 1:
+		#	gain = 1
 		return gain
 
 	def plot_signal(self,signal,color = "royalblue"):
@@ -298,11 +320,13 @@ class CompareForce:
 		color = "royalblue"
 		fig, axs = plt.subplots(2, 1)
 		#print "----------shapes debug----------"
-		#print np.shape(self.save_up["all"])
+		print np.shape(self.save_up["all"])
 		#print np.shape(self.save_up["mean"])
 		#print np.shape(self.save_up["min"])
 		#print np.shape(self.save_up["max"])
-		#print np.shape(self.save_down["all"])
+		print np.shape(self.save_down["all"])
+		print "-----shape actual-----"
+		print np.shape(self.save_actual)
 		#print np.shape(self.save_down["mean"])
 		#print np.shape(self.save_down["min"])
 		#print np.shape(self.save_down["max"])
@@ -313,7 +337,7 @@ class CompareForce:
 		for i in range(np.shape(self.save_down["all"])[1]):
 			signal_down = np.array(self.save_down["all"])[:,i]
 			axs[1].plot(signal_down[signal_down!=0], "maroon")
-		
+
 		line2, = axs[1].plot(self.save_up["mean"], "blue")
 		line2, = axs[1].plot(self.save_up["max"], "blue")
 		line2, = axs[1].plot(self.save_up["min"], "blue")

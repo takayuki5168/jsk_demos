@@ -140,8 +140,8 @@
 		  (setq fail t)))))
   (if fail
       (print "sorry the position you chose does not exist")
-      (send *ri* :angle-vector (send *pr2* :angle-vector) :fast :larm-controller 0 :min-time 0.0 :scale 20))
-      ;;(send *ri* :angle-vector (send *pr2* :angle-vector) 500 :larm-controller))
+      ;;(send *ri* :angle-vector (send *pr2* :angle-vector) :fast :larm-controller 0 :min-time 0.0 :scale 20))
+      (send *ri* :angle-vector (send *pr2* :angle-vector) speed :larm-controller))
   )
 
 ;;collision check function
@@ -220,7 +220,7 @@
       (get-jacobi-r-world)
       (if (send *ri* :simulation-modep)
 	  (send *ri* :robot-interface-simulation-callback))
-      (position-left-arm position 200)
+      ;;(position-left-arm position 200)
       )
     
     (publish-semantic-annotation (format nil "av3wall-~a-~a_end" type bowl-position)))
