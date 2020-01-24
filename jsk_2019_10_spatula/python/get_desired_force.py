@@ -18,6 +18,7 @@ labels = []
 n_time_action = {"av3wall-0-1":1} #specifies how long an action taks in seconds
 #if we have a publishing rate of 100 Hz we have n_sample = 100 * n_time
 
+used_labels = ["short","long","long_adapted","short_2","short_3","long_2","short_4"]
 
 def main():
     read_bag()
@@ -29,11 +30,11 @@ def read_bag():
     force["larm"] = []
     force["rarm"] = []
     n_exp = 0
-    for label in ["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+    for label in used_labels:
         path_bag = "%s/%s" % (path,label)
         n_exp = n_exp + len(os.listdir(path_bag))
 
-    for label in ["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+    for label in used_labels:
         #path_bag = "/home/leus/force_different_spatula_pos/transfer/%s" % label
         path_bag = "%s/%s" % (path,label)
 
@@ -81,8 +82,6 @@ def split_sequence(ts,force,start_ts,stop_ts,n_exp,n_time=None,n_sample=None):
         if action not in stop_ts.keys():
             continue
         ts = np.array(ts)
-        print "ts shape array"
-        print np.shape(ts)
         start_index = np.argmin(np.abs(ts-start_ts[action]))
         stop_index = np.argmin(np.abs(ts-stop_ts[action]))
         ts_list_action = ts[start_index:stop_index] - ts[start_index]
@@ -97,8 +96,6 @@ def split_sequence(ts,force,start_ts,stop_ts,n_exp,n_time=None,n_sample=None):
         else:
             n_t = np.shape(force_action["larm"])[0]
             if n_time and n_sample:
-                print n_time
-                print n_sample
                 force_array = np.zeros([n_sample,np.shape(force_action["larm"])[1],n_exp])
             else:
                 force_array = np.zeros([int(round(1.5*n_t)) ,np.shape(force_action["larm"])[1],n_exp])
@@ -126,23 +123,16 @@ def update_force_dict(action,force,ts,n_time=None,n_sample=None):
     for arm in ["larm","rarm"]:
         force_array = np.array(force_dict[action][arm])
         if n_time and n_sample:
-            print "----------------"
             for i in range(np.shape(force[arm])[1]):
-                print np.shape(force[arm])
-                print type(force[arm])
-                print np.shape(ts)
                 force_array[:,i,indices[action]] = resample(ts,np.array(force[arm])[:,i],n_time,n_sample)
+            n_t = n_sample
         else:
-            print "XXXXXXXXXXXXXXXXXXXX"
             n_t = np.shape(force[arm])[0]
             force_array[0:n_t,0:np.shape(force[arm])[1],indices[action]] = force[arm]
         force_dict[action][arm] = force_array.tolist()
         #print "ts shaope list"
         #print np.shape(ts)
-        if n_time and n_sample:
-            print ",.,.,.,.,.,.,.,.,.,."
-        else:
-            print "xxxxxxxxxxxxxxxxxxx"
+        if not (n_time and n_sample):
             ts_array = np.array(ts_dict[action])
             #print ",,,,,,,,,,,,,,,,,,,"
             #print np.shape(ts_array)
@@ -150,7 +140,7 @@ def update_force_dict(action,force,ts,n_time=None,n_sample=None):
             ts_dict[action] = ts_array.tolist()
             #print "ts shape dict"
             #print np.shape(ts_dict[action])
-            n_t_dict[action].append(n_t)
+        n_t_dict[action].append(n_t)
     indices[action] = indices[action] + 1
 
 def save_json():

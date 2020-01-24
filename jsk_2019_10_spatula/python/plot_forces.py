@@ -6,17 +6,18 @@ import os
 import time
 
 task = "scrape"
-window = 7
+window = 10
 plot_radial_force = True
 
 def main():
-    #read_bag()
+    read_bag()
     #read_json()
-    read_json_no_time()
+    #read_json_no_time()
+    #read_json_debug()
 
 def read_json_debug():
-    path_bag = "/home/leus/force_different_spatula_pos/test"
-    path_json = "%s/force.json" % path_bag
+    path = "/home/leus/force_feedack_exp_19_01"
+    path_json = "%s/force.json" % path
 
     #KO hack to debug compare_force
     fig, axs = plt.subplots(2, 1)
@@ -26,19 +27,20 @@ def read_json_debug():
     f.close()
     exec("dict1 = %s" % test)
     dict2 = dict1["force"]
-    action = "av5transfer"
+    action = "av3wall-0-1"
 
     for i in range(dict1["n_exp"][action]):
         label = dict1["label"][i]
-        if label != "longer" and label != "shorter":
+        if label != "long" and label != "short":
             continue
         n_t = dict1["n_t"][action]
+        print n_t
         force_l = np.array(dict2[action]["larm"])
         force_r = np.array(dict2[action]["rarm"])
         force = {}
         force["larm"] = force_l[0:n_t[i],:,i]
         force["rarm"] = force_r[0:n_t[i],:,i]
-        plot_force_deub_compare_force(force,label,fig=fig,axs=axs)
+        plot_force_debug_compare_force(force,label,fig=fig,axs=axs)
     plt.show()
 
 def read_json():
@@ -106,9 +108,10 @@ def read_json_no_time():
 
 def read_bag():
     fig, axs = plt.subplots(8, 1)
-    for label in ["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+    for label in ["short","long","movement_exp"]:#gain_exp",#,"long_old","short_old"]:#["short","short_old","short_2","short_3","short_4","long","long_2"]:#["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
         #path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
-        path = "/home/leus/force_feedack_exp_19_01/%s" % label
+        #path = "/home/leus/force_feedack_exp_19_01/%s" % label
+        path = "/home/leus/force_bag_01_24/%s" % label
         
         first = True
         for doc in os.listdir(path):
@@ -159,6 +162,8 @@ def read_bag():
 
             ts = np.array(ts)
             #force_ts{doc} = ts
+            print ts
+            print start_ts
             start_index = np.argmin(np.abs(ts-start_ts))
             stop_index = np.argmin(np.abs(ts-stop_ts))
             ts_action = ts_to_sec(ts[start_index:stop_index])
@@ -205,9 +210,9 @@ def mean_filter_strided(signal, window):
     return filtered_signal.tolist()
 
 def plot_force_resampled(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
-    if label == "short" or label == "shorter" or label == "short_2" or label == "short_3":
+    if label == "short" or label == "shorter" or label == "short_2" or label == "short_3" or label=="short_4":
         color = "lightseagreen"
-    elif label == "long_2" or label == "long":
+    elif label == "long_2" or label == "long" or label == "long_old":
         color = "maroon"
     elif label == "long_adapted":
         color = "navy"
@@ -329,11 +334,11 @@ def plot_force_no_time(force,label,start_index = 0,stop_index = -1,fig=None,axs=
 
 
 def plot_force(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
-    if label == "dirty" or label == "short" or label == "shorter":
+    if label == "dirty" or label == "short" or label == "shorter" or label == "short_old":
         color = "maroon"
-    elif label == "partlydirty" or label == "long":
+    elif label == "partlydirty" or label == "long" or label == "long_old":
         color = "lightcoral"
-    elif label == "short_2":
+    elif label == "short_2" or label=="short_3" or label == "movement_exp":
         color = "navy"
     else:
         color = "lightseagreen"
@@ -509,7 +514,7 @@ def plot_force_strided(force,label,start_index = 0,stop_index = -1,fig=None,axs=
     axs[4].legend()
     axs[5].legend()
     
-def plot_force_deub_compare_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
+def plot_force_debug_compare_force(force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True):
     if label == "dirty" or label == "short" or label == "shorter":
         color = "maroon"
     elif label == "partlydirty" or label == "long":

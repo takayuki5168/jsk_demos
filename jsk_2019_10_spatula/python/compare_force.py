@@ -12,7 +12,7 @@ path = "/home/leus/force_feedack_exp_19_01"
 path_json = "%s/force.json" % path
 resample = True
 offline = False
-debug = False
+debug = True
 
 def main():
 	Compare = CompareForce()
@@ -41,7 +41,7 @@ class CompareForce:
 		#######################
 		self.window = None#7 #the time window over which th mean is calculated
 		self.logging_rate = 100
-		window_approx = 10
+		window_approx = 4
 		if not resample:
 			self.window = window_approx
 		self.time_window = window_approx * 1.0 / self.logging_rate; #averaging over 1/10 second which is around 6-10 samples depending on the Force publishing rate
@@ -70,6 +70,7 @@ class CompareForce:
 		self.start_time_window = 0
 		self.time_sequence = 0
 		self.ts =[]
+
 
 		#to see if filter work correct
 		if debug:
@@ -113,8 +114,8 @@ class CompareForce:
 		[self.action,flag] = msg.data.split("_")
 		print "action: %s , type: %s" % (self.action,flag)
 		if flag == "start":
+			self.debug_start_time = rospy.get_time()
 			if self.action not in self.action_force.keys():
-				print "action not in action_force -> ignored"
 				self.action_status = 0
 				return True
 			if resample:
@@ -130,7 +131,7 @@ class CompareForce:
 			self.action_status = 0
 			self.ts = []
 
-		if debug and self.action == "av5transfer" and flag == "end":
+		if debug and self.action == "av3wall-0-1" and flag == "end":
 			self.plot_save_up_down()
 
 	def read_json(self,path):
@@ -161,18 +162,22 @@ class CompareForce:
 
 		if resample:
 			ts = self.ts
-			self.ts = []
+			#print "time stamps"
+			#print ts
 			self.start_time_window = rospy.get_time() #start of a new time sequence
 			start_ts = ts[0]
 			stop_ts = ts[-1]
 			start_index = int(round(start_ts*self.logging_rate))
 			stop_index = int(round(stop_ts*self.logging_rate))
+			#print "start index: %d" % start_index
+			#print "stop_index: %d" % stop_index
 			arm = self.action_force[self.action]["arm"]
 			direction = self.action_force[self.action]["direction"]
 			#KO
 			if stop_index > np.shape(self.force_des[arm]["up"])[0]:
 				stop_index = np.shape(self.force_des[arm]["up"])[0]
 			self.window = stop_index - start_index
+			print "window: %d" % self.window
 		
 		if resample:
 			actual = self.mean_filter(self.resample(ts,np.array(self.force[arm])[:,direction])) 
@@ -182,6 +187,7 @@ class CompareForce:
 			self.save_actual.append(actual)
 		self.force["larm"] = []
 		self.force["rarm"] = []
+		self.ts = []
 
 		#print "shape force des up down"
 		#print np.shape(self.force_des[arm]["up"])
@@ -238,7 +244,7 @@ class CompareForce:
 			self.save_down["min"].append(np.min(down_mean[down_mean != 0]))
 			self.save_down["mean"].append(np.mean(down_mean[down_mean != 0]))
 		gain = self.compute_gain(up_dict,down_dict,actual)
-		print gain #gain should be published
+		print "gain: %f" % gain #gain should be published
 		if not offline:
 			self.pub.publish(gain)
 
@@ -260,16 +266,21 @@ class CompareForce:
 		return mean
 
 	def compute_gain(self,up,down,actual):
-		if abs(actual) <= abs(down["max"]):
-			return 0.0 #no gain needed
-		if abs(actual) >= abs(up["mean"]):
-			return 1.0
+		#tolerance
+		if down["min"] < actual < down["max"] or down["max"] < actual < down["min"]:
+			return 0.0
 		d1 = actual - down["mean"]
 		d2 = up["mean"] - down["mean"]
+		print "d1: %f" % d1
+		print "d2: %f" % d1
 		if d2 == 0:
-			return -1.0
+			return 0
 		else:
-			gain = abs(d1/d2)
+			gain = d1/d2
+		if gain < -1:
+			gain = -1
+		if gain > 1:
+			gain = 1
 		return gain
 
 	def plot_signal(self,signal,color = "royalblue"):
@@ -286,9 +297,20 @@ class CompareForce:
 	def plot_save_up_down(self):
 		color = "royalblue"
 		fig, axs = plt.subplots(2, 1)
+		#print "----------shapes debug----------"
+		#print np.shape(self.save_up["all"])
+		#print np.shape(self.save_up["mean"])
+		#print np.shape(self.save_up["min"])
+		#print np.shape(self.save_up["max"])
+		#print np.shape(self.save_down["all"])
+		#print np.shape(self.save_down["mean"])
+		#print np.shape(self.save_down["min"])
+		#print np.shape(self.save_down["max"])
+		#print np.shape(self.save_actual)
 		for i in range(np.shape(self.save_up["all"])[1]):
 			signal_up = np.array(self.save_up["all"])[:,i]
 			axs[1].plot(signal_up[signal_up!=0], "lightseagreen")
+		for i in range(np.shape(self.save_down["all"])[1]):
 			signal_down = np.array(self.save_down["all"])[:,i]
 			axs[1].plot(signal_down[signal_down!=0], "maroon")
 		
@@ -300,7 +322,8 @@ class CompareForce:
 		line2, = axs[1].plot(self.save_down["max"], "red")
 		line2, = axs[1].plot(self.save_down["min"], "red")
 
-		axs[1].plot(self.save_actual[1::],"orange")
+		#axs[1].plot(self.save_actual[1::],"orange")
+		axs[1].plot(self.save_actual,"orange")
 		#axs[1].plot(self.save_down["all"], color)
 
 		plt.show()
