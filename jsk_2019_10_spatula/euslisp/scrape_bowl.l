@@ -1,11 +1,5 @@
 #!/usr/bin/env roseus
 
-;;hint use 543 l to put down the bowl
-
-
-;;;;
-;;;; make scraping movement with right hand, move the bowl with the left Hand until the spatula touches the bowl. 
-;;;;
 (ros::load-ros-package "jsk_2019_10_spatula")
 (load "package://pr2eus/pr2-interface.l")
 (ros::roseus "pr2_send_joints")
@@ -18,8 +12,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;define global variables;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (load "angle-vectors.l")
-(setq *gain* 0)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;function definitions;;
@@ -75,7 +70,6 @@
   (publish-jacobi 0)
   )
 
-
 (defun get-jacobi-r-world ()
   (setq link-list (send *pr2* :link-list (send (send *pr2* :rarm :end-coords) :parent)))
   (setq joint-list (send-all link-list :joint))
@@ -88,159 +82,16 @@
 	      ))
   ;;(format-array jacobi) ;; print
   (publish-jacobi 1)
- )
-
-;;define callback function
-(defun schedule-scraping (msg)
-  (setq label-published t)
-  (print "schedule scraping now")
-  (setq *label* (send msg :data))
-  (setq i 0)
-  (dolist (dirty *label*)
-    (print dirty)
-    (when (and dirty (not (= i 7))) ;;if piece is dirty and not 7
-      (print "scrape, it is dirty!")
-      (print i)
-      (clean i)
-      )
-    (setq i (+ i 1))
-    )
   )
 
-(defun clean (i)
-  (setq position (+ (mod i *n-bowl-position*) 1 ))
-  (setq step-size (/ 360 (* 4  5)))
-  (if (< i *n-bowl-position*)
-      (setq type 0)
-      (if (< i (* 2 *n-bowl-position*)) ;;elseif
-	  (setq type 1)
-	  (if (< i (* 3 *n-bowl-position*)) ;;elseif
-	      (setq type 2)
-	      (setq type 3))));;else
-  (unless (= oldtype type)
-     (send *pr2* :angle-vector *av-base*)	  
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 500 :rarm-controller)	  
-     (send *ri* :wait-interpolation))
-  (position-left-arm position 1000)
-  (send *ri* :wait-interpolation)
-  (scrape-wall 1000 type position)
-  (setq oldtype type)
-  )
-
-;;CAUTION! no wait interpolation
-(defun position-left-arm (position speed)
-  (print "POSITION")
-  (print *gain*)
-  (setq fail nil)
-  (setq *av-circulate-bowl-larm-1* (v+ *av-circulate-bowl-larm-1-up* (scale *gain* (v-  *av-circulate-bowl-larm-1-down* *av-circulate-bowl-larm-1-up*))))
-  (if (= position 1) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-1*)
-      (if (= position 2) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-2*)   
-	  (if (= position 3) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-3*)
-	      (if (= position 4) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-4*)
-		  (setq fail t)))))
-  (if fail
-      (print "sorry the position you chose does not exist")
-      ;;(send *ri* :angle-vector (send *pr2* :angle-vector) :fast :larm-controller 0 :min-time 0.0 :scale 20))
-      (send *ri* :angle-vector (send *pr2* :angle-vector) speed :larm-controller))
-  )
-
-;;collision check function
-(defun arm-collision-check ()
-    (send *pr2* :self-collision-check :pairs
-          (append
-           (mapcar
-            #'(lambda (l) (cons l (car (send *pr2* :larm :links))))
-            (all-child-links (send *pr2* :larm-elbow-p :parent-link)))
-           (mapcar
-            #'(lambda (l) (cons l (car (send *pr2* :rarm :links))))
-            (all-child-links (send *pr2* :rarm-elbow-p :parent-link))))
-          ))
-
-;;scraping movement of the right arm to scrape the wall of the bowl
-(defun scrape-wall (speed type bowl-position)
-  ;;CAUTION changed semantic annotation
-  ;;decide where to scrape
-  ;;scrape the side of handle
-  (get-jacobi-l-world)
-  (when (= type 3) (load "av-scrape-wall-3.l"))
-  ;;scrape the opposite of handle
-  (when (= type 1) (load "av-scrape-wall-1.l"))
-  ;;scrape the back, close to robot
-  (when (= type 2) (load "av-scrape-wall-2.l"))
-  ;;scrape the front, away from robot
-  (when (= type 0) (load "av-scrape-wall-0.l"))
-
-  ;;start with home pos
-  (unless (= oldtype type)
-    (send *pr2* :rarm :angle-vector *av4-wall*)
-    (unless (arm-collision-check)
-      (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-      ;;(send *ri* :wait-interpolation)
-        (while (send *ri* :interpolatingp :rarm-controller)
-	  (send *ri* :spin-once)
-	  (ros::spin-once);;to see if gain was published
-	  (get-jacobi-r-world)
-	  (if (send *ri* :simulation-modep)  
-	      (send *ri* :robot-interface-simulation-callback)))))
-  
-  (send *pr2* :rarm :angle-vector *av1-wall*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av1wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if gain was published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback)))
-    (publish-semantic-annotation (format nil "av1wall-~a-~a_end" type bowl-position)))
-  
-  (send *pr2* :rarm :angle-vector *av2-wall*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av2wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if gain was published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback)))
-    (publish-semantic-annotation (format nil "av2wall-~a-~a_end" type bowl-position)))
-
-  (send *pr2* :rarm :angle-vector *av3-wall*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av3wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback))
-      ;;(position-left-arm position 200)
-      )
-    
-    (publish-semantic-annotation (format nil "av3wall-~a-~a_end" type bowl-position)))
-
-  (send *pr2* :rarm :angle-vector *av4-wall*)
-  (unless (arm-collision-check)
-    (publish-semantic-annotation (format nil "av4wall-~a-~a_start" type bowl-position))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
-    ;;(send *ri* :wait-interpolation)
-    (while (send *ri* :interpolatingp :rarm-controller)
-      (send *ri* :spin-once)
-      (ros::spin-once);;to see if chatter published
-      (get-jacobi-r-world)
-      (if (send *ri* :simulation-modep)
-	  (send *ri* :robot-interface-simulation-callback)))
-    (publish-semantic-annotation (format nil "av4wall-~a-~a_end" type bowl-position)))
-  ;;(publish-semantic-annotation (format nil "end_~a_~a" type bowl-position))
-  )
-
-
+(defun adjust-force (msg)
+  (let (cmd)
+    (setq cmd (+ *cmd* (* 0.7 (send msg :data))))
+    ;;only interpolation betwen the two vectors, not etxrapolaiton
+    (if (> cmd 1) (setq *cmd* 1)
+    (if (< cmd 0) (setq *cmd* 0);;else if 
+    (setq *cmd* cmd)));;else
+  ))
 
 (defun prepare-robot ()
   (send *pr2* :angle-vector  *av-reset-pose-high*)
@@ -274,15 +125,15 @@
   (send *pr2* :start-grasp :rarm)
   (send *ri* :start-grasp :rarm :gain 0.05)
   (send *ri* :wait-interpolation)
-
-  (publish-semantic-annotation (format nil "av_new_bowl"))
   
   ;;start position
   (send *pr2* :angle-vector *av-newbowl*)
+  (publish-semantic-annotation (format nil "av-new-bowl_start"))
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :larm-controller)
+  (publish-semantic-annotation (format nil "av-new-bowl"))
   (send *ri* :wait-interpolation)
 
-  (publish-semantic-annotation (format nil "hand_bowl"))
+  (publish-semantic-annotation (format nil "hand-bowl_end"))
   
   ;;hand the robot the bowl
   (unix:sleep 2)
@@ -297,21 +148,15 @@
   (send *pr2* :angle-vector *av3*) 
   (send *ri* :angle-vector (send *pr2* :angle-vector) 700 :larm-controller)
   (send *ri* :wait-interpolation)
-  (setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (setq *ltargetframe* (send *pr2* :larm :end-coords))
+  ;;(setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  ;;(setq *ltargetframe* (send *pr2* :larm :end-coords))
   )
 
-(defun transfer-dough-2 (mode)
-  (if (= mode 0)  (send *pr2* :angle-vector *av-transfer-1-r*)  (send *pr2* :angle-vector *av-transfer-1b-r*))
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  (send *ri* :wait-interpolation)
-  (if (= mode 0)  (send *pr2* :angle-vector *av-transfer-2-r*)  (send *pr2* :angle-vector *av-transfer-2b-r*))
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  (send *ri* :wait-interpolation)
-  (if (= mode 0)  (send *pr2* :angle-vector *av-transfer-3-r*)  (send *pr2* :angle-vector *av-transfer-3b-r*))
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  (send *ri* :wait-interpolation)
-  )
+(defun clean-walls()
+  (get-dense-ptcloud)
+  (while (not label-published)
+    (ros::spin-once);;to see if labels where published
+    ))
 
 (defun get-dense-ptcloud()
   (ros::service-call "passthrough_points/request" (instance std_srvs::EmptyRequest :init))
@@ -352,18 +197,149 @@
   (publish-semantic-annotation (format nil "vision_end"))
   )
 
-(defun get-pctloud-piece (i)
-  (clean i)
-  (get-dense-ptcloud)
+;;define callback function
+(defun schedule-scraping (msg)
+  (setq label-published t)
+  (print "schedule scraping now")
+  (setq *label* (send msg :data))
+  (setq i 0)
+  (dolist (dirty *label*)
+    (print dirty)
+    (when (and dirty (not (= i 7))) ;;if piece is dirty and not 7
+      (print "scrape, it is dirty!")
+      (print i)
+      (clean i)
+      )
+    (setq i (+ i 1))
+    )
   )
 
-(defun get-pctloud-all-clean ()
-  ;;clean the whole bowl
-  (dolist (i (list 0 1 2 3 4 5 6 8 9 10 11 12 13 14 15)) ;;7 is front, does not need to be cleaned!
-    (clean i)
-    ;;(unix:usleep 2000000)
-  ;;(get-dense-ptcloud)
-    ))
+(defun clean (i)
+  (setq position (+ (mod i *n-bowl-position*) 1 ))
+  (setq step-size (/ 360 (* 4  5)))
+  (if (< i *n-bowl-position*)
+      (setq type 0)
+      (if (< i (* 2 *n-bowl-position*)) ;;elseif
+	  (setq type 1)
+	  (if (< i (* 3 *n-bowl-position*)) ;;elseif
+	      (setq type 2)
+	      (setq type 3))));;else
+  (unless (= oldtype type)
+     (send *pr2* :angle-vector *av-base*)	  
+     (send *ri* :angle-vector (send *pr2* :angle-vector) 500 :rarm-controller)	  
+     (send *ri* :wait-interpolation))
+  (position-left-arm position 1000)
+  (scrape-wall 1000 type position)
+  (setq oldtype type)
+  )
+
+
+(defun position-left-arm (position speed)
+  (print "POSITION")
+  (print *cmd*)
+  (setq fail nil)
+  (setq *av-circulate-bowl-larm-1* (v+ *av-circulate-bowl-larm-1-up* (scale *cmd* (v-  *av-circulate-bowl-larm-1-down* *av-circulate-bowl-larm-1-up*))))
+  (setq *av-circulate-bowl-larm-2* (v+ *av-circulate-bowl-larm-2-up* (scale *cmd* (v-  *av-circulate-bowl-larm-2-down* *av-circulate-bowl-larm-2-up*))))
+  (setq *av-circulate-bowl-larm-3* (v+ *av-circulate-bowl-larm-3-up* (scale *cmd* (v-  *av-circulate-bowl-larm-3-down* *av-circulate-bowl-larm-3-up*))))
+  (setq *av-circulate-bowl-larm-4* (v+ *av-circulate-bowl-larm-4-up* (scale *cmd* (v-  *av-circulate-bowl-larm-4-down* *av-circulate-bowl-larm-4-up*))))
+  (if (= position 1) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-1*)
+      (if (= position 2) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-2*)   
+	  (if (= position 3) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-3*)
+	      (if (= position 4) (send *pr2* :larm :angle-vector *av-circulate-bowl-larm-4*)
+		  (setq fail t)))))
+  (if fail
+      (print "sorry the position you chose does not exist")
+      ;;(send *ri* :angle-vector (send *pr2* :angle-vector) :fast :larm-controller 0 :min-time 0.0 :scale 20))
+      (send *ri* :angle-vector (send *pr2* :angle-vector) speed :larm-controller))
+  (send *ri* :wait-interpolation)
+  )
+
+;;collision check function
+(defun arm-collision-check ()
+    (send *pr2* :self-collision-check :pairs
+          (append
+           (mapcar
+            #'(lambda (l) (cons l (car (send *pr2* :larm :links))))
+            (all-child-links (send *pr2* :larm-elbow-p :parent-link)))
+           (mapcar
+            #'(lambda (l) (cons l (car (send *pr2* :rarm :links))))
+            (all-child-links (send *pr2* :rarm-elbow-p :parent-link))))
+          ))
+
+;;scraping movement of the right arm to scrape the wall of the bowl
+(defun scrape-wall (speed type bowl-position)
+  ;;scrape the side of handle
+  (get-jacobi-l-world)
+  (when (= type 3) (load "av-scrape-wall-3.l"))
+  ;;scrape the opposite of handle
+  (when (= type 1) (load "av-scrape-wall-1.l"))
+  ;;scrape the back, close to robot
+  (when (= type 2) (load "av-scrape-wall-2.l"))
+  ;;scrape the front, away from robot
+  (when (= type 0) (load "av-scrape-wall-0.l"))
+
+  ;;start with home pos
+  (unless (= oldtype type)
+    (send *pr2* :rarm :angle-vector *av4-wall*)
+    (unless (arm-collision-check)
+      (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
+        (while (send *ri* :interpolatingp :rarm-controller)
+	  (send *ri* :spin-once)
+	  (ros::spin-once);;to see if err was published
+	  (get-jacobi-r-world)
+	  (if (send *ri* :simulation-modep)  
+	      (send *ri* :robot-interface-simulation-callback)))))
+  
+  (send *pr2* :rarm :angle-vector *av1-wall*)
+  (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av1wall-~a-~a_start" type bowl-position))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if err was published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback)))
+    (publish-semantic-annotation (format nil "av1wall-~a-~a_end" type bowl-position)))
+  
+  (send *pr2* :rarm :angle-vector *av2-wall*)
+  (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av2wall-~a-~a_start" type bowl-position))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if err was published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback)))
+    (publish-semantic-annotation (format nil "av2wall-~a-~a_end" type bowl-position)))
+
+  (send *pr2* :rarm :angle-vector *av3-wall*)
+  (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av3wall-~a-~a_start" type bowl-position))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if chatter published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback))
+      )
+    
+    (publish-semantic-annotation (format nil "av3wall-~a-~a_end" type bowl-position)))
+
+  (send *pr2* :rarm :angle-vector *av4-wall*)
+  (unless (arm-collision-check)
+    (publish-semantic-annotation (format nil "av4wall-~a-~a_start" type bowl-position))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) speed :rarm-controller)
+    (while (send *ri* :interpolatingp :rarm-controller)
+      (send *ri* :spin-once)
+      (ros::spin-once);;to see if chatter published
+      (get-jacobi-r-world)
+      (if (send *ri* :simulation-modep)
+	  (send *ri* :robot-interface-simulation-callback)))
+    (publish-semantic-annotation (format nil "av4wall-~a-~a_end" type bowl-position)))
+  )
 
 (defun prepare-bowl-transfer-safe ()
   (send *pr2* :angle-vector *av3*)
@@ -391,393 +367,74 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   )
-  (defun prepare-bowl-transfer ()
-    (send *pr2* :angle-vector *av3*)
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-    (send *ri* :wait-interpolation)
-    (setq *joint-angle-time-l* (list 2000 2000 2000 2000 2000 2000 1000))
-    (setq *joint-angle-list-l* (list *av-transfer-1-l*  *av-transfer-2-l* *av-transfer-3-l* *av-transfer-4-l*  *av-transfer-45-l* *av-transfer-5-l* *av-transfer-6-l*))
-    (send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
-    (send *ri* :wait-interpolation)
-    )
 
-  (defun prepare-bowl-transfer-backwards ()
-    (setq *joint-angle-time-l-back* (list 1000 1000 1000 1000 1000 1000))
-    (setq *joint-angle-list-l-back* (list *av-transfer-6-l*  *av-transfer-5-l* *av-transfer-4-l* *av-transfer-3-l*  *av-transfer-2-l* *av-transfer-1-l*))
-    (send *ri* :angle-vector-sequence *joint-angle-list-l-back* *joint-angle-time-l-back*)
-    (send *ri* :wait-interpolation)
-    (send *pr2* :angle-vector *av3*)
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-    (send *ri* :wait-interpolation)
-    )
-  
-  (defun transfer-dough-13-1 ()
-    (get-jacobi-l-world)
-    (get-jacobi-r-world)
-    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
-    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
-    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
-    ;;(send *ri* :wait-interpolation)
-    
-    (send *pr2* :angle-vector *av-transfer-1-r*)
-    (publish-semantic-annotation (format nil "av1transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av1transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-2-r*)
-    (publish-semantic-annotation (format nil "av2transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av2transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-3-r*)
-    (publish-semantic-annotation (format nil "av3transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av3transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-4-r*)
-    (publish-semantic-annotation (format nil "av4transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av4transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector  *av-transfer-5-r*)
-    (publish-semantic-annotation (format nil "av5transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av5transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-6-r*)
-    (publish-semantic-annotation (format nil "av6transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av6transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-7-r*)
-    (publish-semantic-annotation (format nil "av7transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av7transfer_end"))
-    (get-jacobi-r-world)
-    )
-
-  (defun transfer-dough-13-1-short ()
-    (get-jacobi-l-world)
-    (get-jacobi-r-world)
-    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
-    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
-    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
-    ;;(send *ri* :wait-interpolation)
-    
-    (send *pr2* :angle-vector *av-transfer-1-r*)
-    (publish-semantic-annotation (format nil "av1transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av1transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-2-r-short*)
-    (publish-semantic-annotation (format nil "av2transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av2transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-3-r-short*)
-    (publish-semantic-annotation (format nil "av3transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av3transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-4-r-short*)
-    (publish-semantic-annotation (format nil "av4transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av4transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector  *av-transfer-5-r-short*)
-    (publish-semantic-annotation (format nil "av5transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av5transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-6-r-short*)
-    (publish-semantic-annotation (format nil "av6transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av6transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-7-r-short*)
-    (publish-semantic-annotation (format nil "av7transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av7transfer_end"))
-    (get-jacobi-r-world)
-    )
-
-    (defun transfer-dough-13-1-middle ()
-    (get-jacobi-l-world)
-    (get-jacobi-r-world)
-    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
-    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
-    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
-    ;;(send *ri* :wait-interpolation)
-    
-    (send *pr2* :angle-vector *av-transfer-1-r*)
-    (publish-semantic-annotation (format nil "av1transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av1transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-2-r-middle*)
-    (publish-semantic-annotation (format nil "av2transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av2transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-3-r-middle*)
-    (publish-semantic-annotation (format nil "av3transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av3transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-4-r-middle*)
-    (publish-semantic-annotation (format nil "av4transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av4transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector  *av-transfer-5-r-middle*)
-    (publish-semantic-annotation (format nil "av5transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av5transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-6-r-middle*)
-    (publish-semantic-annotation (format nil "av6transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av6transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-7-r-middle*)
-    (publish-semantic-annotation (format nil "av7transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av7transfer_end"))
-    (get-jacobi-r-world)
-    )
-
-  (defun transfer-dough-13-1-right ()
-    (get-jacobi-l-world)
-    (get-jacobi-r-world)
-    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
-    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
-    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
-    ;;(send *ri* :wait-interpolation)
-    
-    (send *pr2* :angle-vector *av-transfer-1-r*)
-    (publish-semantic-annotation (format nil "av1transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av1transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-2-r-right*)
-    (publish-semantic-annotation (format nil "av2transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av2transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-3-r-right*)
-    (publish-semantic-annotation (format nil "av3transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av3transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-4-r-right*)
-    (publish-semantic-annotation (format nil "av4transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av4transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector  *av-transfer-5-r-right*)
-    (publish-semantic-annotation (format nil "av5transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av5transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-6-r-right*)
-    (publish-semantic-annotation (format nil "av6transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av6transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-7-r-right*)
-    (publish-semantic-annotation (format nil "av7transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av7transfer_end"))
-    (get-jacobi-r-world)
-    )
-
-   (defun transfer-dough-13-1-2 ()
-    (get-jacobi-l-world)
-    (get-jacobi-r-world)
-    ;;(setq *joint-angle-time-l* (list 1000 1000 1000 1000 1000 1000 1000))
-    ;;(setq *joint-angle-list-l* (list *av-transfer-start-pos* *av-transfer-corner-up* *av-transfer-back-middle* *av-transfer-corner* *av-scrape-down-inb*  *av-transfer-front* *av-transfer-finish*))
-    ;;(send *ri* :angle-vector-sequence *joint-angle-list-l* *joint-angle-time-l*)
-    ;;(send *ri* :wait-interpolation)
-    
-    (send *pr2* :angle-vector *av-transfer-1-r*)
-    (publish-semantic-annotation (format nil "av1transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av1transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-2-r-2*)
-    (publish-semantic-annotation (format nil "av2transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av2transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-3-r-2*)
-    (publish-semantic-annotation (format nil "av3transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av3transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-4-r-2*)
-    (publish-semantic-annotation (format nil "av4transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av4transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector  *av-transfer-5-r-2*)
-    (publish-semantic-annotation (format nil "av5transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av5transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-6-r-2*)
-    (publish-semantic-annotation (format nil "av6transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av6transfer_end"))
-    (get-jacobi-r-world)
-    
-    (send *pr2* :angle-vector *av-transfer-7-r-2*)
-    (publish-semantic-annotation (format nil "av7transfer_start"))
-    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)	
-    (send *ri* :wait-interpolation)
-    (publish-semantic-annotation (format nil "av7transfer_end"))
-    (get-jacobi-r-world)
-    )
-  
-
-   (defun demo ()
-     (print "start demo now")
-  ;;(prepare-robot)
-  (setq *l-tcp* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (get-dense-ptcloud)
-  ;;once the result is published, the scraping can start planned with the labels
-  (while (not label-published)
-    (ros::spin-once);;to see if labels where published
-    )
+(defun transfer-dough()
+  ;;scrape four different path
+  (transfer-dough-path 0)
+  (transfer-dough-path 1)
+  (transfer-dough-path 4)
+  (transfer-dough-path 3)
+  (transfer-dough-path 2)
   )
 
-(defun grasp-cup-old ()
-  (send *pr2* :stop-grasp :rarm)
-  (send *ri* :stop-grasp :rarm)
-  (send *pr2* :angle-vector  *av1-cup*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+(defun transfer-dough-path (type)
+  (get-jacobi-l-world)
+  ;;all the way left
+  (when (= type 0) (load "av-transfer-dough-0.l"))
+  ;;left
+  (when (= type 1) (load "av-transfer-dough-1.l"))
+  ;;middle
+  (when (= type 2) (load "av-transfer-dough-2.l"))
+  ;;right
+  (when (= type 3) (load "av-transfer-dough-3.l"))
+  ;;all the way right
+  (when (= type 4) (load "av-transfer-dough-4.l"))
+
+  (setq *av-transfer-1-r* (v+ *av-transfer-1-r-short* (scale *cmd* (v- *av-transfer-1-r-long*  *av-transfer-1-r-short*))))
+  (setq *av-transfer-2-r* (v+ *av-transfer-2-r-short* (scale *cmd* (v- *av-transfer-2-r-long*  *av-transfer-2-r-short*))))
+  (setq *av-transfer-3-r* (v+ *av-transfer-3-r-short* (scale *cmd* (v- *av-transfer-3-r-long*  *av-transfer-3-r-short*))))
+  (setq *av-transfer-4-r* (v+ *av-transfer-4-r-short* (scale *cmd* (v- *av-transfer-4-r-long*  *av-transfer-4-r-short*))))
+  (setq *av-transfer-5-r* (v+ *av-transfer-5-r-short* (scale *cmd* (v- *av-transfer-5-r-long*  *av-transfer-5-r-short*))))
+  
+  (send *pr2* :rarm :angle-vector *av-transfer-r-home-pos*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
   (send *ri* :wait-interpolation)
-  (unix:sleep 2)
-  (send *pr2* :angle-vector  *av2-cup*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+
+  (send *pr2* :rarm :angle-vector *av-transfer-1-r*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
   (send *ri* :wait-interpolation)
-  (send *pr2* :start-grasp :rarm)
-  (send *ri* :start-grasp :rarm :gain 0.05)
-  (send *pr2* :angle-vector  *av3-cup*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+
+  (send *pr2* :rarm :angle-vector *av-transfer-2-r*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
   (send *ri* :wait-interpolation)
-  ;;(unix:sleep 3)
-  ;;(send *pr2* :angle-vector  *av2-cup*)
-  ;;(send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  ;;(send *ri* :wait-interpolation)
-  ;;(send *pr2* :stop-grasp :rarm)
-  ;;(send *ri* :stop-grasp :rarm)
-  ;;(send *pr2* :angle-vector  *av1-cup*)
-  ;;(send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
-  ;;(send *ri* :wait-interpolation)
+  
+  (send *pr2* :rarm :angle-vector *av-transfer-3-r*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :rarm :angle-vector *av-transfer-4-r*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :rarm :angle-vector *av-transfer-5-r*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
+  (send *ri* :wait-interpolation)
   )
 
 (defun clean-edge ()
-  (send *pr2* :angle-vector *av-clean-edge-1*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *pr2* :rarm :angle-vector *av-scrape-edge-1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
   (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector *av-clean-edge-2*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *pr2* :rarm :angle-vector *av-scrape-edge-2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
   (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector *av-clean-edge-3*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *pr2* :rarm :angle-vector *av-scrape-edge-3*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
   (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector *av-clean-edge-4*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *pr2* :rarm :angle-vector *av-scrape-edge-1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller)
   (send *ri* :wait-interpolation)
   )
-
-(defun finish-transfer ()
-  (send *pr2* :angle-vector  *av-transfer-6-l*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
-  (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector  *av-transfer-6-l*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
-  (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector  *av-transfer-5-l*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
-  (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector  *av-transfer-45-l*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
-  (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector  *av-transfer-4-l*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
-  (send *ri* :wait-interpolation)
-  (send *pr2* :angle-vector *av-bowl-table-1*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
-  (send *ri* :wait-interpolation)
-  ;;then basically just move down until it touches the table and open the grippers
-  
-  (setq *joint-angle-list-l* (list *av-transfer-1-l*  *av-transfer-2-l* *av-transfer-3-l* *av-transfer-4-l*  *av-transfer-5-l* *av-transfer-6-l*))
-  )
-
 
 (defun place-bowl ()
   (send *pr2* :angle-vector  *av-transfer-6-l*)
@@ -823,16 +480,6 @@
   (send *ri* :wait-interpolation)
   )
 
-(defun adjust-force (msg)
-  ;;(print (send msg :data))
-  (let (gain)
-    (setq gain (+ *gain* (* 0.3 (send msg :data))))
-    ;;only interpolation betwen the two vectors, not etxrapolaiton
-    (if (> gain 1) (setq *gain* 1)
-    (if (< gain 0) (setq *gain* 0);;else if 
-    (setq *gain* gain)));;else
-  ))
-
 (defun pick-up-cup ()
   (send *pr2* :angle-vector *av-prepare-cup1*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
@@ -856,19 +503,41 @@
   (send *ri* :wait-interpolation)
   )
 
-(defun move-base-transfer ()
-  ;;(send *ri* :go-pos-unsafe 0.3 0 0)
-   ;;(send *ri* :go-pos-unsafe -0.3 0 0)
-  ;;(send *ri* :go-pos-unsafe 0 0 -90)
-  ;;(send *ri* :go-pos-unsafe 1.4 0 0)
-  ;;(send *ri* :go-pos-unsafe 0 0 -90)
-  (print "this function is unsafe!"))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;functions for debuggin only ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun get-pctloud-piece (i)
+  (clean i)
+  (get-dense-ptcloud)
+  )
+
+(defun get-pctloud-all-clean ()
+  ;;clean the whole bowl
+  (dolist (i (list 0 1 2 3 4 5 6 8 9 10 11 12 13 14 15)) ;;7 is front, does not need to be cleaned!
+    (clean i)
+    (get-dense-ptcloud)
+    ))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;
+;;subcriptions;;
+;;;;;;;;;;;;;;;;
+(ros::subscribe "pcl_nodelet/dirt_label" jsk_2019_10_spatula::BoolArray #'schedule-scraping)
+(ros::subscribe "force_err"  std_msgs::float64 #'adjust-force)
+
+
+;;;;;;;;;;;;;;;;;
+;;main function;;
+;;;;;;;;;;;;;;;;;
 (defun exec ()
   (prepare-robot)
-  (get-dense-ptcloud)
+  (clean-walls)
   (send *ri* :go-pos-unsafe 0.3 0 0)
   (prepare-bowl-transfer-safe)
+  (transfer-dough)
+  (clean-edge)
   (place-bowl)
   (pick-up-cup)
   ;;later all this should be one function
@@ -883,8 +552,4 @@
   )
 
 
-;;;;;;;;;;;;;;;;
-;;subcriptions;;
-;;;;;;;;;;;;;;;;
-(ros::subscribe "pcl_nodelet/dirt_label" jsk_2019_10_spatula::BoolArray #'schedule-scraping)
-(ros::subscribe "force_gain"  std_msgs::float64 #'adjust-force)
+
