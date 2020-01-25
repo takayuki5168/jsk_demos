@@ -10,9 +10,9 @@ window = 10
 plot_radial_force = True
 
 def main():
-    read_bag()
+    #read_bag()
     #read_json()
-    #read_json_no_time()
+    read_json_no_time()
     #read_json_debug()
 
 def read_json_debug():
@@ -27,7 +27,7 @@ def read_json_debug():
     f.close()
     exec("dict1 = %s" % test)
     dict2 = dict1["force"]
-    action = "av3wall-0-1"
+    action = "av3wall-1-2"
 
     for i in range(dict1["n_exp"][action]):
         label = dict1["label"][i]
@@ -44,7 +44,8 @@ def read_json_debug():
     plt.show()
 
 def read_json():
-    path = "/home/leus/force_feedack_exp_19_01"
+    #path = "/home/leus/force_feedack_exp_19_01"
+    path = "/home/leus/force_bag_01_24/force_reference"
     path_json = "%s/force.json" % path
 
     #KO hack to debug compare_force
@@ -56,6 +57,7 @@ def read_json():
     exec("dict1 = %s" % test)
     dict2 = dict1["force"]
     action = "av3wall-0-1"
+    print dict1.keys()
     print dict1["n_exp"].keys()
     for i in range(dict1["n_exp"][action]):
         label = dict1["label"][i]
@@ -78,8 +80,7 @@ def read_json():
     plt.show()
 
 def read_json_no_time():
-    path = "/home/leus/force_feedack_exp_19_01"
-    path_json = "%s/force.json" % path
+    path_json = "force.json"
 
     #KO hack to debug compare_force
     fig, axs = plt.subplots(8, 1)
@@ -94,7 +95,7 @@ def read_json_no_time():
     for i in range(dict1["n_exp"][action]):
         label = dict1["label"][i]
         #if label != "long" and label != "short":
-        if label not in ["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+        if label not in ["gain_02","gain_04","gain_06","gain_08","short","long"]:#["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
             continue
         n_t = dict1["n_t"][action]
         force_l = np.array(dict2[action]["larm"])
@@ -108,10 +109,11 @@ def read_json_no_time():
 
 def read_bag():
     fig, axs = plt.subplots(8, 1)
-    for label in ["short","long","movement_exp"]:#gain_exp",#,"long_old","short_old"]:#["short","short_old","short_2","short_3","short_4","long","long_2"]:#["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+    for label in ["short","long","intermediate"]:#,"movement_exp","scrape_0_long"]:#gain_exp",#,"long_old","short_old"]:#["short","short_old","short_2","short_3","short_4","long","long_2"]:#["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
         #path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
         #path = "/home/leus/force_feedack_exp_19_01/%s" % label
-        path = "/home/leus/force_bag_01_24/%s" % label
+        #path = "/home/leus/force_bag_01_24/%s" % label
+        path = path = "/home/leus/force_bag_01_24/clean_0/%s" % label
         
         first = True
         for doc in os.listdir(path):

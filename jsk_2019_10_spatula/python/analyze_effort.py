@@ -21,11 +21,6 @@ def main():
 
     if offline:
         Analyzer.read_bag(path)
-        print Analyzer.jacobian["larm"]
-        #Analyzer.transform_jacobi([0,-0.2,0],"larm")
-        #print Analyzer.jacobian["larm"]
-        #print Analyzer.small_jacobiT["larm"]
-        
         Analyzer.calculate_force("larm")
         fig, axs = plt.subplots(3, 1)
         axs[0].plot(np.transpose(Analyzer.force["larm"][0]))
@@ -33,15 +28,6 @@ def main():
         axs[2].plot(np.transpose(Analyzer.force["larm"][2]))
         plt.show()
 
-        """
-        Analyzer.debug_force("larm",1,3,4)
-        fig, axs = plt.subplots(8, 1)
-        for i in np.arange(0,8):
-            Analyzer.transform_force_radial(float(i)/4*np.pi,"larm") #3*np.pi/4
-            axs[i].plot(np.transpose(Analyzer.force_radial["larm"]))
-        plt.show()
-        Analyzer.plot_data(["effort","larm","actual"])
-        """
     else:
         rospy.Subscriber("/scrape_left_jacobian", Jacobian, Analyzer.callback_left_jacobian)
         rospy.Subscriber("/torso_controller/state", JointTrajectoryControllerState, Analyzer.callback_torso_controller)
@@ -53,6 +39,7 @@ def main():
 
 class AnalyzeEffort():
     def __init__(self):
+        print "init AnalyzeEffort"
         self.effort = {"larm": {"desired":[],"error":[],"actual":[]},"rarm": {"desired":[],"error":[],"actual":[]},"torso": {"desired":[],"error":[],"actual":[]}}
         self.position = {"larm": {"desired":[],"error":[],"actual":[]},"rarm": {"desired":[],"error":[],"actual":[]},"torso": {"desired":[],"error":[],"actual":[]}}
         self.velocity = {"larm": {"desired":[],"error":[],"actual":[]},"rarm": {"desired":[],"error":[],"actual":[]},"torso": {"desired":[],"error":[],"actual":[]}}
@@ -96,19 +83,14 @@ class AnalyzeEffort():
 
     def callback_left_jacobian(self,jacobian):
         self.unpack_jacobi(jacobian,"larm")
-        print "jacobian left arm"
-        print self.jacobian["larm"]
         self.jacobian_published_left = True
 
     def callback_right_jacobian(self,jacobian):
         self.unpack_jacobi(jacobian,"rarm")
-        print "jacobian right arm"
-        print self.jacobian["rarm"]
         self.jacobian_published_right = True
 
     def callback_larm_controller(self,msg):
         #empty the arrrays for left arm -> only newest values in there
-        #print "larm controller"
         self.effort["larm"] = {"desired":[],"error":[],"actual":[]}
         self.position["larm"] = {"desired":[],"error":[],"actual":[]}
         self.velocity["larm"] = {"desired":[],"error":[],"actual":[]}
@@ -127,10 +109,6 @@ class AnalyzeEffort():
             
     def publish_force(self):
         force = Force()
-        #print "larm"
-        #print np.shape(self.force["larm"])
-        #print "rarm"
-        #print np.shape(self.force["rarm"])
         force.larm = self.force["larm"]
         force.rarm = self.force["rarm"]
         self.pub.publish(force)
@@ -139,7 +117,6 @@ class AnalyzeEffort():
 
 
     def callback_rarm_controller(self,msg):
-        #print "rarm controller"
         #empty the arrays for left arm -> only newest values in there
         self.effort["rarm"] = {"desired":[],"error":[],"actual":[]}
         self.position["rarm"] = {"desired":[],"error":[],"actual":[]}
@@ -215,16 +192,13 @@ class AnalyzeEffort():
             self.force[arm] = np.matmul(np.linalg.inv(self.small_jacobiT[arm]),effortT_small)
         if not offline:
             r = self.calculate_r()
-            #Fr = np.dot(self.force[arm].flatten(),r) #r is unit vector in radial direction
             Fr = np.dot(force_local.flatten(),r) #r is unit vector in radial direction
-            #self.force[arm] = np.append(self.force[arm],Fr)
             self.force[arm] = np.append(force_local,Fr)
 
 
     def calculate_r(self):
         trafo_r = self.get_transform('/r_gripper_tool_frame')
         trafo_l = self.get_transform('/l_gripper_tool_frame')
-        #np.transpose(np.matmul(trafo,np.transpose(xyz1)))
         yr = np.matmul(trafo_r, np.transpose([0,1,0,0]))[0:3]
         yr = yr * (1/np.linalg.norm(yr))
         zl = np.matmul(trafo_l, np.transpose([0,0,1,0]))[0:3]

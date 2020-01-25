@@ -5,7 +5,8 @@ import numpy as np
 
 resample = True
 #path_bag = "/home/leus/force_different_spatula_pos/test"
-path = "/home/leus/force_feedack_exp_19_01"
+#path = "/home/leus/force_feedack_exp_19_01"
+path = "/home/leus/force_bag_01_24/force_reference"
 path_json = "%s/force.json" % path
 
 data = {}
@@ -15,10 +16,10 @@ indices = {}
 n_t_dict = {}
 labels = []
 #probably good to move as much as posssible to offline computation
-n_time_action = {"av3wall-0-1":1} #specifies how long an action taks in seconds
+n_time_action = {"av3wall-0-1":1,"av3wall-0-2":1,"av3wall-0-3":1,"av3wall-0-4":1,"av3wall-1-1":1,"av3wall-1-2":1,"av3wall-1-3":1,"av3wall-1-4":1,"av3wall-2-1":1,"av3wall-2-2":1,"av3wall-2-3":1,"av3wall-2-4":1,"av3wall-3-1":1,"av3wall-3-2":1,"av3wall-3-3":1,"av3wall-3-4":1} #specifies how long an action takes in seconds
 #if we have a publishing rate of 100 Hz we have n_sample = 100 * n_time
 
-used_labels = ["short","long","long_adapted","short_2","short_3","long_2","short_4"]
+used_labels = ["gain_02","gain_04","gain_06","gain_08","short","long"]#["short","long","long_adapted","short_2","short_3","long_2","short_4"]
 
 def main():
     read_bag()
@@ -35,6 +36,7 @@ def read_bag():
         n_exp = n_exp + len(os.listdir(path_bag))
 
     for label in used_labels:
+        print label
         #path_bag = "/home/leus/force_different_spatula_pos/transfer/%s" % label
         path_bag = "%s/%s" % (path,label)
 

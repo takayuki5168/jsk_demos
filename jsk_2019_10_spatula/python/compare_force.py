@@ -6,18 +6,14 @@ from std_msgs.msg import String, Float64
 import json
 import matplotlib.pyplot as plt
 
-
-#path_json = "/home/leus/force_different_spatula_pos/test/force.json"
-path = "/home/leus/force_feedack_exp_19_01"
-path_json = "%s/force.json" % path
+path_json = "force.json"
 resample = True
 offline = False
-debug = True
+debug = False
 feedback_whole_action = True
 
 def main():
 	Compare = CompareForce()
-
 	#for offline tests
 	if offline:
 		Compare.action = "av5transfer"
@@ -48,13 +44,25 @@ class CompareForce:
 		self.time_window = window_approx * 1.0 / self.logging_rate; #averaging over 1/10 second which is around 6-10 samples depending on the Force publishing rate
 		#KO not integrated yet
 		self.min_sample = 5 #if the number of samples is less than min_sample the force is not compared
-		#maybe save this dicitonary in a json file in case it becomes larger
-		#could add feedback for scraping?
-		self.action_force = {"av3wall-0-1":{"arm":"larm","direction":2,"indices":[0,30]}} #dictionary mapping the relevant force to an action
+		#can also skip some that seem to not work well!
+		self.action_force = {	"av3wall-0-1":{"arm":"larm","direction":2,"indices":[0,30]},
+								"av3wall-0-2":{"arm":"larm","direction":2,"indices":[20,40]},
+								"av3wall-0-3":{"arm":"larm","direction":2,"indices":[80,100]},
+								"av3wall-0-4":{"arm":"larm","direction":2,"indices":[80,100]},
+								"av3wall-1-3":{"arm":"larm","direction":2,"indices":[80,100]},
+								"av3wall-1-4":{"arm":"larm","direction":2,"indices":[80,100]},
+								"av3wall-2-1":{"arm":"larm","direction":2,"indices":[60,100]},
+								"av3wall-2-2":{"arm":"larm","direction":2,"indices":[60,100]},
+								"av3wall-2-3":{"arm":"larm","direction":2,"indices":[80,100]},
+								"av3wall-2-4":{"arm":"larm","direction":2,"indices":[80,100]},
+								"av3wall-3-1":{"arm":"larm","direction":2,"indices":[60,100]},
+								"av3wall-3-2":{"arm":"larm","direction":2,"indices":[60,100]},#maybe 80?
+								"av3wall-3-3":{"arm":"larm","direction":2,"indices":[60,100]},
+								"av3wall-3-4":{"arm":"larm","direction":2,"indices":[80,100]}} #dictionary mapping the relevant force to an action
 		self.label_up = "long"
 		self.label_down = "short"
 
-		self.pub = rospy.Publisher("force_gain", Float64, queue_size=2)
+		self.pub = rospy.Publisher("force_err", Float64, queue_size=2)
 		self.force = {}
 		self.force["larm"] = []
 		self.force["rarm"] = []
@@ -72,7 +80,6 @@ class CompareForce:
 		self.start_time_window = 0
 		self.time_sequence = 0
 		self.ts =[]
-
 
 		#to see if filter work correct
 		if debug:
@@ -99,12 +106,8 @@ class CompareForce:
 			action_time = time - self.start_time_action
 			self.time_sequence =  time - self.start_time_window
 			self.ts.append(action_time)
-			#print "+++++++ relative time ++++++"
-			#print self.time_sequence
 		self.force["larm"].append(msg.larm)
 		self.force["rarm"].append(msg.rarm)
-		#print "**************shapes*************"
-		#print np.shape(self.ts)
 		if self.action not in self.action_force.keys():
 			return True
 		if not feedback_whole_action and not resample and np.shape(self.force[self.action_force[self.action]["arm"]])[0] == self.window:# and np.all(self.n_sample < np.array(self.n_t[self.action])):
@@ -164,11 +167,8 @@ class CompareForce:
 		self.force_des["rarm"]["down"] = force_des_rarm_down
 
 	def compare(self):
-
 		if resample:
 			ts = self.ts
-			#print "time stamps"
-			#print ts
 			self.start_time_window = rospy.get_time() #start of a new time sequence
 			if feedback_whole_action:
 				start_index = self.action_force[self.action]["indices"][0]
@@ -178,17 +178,14 @@ class CompareForce:
 				stop_ts = ts[-1]
 				start_index = int(round(start_ts*self.logging_rate))
 				stop_index = int(round(stop_ts*self.logging_rate))
-			#print "start index: %d" % start_index
-			#print "stop_index: %d" % stop_index
 			arm = self.action_force[self.action]["arm"]
 			direction = self.action_force[self.action]["direction"]
-			#KO
+			
 			if stop_index > np.shape(self.force_des[arm]["up"])[0]:
 				stop_index = np.shape(self.force_des[arm]["up"])[0]
 			self.window = stop_index - start_index
 			print "window: %d" % self.window
 		
-
 		if resample:
 			actual = self.mean_filter(self.resample(ts,np.array(self.force[arm])[:,direction])[start_index:stop_index]) 
 		else:
@@ -196,26 +193,17 @@ class CompareForce:
 
 		if debug:
 			self.save_actual = self.resample(ts,np.array(self.force[arm])[:,direction])[start_index:stop_index]
-			#self.save_actual = self.resample(ts,np.array(self.force[arm])[:,direction])
 		self.force["larm"] = []
 		self.force["rarm"] = []
 		self.ts = []
 
-		#print "shape force des up down"
-		#print np.shape(self.force_des[arm]["up"])
-		#print np.shape(self.force_des[arm]["down"])
-
-		#self.force_des["up"][n_sample,direction,experiments]
 		if resample:
 			up = self.force_des[arm]["up"][start_index:stop_index, direction, :]
 			down = self.force_des[arm]["down"][start_index:stop_index, direction, :]
 		else:
 			up = self.force_des[arm]["up"][self.n_sample - self.window : self.n_sample , direction, :]
 			down = self.force_des[arm]["down"][self.n_sample - self.window : self.n_sample , direction, :]
-		#print "shape up down"
-		#print np.shape(up)
-		#print np.shape(down)
-		#averaging over time first 
+
 		up_mean = []
 		down_mean = []
 		for i in range(np.shape(up)[1]):
@@ -233,16 +221,13 @@ class CompareForce:
 		up_mean = np.array(up_mean)
 		down_mean= np.array(down_mean)
 		if debug:
-			#self.save_up["all"].append(up_mean)
-			#self.save_down["all"].append(down_mean)
 			self.save_up["all"].append(np.transpose(up))
 			self.save_down["all"].append(np.transpose(down))
-			#self.save_up["all"].append(np.transpose(self.force_des[arm]["up"][:, direction, :]))
-			#self.save_down["all"].append(np.transpose(self.force_des[arm]["down"][:, direction, :]))
+
 		#averaging/maximum/minimum over experiments next
 		up_dict = {}
 		down_dict = {}
-		#don't compute gain if the data available is less than 50%, only necessary if not resampled
+		#don't compute err if the data available is less than 50%, only necessary if not resampled
 		if float(len(up_mean[up_mean != 0])) / len(up_mean) < 0.5 or float(len(down_mean[down_mean != 0])) / len(down_mean) < 0.5:
 			print "too little signals"
 			return True
@@ -259,51 +244,36 @@ class CompareForce:
 			self.save_down["max"].append(np.max(down_mean[down_mean != 0]))
 			self.save_down["min"].append(np.min(down_mean[down_mean != 0]))
 			self.save_down["mean"].append(np.mean(down_mean[down_mean != 0]))
-		gain = self.compute_gain(up_dict,down_dict,actual)
-		print "gain: %f" % gain #gain should be published
+		err = self.compute_err(up_dict,down_dict,actual)
+		print "err: %f" % err #err should be published
 		if not offline:
-			self.pub.publish(gain)
+			self.pub.publish(err)
 
 	def resample(self,ts,signal):
-		#print "-------resample--------"
-		#print np.shape(ts)
-		#print np.shape(signal)
 		if feedback_whole_action:
 			arm = self.action_force[self.action]["arm"]
 			stretched_signal = np.interp(np.linspace(ts[0],ts[-1],np.shape(self.force_des[arm]["up"])[0]),ts,signal)
 		else:
 			stretched_signal = np.interp(np.linspace(ts[0],ts[-1],self.window),ts,signal)
-		print "shape stretched signal"
-		print np.shape(stretched_signal)
 		return stretched_signal
 
 	def mean_filter(self,signal):
 		if len(signal) != self.window:
 			print "CAUTION window size:%d  singal length:%d " % (self.window,len(signal))
-		#print "mean filter"
-		#print len(signal)
 		mean = sum(signal)/len(signal)
-		#print mean
 		return mean
 
-	def compute_gain(self,up,down,actual):
-		#tolerance
-		#if down["min"] < actual < down["max"] or down["max"] < actual < down["min"]:
-		#	return 0.0
+	def compute_err(self,up,down,actual):
 		d1 = actual - down["mean"]
 		d2 = up["mean"] - down["mean"]
 		print "d1: %f" % d1
-		print "d2: %f" % d1
+		print "d2: %f" % d2
 		#only protection from division by 0
 		if d2 == 0:
 			return 0
 		else:
-			gain = d1/d2
-		#if gain < -1:
-		#	gain = -1
-		#if gain > 1:
-		#	gain = 1
-		return gain
+			err = d1/d2 * (3.0/4.0) #the second av is not 2cm down but 3cm down
+		return err
 
 	def plot_signal(self,signal,color = "royalblue"):
 		"""
@@ -319,18 +289,6 @@ class CompareForce:
 	def plot_save_up_down(self):
 		color = "royalblue"
 		fig, axs = plt.subplots(2, 1)
-		#print "----------shapes debug----------"
-		print np.shape(self.save_up["all"])
-		#print np.shape(self.save_up["mean"])
-		#print np.shape(self.save_up["min"])
-		#print np.shape(self.save_up["max"])
-		print np.shape(self.save_down["all"])
-		print "-----shape actual-----"
-		print np.shape(self.save_actual)
-		#print np.shape(self.save_down["mean"])
-		#print np.shape(self.save_down["min"])
-		#print np.shape(self.save_down["max"])
-		#print np.shape(self.save_actual)
 		for i in range(np.shape(self.save_up["all"])[1]):
 			signal_up = np.array(self.save_up["all"])[:,i]
 			axs[1].plot(signal_up[signal_up!=0], "lightseagreen")
@@ -345,11 +303,7 @@ class CompareForce:
 		line2, = axs[1].plot(self.save_down["mean"], "red")
 		line2, = axs[1].plot(self.save_down["max"], "red")
 		line2, = axs[1].plot(self.save_down["min"], "red")
-
-		#axs[1].plot(self.save_actual[1::],"orange")
 		axs[1].plot(self.save_actual,"orange")
-		#axs[1].plot(self.save_down["all"], color)
-
 		plt.show()
 
 
