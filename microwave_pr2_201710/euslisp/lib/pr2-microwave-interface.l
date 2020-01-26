@@ -716,19 +716,42 @@
 (defun execute-anne ()
   (setq *pmi* (instance pr2-microwave-interface :init t)) ;;added low torso instead of reset-pose
   (send *pmi* :go-to-microwave-accurately)
-  (speak-en "I am sorry I was not able to find the microwave, can you give me a second try with a fresh start")
+  (speak-en "I am sorry I was not able to find the microwave can you give me a second try with a fresh start")
   (send *pmi* :open-microwave)
   (send *pmi* :put-cup-handle)
   (send *pmi* :close-microwave)
   ;;(send *pmi* :push-heat-button) ;;needs tuning!!
   ;;(send *pmi* :push-start-button) ;;needs tuning
   ;; wait for baking
-  (speak-en "I can not push the buttons yet. I am sorry I still have a lot to learn, could you help me this time")
+  (speak-en "I can not push the buttons yet I am sorry I still have a lot to learn could you help me this time")
   ;;(unix::sleep (* 2 60))
   ;; take object from microwave
   (send *pmi* :open-microwave)
   (send *pmi* :take-cup-handle)
   (send *pmi* :close-microwave)
   (send *ri* :go-pos-unsafe 0 0 120)
+  (speak-en "who wants cake")
+  )
+
+(defun exec-anne-1st-part()
+  (setq *pmi* (instance pr2-microwave-interface :init t)) ;;added low torso instead of reset-pose
+  (send *pmi* :go-to-microwave-accurately)
+  )
+
+(defun exec-anne-2nd-part ()
+  (send *pmi* :open-microwave)
+  (send *pmi* :put-cup-handle)
+  (send *pmi* :close-microwave)
+  ;;(send *pmi* :push-heat-button) ;;needs tuning!!
+  ;;(send *pmi* :push-start-button) ;;needs tuning
+  ;; wait for baking
+  (speak-en "I can not push the buttons yet I am sorry I still have a lot to learn could you help me this time")
+  ;;(unix::sleep (* 2 60))
+  (unix::sleep 135)
+  ;; take object from microwave
+  (send *pmi* :open-microwave)
+  (send *pmi* :take-cup-handle)
+  (send *pmi* :close-microwave)
+  (send *ri* :go-pos-unsafe 0 0 180)
   (speak-en "who wants cake")
   )
