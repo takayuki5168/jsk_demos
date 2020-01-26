@@ -8,7 +8,7 @@
 
     <node name="boxfilter_pre" pkg="nodelet" type="nodelet"
       args="load jsk_pcl/AttentionClipper $(arg manager)" output="screen">
-      <remap from="~input/points" to="/passthrough_points/output" />
+      <remap from="~input/points" to="/passthrough_points/output"/>
       <rosparam>
         use_multiple_attention: false
         initial_pos: [0.4, -0.04, 0.8]

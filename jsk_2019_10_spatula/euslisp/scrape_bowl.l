@@ -93,13 +93,17 @@
     (setq *cmd* cmd)));;else
   ))
 
-(defun prepare-robot ()
+(defun reset-pose-high ()
   (send *pr2* :angle-vector  *av-reset-pose-high*)
   (if (boundp '*irtviewer*)
     (send *irtviewer* :draw-objects))
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
-  
+  )
+
+(defun prepare-robot ()
+
+  (reset-pose-high)
   ;; move robot into initial position
   (send *pr2* :rarm :shoulder-p :joint-angle -20)
   (send *pr2* :larm :shoulder-p :joint-angle 50)
@@ -375,6 +379,9 @@
   (transfer-dough-path 4)
   (transfer-dough-path 3)
   (transfer-dough-path 2)
+  (transfer-dough-path 4)
+  (transfer-dough-path 3)
+  (transfer-dough-path 2)
   )
 
 (defun transfer-dough-path (type)
@@ -532,22 +539,23 @@
 ;;main function;;
 ;;;;;;;;;;;;;;;;;
 (defun exec ()
-  (prepare-robot)
+  ;;(prepare-robot)
   (clean-walls)
   (send *ri* :go-pos-unsafe 0.3 0 0)
   (prepare-bowl-transfer-safe)
   (transfer-dough)
-  (clean-edge)
+  ;;(clean-edge)
   (place-bowl)
   (pick-up-cup)
   ;;later all this should be one function
   (send *ri* :go-pos-unsafe -0.3 0 0)
   (send *pr2* :angle-vector *av-prepare-move-microwave1*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1500)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   (send *ri* :go-pos-unsafe 0 0 -90)
   (send *ri* :go-pos-unsafe 1.4 0 0)
   (send *ri* :go-pos-unsafe 0 0 -90)
+  (send *ri* :go-pos-unsafe -0.1 0 0)
   ;;now microwave demo
   )
 
