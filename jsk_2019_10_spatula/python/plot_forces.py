@@ -5,14 +5,18 @@ import numpy as np
 import os
 import time
 
+from matplotlib import cm
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+
 task = "scrape"
 window = 10
 plot_radial_force = True
 
+
 def main():
-    #read_bag()
+    read_bag()
     #read_json()
-    read_json_no_time()
+    #read_json_no_time()
     #read_json_debug()
 
 def read_json_debug():
@@ -108,15 +112,31 @@ def read_json_no_time():
     plt.show()
 
 def read_bag():
-    fig, axs = plt.subplots(8, 1)
-    for label in ["short","long","intermediate"]:#,"movement_exp","scrape_0_long"]:#gain_exp",#,"long_old","short_old"]:#["short","short_old","short_2","short_3","short_4","long","long_2"]:#["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
+    only_z = False
+    if only_z:
+        fig, axs = plt.subplots(2, 1)
+    else:
+        fig, axs = plt.subplots(8, 1)
+    i = 0
+    for label in ["long","long_2","short","short_2"]:#"gain_exp",#"intermediate"]:#,"movement_exp","scrape_0_long"]:#gain_exp",#,"long_old","short_old"]:#["short","short_old","short_2","short_3","short_4","long","long_2"]:#["short","long","long_adapted","short_2","short_3","long_2","short_4"]:
         #path = "/home/leus/force_different_spatula_pos/transfer/%s" % label
         #path = "/home/leus/force_feedack_exp_19_01/%s" % label
-        #path = "/home/leus/force_bag_01_24/%s" % label
-        path = path = "/home/leus/force_bag_01_24/clean_0/%s" % label
-        
+        path = "/home/leus/force_bag_01_24/%s" % label
+        #path = "/home/leus/force_bag_01_24/clean_0/%s" % label
+
+        if label == "long" or label == "long_2":
+            color_code = 0
+        color_table = np.linspace(0.1,0.8,11)
+        print color_table
+        if label == "short" or label == "short_2":
+            color_code = 1.0
         first = True
-        for doc in os.listdir(path):
+        docs = np.sort(os.listdir(path))
+        for doc in docs:
+            if label == "gain_exp":
+                color_code = color_table[i]
+                print color_code
+                i = i+1
             if doc.split(".")[-1] != "bag":
                 print "skipping file %s as it is not a bag file" % doc
                 continue
@@ -143,7 +163,7 @@ def read_bag():
 
                 if topic == "/semantic_annotation":
                     if task == "scrape":
-                        print msg
+                        #print msg
                         [av,flag_type] = msg.data.split("_")
                         #[av,scrape_type,bowl_position,flag_type] = msg.data.split("_")
                         #if av == "av1wall" and flag_type == "start":
@@ -164,21 +184,23 @@ def read_bag():
 
             ts = np.array(ts)
             #force_ts{doc} = ts
-            print ts
-            print start_ts
+            #print ts
+            #print start_ts
             start_index = np.argmin(np.abs(ts-start_ts))
             stop_index = np.argmin(np.abs(ts-stop_ts))
             ts_action = ts_to_sec(ts[start_index:stop_index])
-            print "task length in time:"
-            print type(stop_ts) #.sec - start_ts.sec
-            print stop_ts.to_sec() - start_ts.to_sec()
-            print "task length in samples"
-            print stop_index - start_index
+            #print "task length in time:"
+            #print type(stop_ts) #.sec - start_ts.sec
+            #print stop_ts.to_sec() - start_ts.to_sec()
+            #print "task length in samples"
+            #print stop_index - start_index
             if first:
-                plot_force(ts_action,force,label,start_index,stop_index,fig,axs,True)
+                #plot_force(ts_action,force,label,start_index,stop_index,fig,axs,True)
+                plot_force_color_map(ts_action,force,label,start_index,stop_index,fig,axs,True,color_code,only_z)
                 first = False
             else:
-                plot_force(ts_action,force,label,start_index,stop_index,fig,axs,False)
+                #plot_force(ts_action,force,label,start_index,stop_index,fig,axs,False)
+                plot_force_color_map(ts_action,force,label,start_index,stop_index,fig,axs,False,color_code,only_z)
     plt.show()
 
 def ts_to_sec(ts):
@@ -536,6 +558,94 @@ def plot_force_debug_compare_force(force,label,start_index = 0,stop_index = -1,f
 
     axs[1].set_ylabel("Fyz")
     axs[1].legend()
+
+
+def plot_force_color_map(ts,force,label,start_index = 0,stop_index = -1,fig=None,axs=None,set_label = True, i=0,only_z=False):
+    print i
+    #viridis = cm.get_cmap('viridis', 12)
+    #viridis = cm.get_cmap('Blues', 12)
+    #viridis = cm.get_cmap('PiYG', 12)
+    viridis = cm.get_cmap('RdYlGn', 12)
+    #print viridis
+    #print viridis.colors
+    #print viridis(1.0/13*i)
+    #color = viridis(1.0/13*i)
+    #zero is read, 1 is green, 0.5 is yellow
+    #color = viridis(0.5)
+    color = viridis(i)
+    if i == 0:
+        color = "darksalmon"
+    #print color
+
+    if fig is None or axs is None:
+        fig, axs = plt.subplots(6, 1)
+
+    if stop_index == -1:
+        stop_index = np.shape(np.transpose(force["larm"]))[1]
+        print "stop_index"
+        print stop_index
+
+    #print "in plot shapes x y "
+    #print np.shape(force["larm"])
+    #print np.shape(np.transpose(force["larm"])[0][start_index:stop_index])
+    #print np.shape(ts)
+
+    #line0, = axs[0].plot(mean_filter(np.transpose(force["larm"])[0][start_index:stop_index],window),color)
+    if only_z:
+        line0, = axs[0].plot(ts,np.transpose(force["larm"])[2][start_index:stop_index],color=color)
+        line1, = axs[1].plot(ts,np.transpose(force["rarm"])[2][start_index:stop_index],color=color)
+
+        if set_label:
+            line0.set_label(label)
+            line1.set_label(label)
+
+        axs[0].set_ylabel("Fz larm")
+        axs[1].set_ylabel("Fz rarm")
+        axs[0].legend()
+        axs[1].legend()
+
+    else:
+        line0, = axs[0].plot(ts,np.transpose(force["larm"])[0][start_index:stop_index],color=color)
+        line1, = axs[1].plot(ts,np.transpose(force["larm"])[1][start_index:stop_index],color=color)
+        line2, = axs[2].plot(ts,np.transpose(force["larm"])[2][start_index:stop_index],color=color)
+        
+
+        line3, = axs[3].plot(ts,np.transpose(force["rarm"])[0][start_index:stop_index],color=color)
+        line4, = axs[4].plot(ts,np.transpose(force["rarm"])[1][start_index:stop_index],color=color)
+        line5, = axs[5].plot(ts,np.transpose(force["rarm"])[2][start_index:stop_index],color=color)
+
+        if plot_radial_force:
+            line6, = axs[6].plot(ts,np.transpose(force["larm"])[3][start_index:stop_index],color=color)
+            line7, = axs[7].plot(ts,np.transpose(force["rarm"])[3][start_index:stop_index],color=color)
+            axs[6].set_ylabel("Fr larm")
+            axs[7].set_ylabel("Fr rarm")
+            axs[6].legend()
+            axs[7].legend()
+
+        if set_label:
+            line0.set_label(label)
+            line1.set_label(label)
+            line2.set_label(label)
+            line3.set_label(label)
+            line4.set_label(label)
+            line5.set_label(label)
+            if plot_radial_force:
+                line6.set_label(label)
+                line7.set_label(label)
+
+        axs[0].set_ylabel("Fx larm")
+        axs[1].set_ylabel("Fy larm")
+        axs[2].set_ylabel("Fz larm")
+        axs[3].set_ylabel("Fx rarm")
+        axs[4].set_ylabel("Fy rarm")
+        axs[5].set_ylabel("Fz rarm")
+
+        axs[0].legend()
+        axs[1].legend()
+        axs[2].legend()
+        axs[3].legend()
+        axs[4].legend()
+        axs[5].legend()
 
 if __name__ == "__main__":
     main()
