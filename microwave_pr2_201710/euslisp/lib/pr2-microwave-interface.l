@@ -87,6 +87,7 @@
    ;;(if use-ri (send *ri* :go-pos-unsafe -0.5 1.5 0))
    )
 
+
   (:go-to-microwave-accurately
    ()
    ;;KO instead of moving PR2 in init the torso is moved down here
@@ -156,10 +157,10 @@
                      (progn
                        (let (go-pos-x- go-pos-y- go-pos-theta-)
                          ;; clipping how robot moves because using :go-pos-`unsafe`
-                         (setq go-pos-x- (min go-pos-x 0.1))
-                         (setq go-pos-x- (max go-pos-x- -0.1))
-                         (setq go-pos-y- (min go-pos-y 0.1))
-                         (setq go-pos-y- (max go-pos-y- -0.1))
+                         (setq go-pos-x- (min go-pos-x 0.05))
+                         (setq go-pos-x- (max go-pos-x- -0.05))
+                         (setq go-pos-y- (min go-pos-y 0.05))
+                         (setq go-pos-y- (max go-pos-y- -0.05))
                          (setq go-pos-theta- (min go-pos-theta 3))
                          (setq go-pos-theta- (max go-pos-theta- -3))
 
@@ -713,6 +714,20 @@
   (send *pmi* :close-microwave)
   )
 
+
+
+  (defun start-tracking ()
+    (let ((service-name "start_tracking"))
+      (ros::wait-for-service service-name)      
+      (ros::service-call service-name (instance std_srvs::EmptyRequest :init))))
+  
+
+
+(defun terminate-tracking ()
+(let ((service-name "terminate_tracking"))
+(ros::wait-for-service service-name)
+(ros::service-call service-name (instance std_srvs::EmptyRequest :init))))
+
 (defun execute-anne ()
   (setq *pmi* (instance pr2-microwave-interface :init t)) ;;added low torso instead of reset-pose
   (send *pmi* :go-to-microwave-accurately)
@@ -735,7 +750,9 @@
 
 (defun exec-anne-1st-part()
   (setq *pmi* (instance pr2-microwave-interface :init t)) ;;added low torso instead of reset-pose
+  ;;(start-tracking)
   (send *pmi* :go-to-microwave-accurately)
+  ;;(terminate-tracking)
   )
 
 (defun exec-anne-2nd-part ()
