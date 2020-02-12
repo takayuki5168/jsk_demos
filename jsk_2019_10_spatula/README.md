@@ -1,6 +1,56 @@
-# PR2 Force Test
+# PR2 cake demo
 
-The goal is to find out how accurate the effort data from PR2 is.
+## How to use the scraping demo
+### 0) preparation
+- use custom grippers
+- use gloves and aprin for protection of robot
+- when you put the gloves, put some tape around the wrist to prevent the glove from slipping
+- put the cup at the place according to the tape and put handle in right direction
+
+To use the PR2 cake demo multiple nodes have to be run
+### 1) launch launch files for vision
+- roslaunch reproduce_pc.launch
+- roslaunch passthrough.launch
+- roslaunch detect_dirt.launch
+### 2) run nodes for force feedback
+- rosrun jsk_2019_10_spatula analyze_effort.py
+- rosrun jsk_2019_10_spatula compare_force.py
+### 3) use lisp programm
+- open scrape_bowl.l in editor
+- in editor load scrape_bowl.l
+- you can run (reset-pose-high) to put the robot in a good position to put on gloves
+- run (prepare-robot) to hand robot the spatula and bowl
+- run (exec)
+- CAUTION robot will move not only with its arms but also performs unsafe movements with the platform
+
+## How to use my version of Murooka-sans microwave demo
+### 0) preparation
+- remove drawer from cupboard
+- put something behind microwave to have microwave up front (e.g. lid of coockies)
+- put something in the microwave under the rotating plate to prevent it from rotating (e.g deep plate)
+### 1) launch launch file
+- detect_microwave.launch
+### 2) use lisp programm
+- open pr2_interface.l
+- run (exec-anne-1st-part)
+- in case the vision fails, 
+    - run (speak-en "I am sorry I was not able to find the microwave can you give me a second try with a fresh start")
+    - use playstation controller to reposition PR2 in a good start position
+    - run (send *pmi* :go-to-microwave-accurately)
+- run (exec-anne-2nd-part)
+
+# How to use the force publisher
+- run analyze_effort.py (this node publishes the force)
+- calculate jacobian whenever arm moves for left and right hand as done in (get-jacobi-l-world) and (get-jacobi-r-world)
+- publish jacobian in lisp code as done in  (publish-jacobi arm) in scrape_bowl.l
+- Force.msg and Jacobian.msg are necessary to use this 
+
+
+
+
+## PR2 Force Test
+
+The goal is to find out how accurate the effort data from PR2 is
 
 ### pr2-spatula-force-test.l
 - with this little demo PR2 scrapes along a bowl 40 times, which it is holding in its left gripper using a spatula with its right gripper
