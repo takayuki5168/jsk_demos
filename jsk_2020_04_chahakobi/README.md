@@ -20,6 +20,19 @@ roseus kinematics-demo.l
 ### Gazebo  
 物理シミュレーションが大事になりそうな部分について、Gazeboを使ってシミュレーションを行う。
 
+キッチンの環境を立ち上げる。
+```
+roslaunch jsk_2020_04_chahakobi gazebo_test.launch 
+```
+
+WIP これから実現するgazeboシミュレーション。
+- やかんを認識してつかむ。
+- (干渉などを気にしながら)やかんに水をいれる。
+- やかんをもってコップにお湯を注ぐ。
+
+
+
+
 ## デモの流れ
 
 - コンロまで行く (go-to-cook)
