@@ -41,5 +41,20 @@
       <uri>model://cooking-pot</uri>
       <pose>1.7 0.72 0.85 0.0 0.0 3.14</pose>
     </include>
+    <include>
+      <name>cutting-board</name>
+      <uri>model://cutting-board</uri>
+      <pose>1.65 0.15 0.85 0.0 0.0 3.14</pose>
+    </include>
+    <include>
+      <name>knife</name>
+      <uri>model://knife</uri>
+      <pose>1.65 -0.1 0.85 1.57 0.0 0</pose>
+    </include>
+    <include>
+      <name>bowl1</name>
+      <uri>model://bowl</uri>
+      <pose>1.8 0.2 0.85 0.0 0.0 3.14</pose>
+    </include>
   </world>
 </sdf>
