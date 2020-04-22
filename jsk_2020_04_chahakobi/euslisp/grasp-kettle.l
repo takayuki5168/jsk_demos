@@ -11,6 +11,12 @@
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
 (send *ri* :wait-interpolation)
 
+
+;; トピックなどを定義
+(defvar *topic-name* "/icp_registration/output_pose")
+
 ;; subscribeして認識
+
+
 
 ;; ikを解く

@@ -6,6 +6,7 @@
 ;; init 
 (pr2-init)
 
-;; reset-pose
-(send *pr2* :reset-pose)
+;; reset-manip-pose
+(send *pr2* :reset-manip-pose)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+(send *ri* :wait-interpolation)
