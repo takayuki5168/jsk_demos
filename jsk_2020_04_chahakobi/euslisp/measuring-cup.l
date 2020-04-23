@@ -1,6 +1,7 @@
 (defclass measuring-cup-object
   :super cascaded-link
-  :slots (
+  :slots (handle0
+	  attention0
 	  ))
 
 (defmethod measuring-cup-object
@@ -37,6 +38,8 @@
      (send b8 :locate #f(0 -41 111))
      (setq b1 (body- b1 b8))
 
+     (send b1 :set-color :LightCyan)
+     (send b5 :set-color :LightCyan)
 
      (setq link1 (instance bodyset-link :init (make-cascoords) :bodies (list b1 b5) :weight 1 :centroid (float-vector 0.0 0.0 0.0) :inertia-tensor #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 
@@ -49,6 +52,12 @@
      ;; definition of joint
 
      ;; definition of :handle
+     (setq handle0 (make-cascoords :pos #f(0 75 70) :rpy #f(3.14 0 0) :name "handle0"))
+     (send link1 :assoc handle0)
+
+     ;; definition of :attention
+     (setq attention0 (make-cascoords :pos #f(0 -50 110) :name "attention0"))
+     (send link1 :assoc attention0)
 
      ;; init-ending 
      (setq links (list link1))
@@ -58,6 +67,10 @@
 
      self))
 
+  (:handle (&rest args) (forward-message-to-all (list  handle0) args))
+  (:handle-handle0 (&rest args) (forward-message-to handle0 args))
+  (:attention (&rest args) (forward-message-to-all (list  attention0) args))
+  (:attention-attention0 (&rest args) (forward-message-to attention0 args))
   )
 
 (defun measuring-cup (&rest args) (instance* measuring-cup-object :init args))
