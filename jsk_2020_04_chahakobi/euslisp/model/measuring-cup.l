@@ -2,6 +2,7 @@
   :super cascaded-link
   :slots (handle0
 	  attention0
+	  attention1
 	  ))
 
 (defmethod measuring-cup-object
@@ -58,7 +59,9 @@
      ;; definition of :attention
      (setq attention0 (make-cascoords :pos #f(0 -50 110) :name "attention0"))
      (send link1 :assoc attention0)
-
+     (setq attention1 (make-cascoords :pos #f(0 0 110) :rpy #f(-1.57 0 0) :name "attention1"))
+     (send link1 :assoc attention1)
+    
      ;; init-ending 
      (setq links (list link1))
      (send self :init-ending)
@@ -69,8 +72,9 @@
 
   (:handle (&rest args) (forward-message-to-all (list  handle0) args))
   (:handle-handle0 (&rest args) (forward-message-to handle0 args))
-  (:attention (&rest args) (forward-message-to-all (list  attention0) args))
+  (:attention (&rest args) (forward-message-to-all (list  attention0 attention1) args))
   (:attention-attention0 (&rest args) (forward-message-to attention0 args))
+  (:attention-attention1 (&rest args) (forward-message-to attention1 args))
   )
 
 (defun measuring-cup (&rest args) (instance* measuring-cup-object :init args))

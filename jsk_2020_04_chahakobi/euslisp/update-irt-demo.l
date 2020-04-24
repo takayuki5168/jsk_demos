@@ -21,37 +21,89 @@
 ;; set kettle
 (setq *kettle* (send *room73b2* :object "room73b2-kettle"))  
 (if (send *kettle* :parent) (send (send *kettle* :parent) :dissoc *kettle*))
-(send *kettle* :rotate (deg2rad -180) :z :world) 
+(send *kettle* :locate #f(0 0 -500))
 
-;; set measuring-cup
-(load "measuring-cup.l")
-(setq *mcup* (measuring-cup))
-(send *mcup* :move-to (make-coords :pos #f(500.0 2250.0 830.0)) :world)
+(load "model/kettle-body.l")
+(setq *kettle-body* (kettle-body))
+(send *kettle-body* :newcoords (make-coords :pos #f(500.0 1500.0 825.0) :rpy #f(-3.142 0.0 0.0)))
+(load "model/kettle-lid.l")
+(setq *kettle-lid* (kettle-lid))
+(send *kettle-lid* :newcoords (make-coords :pos #f(500 1500 825) :rpy #f(-3.142 0 0)))
+(send *kettle-body* :assoc *kettle-lid*)
 
 ;; IRT viewer
-(objects (list *robot* *room73b2* *axis* *mcup*))
+(objects (list *robot* *room73b2* *axis* *kettle-body* *kettle-lid*))
 
 (format t ";; please run (go-to-cook) , (exec-all) or (now-devel)~%")
 
+;; set spots
+(setq *cook-spot* (send *room73b2* :spot "cook-spot") )
+(setq *sink-spot* (make-coords :pos #f(1055 2600 0) :rpy #f(3.14 0 0))) 
+(setq *desk-spot* (make-coords :pos #f(3470 -1900 0) :rpy #f(-1.57 0 0)))
+
+;; set points
+(setq *water-point* (make-coords :pos #f(340.0 2580.0 880.0) :rpy #f(3.14 0 0)))                
+(setq *faucet-point* (make-coords :pos #f(200 2580 950) :rpy #f(3.14 0 0)))
+(setq *cook-point0* (make-coords :pos #f(500.0 1500.0 825.0) :rpy #f(-3.14 0 0)))
+(setq *cook-switch-point* (make-coords :pos #f(660 1550 710) :rpy #f(3.142 0 -1.571)))
+(setq *desk-point* (make-coords :pos #f(3470 -2500 700) :rpy #f(1.571 0 0)))
+
+;; set angle-vector
+(setq *carry-mcup-pose* #f(300.0 8.04734 38.6959 47.4962 -121.537 -182.722 -69.9025 145.758 -75.0 50.0 -110.0 -110.0 20.0 -10.0 -10.0 -4.27655 47.3669))
+
+
 ;; キッチンまで行く
 (defun go-to-cook ()
-  (send *robot* :move-to (send *room73b2* :spot "cook-spot") :world)
-  (send *robot* :torso_lift_joint :joint-angle 325)
+  (send *robot* :move-to *cook-spot* :world)
+  (send *robot* :reset-manip-pose)
 
   (send *irtviewer* :look-all
 	(geo::make-bounding-box
 	 (flatten (send-all (send *robot* :bodies) :vertices))))
   
   (unix:sleep 1)
+  (format t ";; please run (open-the-lid)~%"))
+
+;; やかんの蓋を開ける
+(defun open-the-lid ()
+  (send *axis* :move-to (send (car (send *kettle-lid* :handle)) :worldcoords) :world)
+
+  (send *robot* :head :look-at (send *axis* :worldpos))
+  (unix:sleep 1)
+  
+  (send *robot* :rarm :inverse-kinematics                                              
+	*axis*
+	:rotation-axis :t
+	:debug-view t)  
+  (unix:sleep 1)
+
+  (if (send *kettle-lid* :parent) (send (send *kettle-lid* :parent) :dissoc *kettle-lid*))
+  (send (send *robot* :rarm :end-coords :parent) :assoc *kettle-lid*)
+  
+  (send *robot* :rarm :move-end-pos #f(50 0 100) :world
+	:debug-view t :look-at-target t)
+  (unix:sleep 1)
+
+  ;; 蓋を置く 
+  (send *axis* :move-to (make-coords :pos #f(560.0 1900.0 835.0) :rpy #f(3.14 0 0)) :world)
+  (send *robot* :rarm :inverse-kinematics	
+  	*axis*
+  	:move-target (car (send *kettle-lid* :attention))
+  	:rotation-axis :t
+  	:debug-view t)
+
+  (send (send *robot* :rarm :end-coords :parent) :dissoc *kettle-lid*)
+
+  (send *robot* :reset-manip-pose)
+  (unix:sleep 1)
+  
   (format t ";; please run (pick-up-kettle)~%"))
 
+;; やかんを持つ
 (defun pick-up-kettle ()
-  ;; やかんを持つ
-  (send *axis* :newcoords (send *kettle* :copy-worldcoords))
-  (send *axis* :transform (car (send *kettle* :handle)))
-  (send *axis* :rotate (deg2rad -90) :y :world)
+  (send *axis* :move-to (send (car (send *kettle-body* :handle)) :worldcoords) :world)
   
-  (send *robot* :head :look-at (send *kettle* :worldpos))
+  (send *robot* :head :look-at (send *axis* :worldpos))
   (unix:sleep 1)
   
   (send *robot* :larm :inverse-kinematics                                              
@@ -60,8 +112,7 @@
 	:debug-view t)  
   (unix:sleep 1)
 
-  (send (send *robot* :larm :end-coords :parent) :assoc *axis*)
-  (send (send *robot* :larm :end-coords :parent) :assoc *kettle*)
+  (send (send *robot* :larm :end-coords :parent) :assoc *kettle-body*)
   
   (send *robot* :larm :move-end-pos #f(50 0 100) :world
 	:debug-view t :look-at-target t)
@@ -73,32 +124,35 @@
   (unix:sleep 1)
   (format t ";; please run (go-to-sink)~%"))
 
+;; シンクまで移動する
 (defun go-to-sink ()
-  ;; シンクまで移動する
-  (send *robot* :move-to (send *room73b2* :spot "/eng2/7f/room73B2-sink-front")  :world)
-  (send *robot* :move-to (make-coords :pos #f(300 -150 0)))
-  (format t ";; please run (pour-water)~%"))
+  (send *robot* :move-to *sink-spot* :world)
+  (format t ";; please run (get-water)~%"))
 
-(defun pour-water ()
-  ;; やかんに水を入れる
-  (setq *now-rpy* (car (send (send (send *robot* :larm :end-coords) :worldcoords) :rpy-angle))) 
+;; やかんに水を入れる
+(defun get-water ()
+  (send *axis* :move-to *water-point* :world)
+
   (send *robot* :larm :inverse-kinematics
-	(make-coords :pos #f(370 2580 900) :rpy *now-rpy*)
-	:rotation-axis :t
-	:debug-view t)
-  (send *robot* :rarm :inverse-kinematics
-	(make-coords :pos #f(200 2580 950) :rpy *now-rpy*)
+	*axis*
+	:move-target (elt (send *kettle-body* :attention) 1)
 	:rotation-axis :z
 	:debug-view t)
-  (unix:sleep 1)
 
+  (send *axis* :move-to *faucet-point* :world)
+  (send *robot* :rarm :inverse-kinematics
+	*axis*
+	:rotation-axis :nil
+	:debug-view t)
+  (unix:sleep 1)
+  
   (send *robot* :rarm :move-end-pos #f(0 0 50) :world
-	:debug-view t :look-at-target t)
+  	:debug-view t :look-at-target t)
 
   (unix:sleep 2) ;;本来は中身をみて一定の量になったら終了する。時間指定も有り。
 
   (send *robot* :rarm :move-end-pos #f(0 0 -50) :world
-	:debug-view t :look-at-target t)
+  	:debug-view t :look-at-target t)
 
   (send *robot* :angle-vector *move-pose*)
   (format t ";; please run (go-to-cook2)~%")
@@ -106,32 +160,66 @@
 
 ;; コンロの前に行く
 (defun go-to-cook2 ()
-  (send *robot* :move-to (send *room73b2* :spot "cook-spot") :world)
-  (send *robot* :torso_lift_joint :joint-angle 325)
+  (send *robot* :move-to *cook-spot* :world)
   (unix:sleep 1)
   (format t ";; please run (put-kettle)~%"))
 
-
+  
 ;; やかんを置く
 (defun put-kettle ()
-  (setq *now-rpy* (car (send (send (send *robot* :larm :end-coords) :worldcoords) :rpy-angle))) 
+  (send *axis* :move-to *cook-point0* :world)
   (send *robot* :larm :inverse-kinematics
-        (make-coords :pos #f(500 1500 1020) :rpy *now-rpy*)
+	*axis*
+	:move-target *kettle-body*
         :rotation-axis :t
         :debug-view t)
-  (send (send *robot* :larm :end-coords :parent) :dissoc *kettle*)
-  (send (send *robot* :larm :end-coords :parent) :dissoc *axis*)
+  
+  (send (send *robot* :larm :end-coords :parent) :dissoc *kettle-body*)
 
   (send *robot* :larm :move-end-pos #f(40 0 0) :world
 	:debug-view t :look-at-target t)
 
   (send *robot* :angle-vector *move-pose*)
+  (format t ";; please run (close-the-lid)~%"))
+
+;; 蓋を閉める
+(defun close-the-lid ()
+  (send *axis* :move-to (send (car (send *kettle-lid* :handle)) :worldcoords) :world)
+
+  (send *robot* :head :look-at (send *axis* :worldpos))
+  (unix:sleep 1)
+  
+  (send *robot* :rarm :inverse-kinematics                                              
+	*axis*
+	:rotation-axis :t
+	:debug-view t)  
+  (unix:sleep 1)
+
+  (if (send *kettle-lid* :parent) (send (send *kettle-lid* :parent) :dissoc *kettle-lid*))
+  (send (send *robot* :rarm :end-coords :parent) :assoc *kettle-lid*)
+  
+  (send *robot* :rarm :move-end-pos #f(-50 0 100) :world
+	:debug-view t :look-at-target t)
+  (unix:sleep 1)
+
+  (send *robot* :rarm :inverse-kinematics                                              
+	*kettle-body*
+	:move-target *kettle-lid*
+	:rotation-axis :t
+	:debug-view t)
+  (unix:sleep 1)
+  
+  (if (send *kettle-lid* :parent) (send (send *kettle-lid* :parent) :dissoc *kettle-lid*))
+  (send *kettle-body* :assoc *kettle-lid*)
+
+  (send *robot* :angle-vector *move-pose*)
   (format t ";; please run (put-on-stove)~%"))
+
 
 ;; コンロをつける
 (defun put-on-stove ()
   (send *robot* :rarm :inverse-kinematics
-        (make-coords :pos #f(660 1550 710) :rpy #f(3.142 0 -1.571))
+	*cook-switch-point*
         :rotation-axis :t
         :debug-view t)
 
@@ -143,7 +231,7 @@
 (defun prepare-tea ()
   ;; お茶のパックを引き出しから出して、セットする
 
-  (format t ";; please run (wait-boil)")
+  (format t ";; please run (wait-boil)~%")
   )
 
 ;; お湯が湧くのを待つ（音認識）
@@ -155,7 +243,7 @@
 ;; コンロを消す
 (defun turn-off-stove ()
   (send *robot* :rarm :inverse-kinematics
-        (make-coords :pos #f(660 1550 710) :rpy #f(3.142 0 -1.571))
+	*cook-switch-point*
         :rotation-axis :t
         :debug-view t)
 
@@ -165,53 +253,51 @@
 
 ;; やかんを持つ
 (defun pick-up-kettle2 ()
-  (send *axis* :move-to (send *kettle* :copy-worldcoords) :world)
-  (send *axis* :transform (car (send *kettle* :handle)))
-  (send *axis* :rotate (deg2rad -90) :y :world)
+  (send *axis* :move-to (send (car (send *kettle-body* :handle)) :worldcoords) :world)
   
-  (send *robot* :head :look-at (send *kettle* :worldpos))
+  (send *robot* :head :look-at (send *axis* :worldpos))
   (unix:sleep 1)
   
   (send *robot* :larm :inverse-kinematics                                              
-	(send *axis* :worldcoords)
+	*axis*
 	:rotation-axis :t
-	:debug-view t)
+	:debug-view t)  
   (unix:sleep 1)
   
-  (send (send *robot* :larm :end-coords :parent) :assoc *kettle*)
-  (send (send *robot* :larm :end-coords :parent) :assoc *axis*)
+  (send (send *robot* :larm :end-coords :parent) :assoc *kettle-body*)
 
-  (send *robot* :larm :move-end-pos #f(0 70 50) :world
+  (send *robot* :larm :move-end-pos #f(0 70 100) :world
   	:debug-view t :look-at-target t)
   (unix:sleep 1)
+  (setq *stable-pose* (send *robot* :angle-vector))
   (format t ";; please run (pour-hot-water)~%"))
 
 ;; コップにお湯を入れる
 (defun pour-hot-water ()
+  (send *axis* :move-to (send (car (send *cup* :attention)) :worldcoords) :world)
+  (send *axis* :locate #f(0 0 -30))
+  (send *axis* :rotate (deg2rad 180) :z :world)
+  (send *axis* :rotate (deg2rad -60) :x :world)
+  
   (send *robot* :larm :inverse-kinematics
-        (make-coords :pos #f(497.704 1550 930) :rpy #f( -3.14 0 0.7))
-        :move-target *kettle*
-	:rotation-axis :t
+	*axis*
+        :move-target (car (send *kettle-body* :attention))
+	:rotation-axis :nil
         :debug-view t)
   (unix:sleep 2) ;;本当は認識して注げたかを確認する。
 
-  (send *robot* :larm :inverse-kinematics                                          
-        (make-coords :pos #f(500.164 1569.706 875.318) :rpy #f( -3.141 0.001 0))
-        :move-target *kettle*
-	:rotation-axis :t                                           
-        :debug-view t)  
+  (send *robot* :angle-vector *stable-pose*)
   (format t ";; please run (put-kettle2)~%"))
 
 ;; やかんを戻す
 (defun put-kettle2 ()
-  (setq *now-rpy* (car (send (send (send *robot* :larm :end-coords) :worldcoords) :rpy-angle)))
-  (send *robot* :larm :inverse-kinematics                                          
-        (make-coords :pos #f(500 1500 1020) :rpy *now-rpy*)
-        :rotation-axis :t                                            
-        :debug-view t)
-  (send (send *robot* :larm :end-coords :parent) :dissoc *kettle*)
-  (send (send *robot* :larm :end-coords :parent) :dissoc *axis*)
-
+  (send *axis* :move-to *cook-point0* :world)
+  (send *robot* :larm :inverse-kinematics
+	*axis*
+	:move-target *kettle-body*
+        :rotation-axis :t
+        :debug-view t)  
+  (send (send *robot* :larm :end-coords :parent) :dissoc *kettle-body*)
 
   (send *robot* :larm :move-end-pos #f(40 0 0) :world
 	:debug-view t :look-at-target t)
@@ -221,12 +307,9 @@
 
 ;; コップをつかむ
 (defun pick-up-cup ()
-  (send *robot* :reset-pose)
-  (send *robot* :torso_lift_joint :joint-angle 325)
+  (send *robot* :reset-manip-pose)
 
-  (send *axis* :newcoords (send *cup* :copy-worldcoords))
-  (send *axis* :transform (car (send *cup* :handle)))
-  
+  (send *axis* :move-to (send (car (send *cup* :handle)) :worldcoords) :world)  
   (send *robot* :head :look-at (send *cup* :worldpos))
 
   (send *robot* :rarm :inverse-kinematics                                              
@@ -236,7 +319,6 @@
   (unix:sleep 1)
   
   (send (send *robot* :rarm :end-coords :parent) :assoc *cup*)
-  (send (send *robot* :rarm :end-coords :parent) :assoc *axis*)
   
   (send *robot* :rarm :move-end-pos #f(100 -100 100) :world
   	:debug-view t :look-at-target t)
@@ -249,17 +331,15 @@
 
 ;; 机まで持っていく
 (defun go-to-desk ()
-  (setq *desk-spot* (make-coords :pos #f(3470 -1900 0) :rpy #f(-1.57 0 0)))
   (send *robot* :move-to *desk-spot* :world)
   
   (send *robot* :rarm :inverse-kinematics
-	(make-coords :pos #f(3470 -2500 700) :rpy #f(1.571 0 0))
+	*desk-point*
 	:move-target *cup*
 	:rotation-axis :t
 	:debug-view t)
   
   (send (send *robot* :rarm :end-coords :parent) :dissoc *cup*)
-  (send (send *robot* :rarm :end-coords :parent) :dissoc *axis*)
 
   (send *robot* :rarm :move-end-pos #f(-50 0 0) :world                    
 	:debug-view t :look-at-target t)
@@ -270,11 +350,13 @@
 
 (defun exec-all ()
   (go-to-cook)
+  (open-the-lid)
   (pick-up-kettle)
   (go-to-sink)
-  (pour-water)
+  (get-water)
   (go-to-cook2)
   (put-kettle)
+  (close-the-lid)
   (put-on-stove)
   (prepare-tea)
   (wait-boil)
@@ -288,14 +370,19 @@
 
 (defun now-devel ()
   (go-to-cook)
+  (open-the-lid)
   (pick-up-kettle)
   (go-to-sink)
-  (pour-water)
+  (get-water)
   (go-to-cook2)
   (put-kettle)
+  (close-the-lid)
   (put-on-stove)
   (prepare-tea)
   (wait-boil)
   (turn-off-stove)
+  (pick-up-kettle2)
+  (pour-hot-water)
+  (put-kettle2)
   )
   
