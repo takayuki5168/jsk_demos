@@ -5,11 +5,11 @@
         pkg="rostopic" type="rostopic"
         args="pub -r 1 -s /pose_publisher/output geometry_msgs/PoseStamped
               '{header: {stamp: now, frame_id: map},
-              pose: {position: {y: 0.01, z: 1.07}, orientation: {x: -3.98163355e-04,y: -4.99999841e-01,z: 8.66025129e-01,w: 6.89639161e-04}}}'"/>
+              pose: {position: {y: 0.01, z: 1.07}, orientation: {z: 0,w: 0}}}'"/>
 
   <node name="pcd_to_pointcloud"
         pkg="pcl_ros" type="pcd_to_pointcloud"
-        args="$(find jsk_2020_04_chahakobi)/test_data/kettle_test.pcd 0.1">
+        args="$(find jsk_2020_04_chahakobi)/pcd/kettle_attention.pcd 0.1">
     <remap from="cloud_pcd" to="~output"/>
     <rosparam>
       frame_id: map

@@ -19,8 +19,12 @@
 ;; ros init
 (ros::roseus "icp_tf_check" :anonymous t)
 (ros::load-ros-manifest "geometry_msgs")
+(setq *l* (instance ros::transform-listener :init))
 (setq found-obj nil)
 (setq obj-pos #f(0 0 0))
+
+(setq obj-coord (make-coords :pos #f(0 0 0)))
+
 (print 0)
 
 ;; define cb
@@ -28,11 +32,14 @@
   (setq *msg* msg)
   (print 1)
   (when msg
+    (setq tm (send *l* :get-latest-common-time "head_mount_kinect_rgb_optical_frame" "reference"))
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
     (let* ((b (send msg :pose))
-	  (cam->obj-coords (ros::tf-pose->coords b))
-	  (cam-coords (send (send *pr2* :head_mount_kinect_rgb_optical_frame_lk) :copy-worldcoords)))
-      (setq obj-pos (scale 0.001 (send (send cam-coords :transform cam->obj-coords) :worldpos)))
+	   (ref->obj-coords (ros::tf-pose->coords b))
+	   (cam->ref (send *l* :lookup-transform "head_mount_kinect_rgb_optical_frame" "reference" tm))
+	   (cam-coords (send (send *pr2* :head_mount_kinect_rgb_optical_frame_lk) :copy-worldcoords)))
+      (setq obj-coord (send cam-coords :transform cam->ref))
+      (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
       (setq found-obj t)
       (print (list 'found? found-obj obj-pos))
       obj-pos)))
@@ -57,7 +64,7 @@
 
     ;;Rvizに表示をする。
     (setq tm (ros::time-now))
-    (send *b* :send-transform (send box :coords) "base_link" "kettle" tm)
+    (send *b* :send-transform obj-coord "base_footprint" "kettle" tm)
 
     )
   ;;

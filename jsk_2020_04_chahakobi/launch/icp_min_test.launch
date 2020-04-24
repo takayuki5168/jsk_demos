@@ -16,7 +16,7 @@
   <node name="pointcloud_database_server" pkg="nodelet" type="nodelet"
     args="load jsk_pcl/PointcloudDatabaseServer $(arg manager)" output="screen">
     <rosparam subst_value="true">
-      models: ["$(find jsk_2020_04_chahakobi)/test_data/kettle_test.pcd",
+      models: ["$(find jsk_2020_04_chahakobi)/pcd/kettle_test.pcd",
       ]
       duration: 0.05
       use_array: false

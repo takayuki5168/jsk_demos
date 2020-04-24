@@ -3,7 +3,7 @@
 
   <node name="pcd_to_pointcloud"
         pkg="pcl_ros" type="pcd_to_pointcloud"
-        args="$(find jsk_2020_04_chahakobi)/test_data/sample_pcd_1587574563157844.pcd 0.1">
+        args="$(find jsk_2020_04_chahakobi)/pcd/kettle_attention.pcd 0.1">
     <remap from="cloud_pcd" to="~output"/>
     <rosparam>
       frame_id: map
