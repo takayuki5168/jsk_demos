@@ -32,17 +32,18 @@
   (print 1)
   (when msg
     (setq tm (send *l* :get-latest-common-time "head_mount_kinect_rgb_optical_frame" "reference"))
+    (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
     (let* ((b (send msg :pose))
 	   (cam->icp (ros::tf-pose->coords b))
 	   (icp->obj (send *l* :lookup-transform "head_mount_kinect_rgb_optical_frame" "reference" tm))
-	   (cam-coords (send (send *pr2* :head_mount_kinect_rgb_optical_frame_lk) :copy-worldcoords)))
+	   ;; (cam-coords (send (send *pr2* :head_mount_kinect_rgb_optical_frame_lk) :copy-worldcoords)))
+	   (cam-coords (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2)))
       (setq obj-coord (send (send cam-coords :transform cam->icp) :transform icp->obj))
       (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
       (setq found-obj t)
       (print (list 'found? found-obj obj-pos))
       obj-pos)))
-
 
 ;; subscribeして認識
 (ros::subscribe *topic-name* geometry_msgs::PoseStamped #'object-pose-cb 1)
@@ -81,7 +82,7 @@
 (send *axis* :rotate (deg2rad 180) :y) 
 (send *irtviewer* :draw-objects)
 
-(send *axis* :locate #f(0 0 -40))
+(send *axis* :locate #f(0 20 -50))
 
 (send *ri* :stop-grasp :larm)
 (send *pr2* :larm :inverse-kinematics
@@ -91,7 +92,7 @@
 (send *ri* :angle-vector (send *pr2* :angle-vector))
 (send *ri* :wait-interpolation)
 
-(send *axis* :translate #f(100 0 0) :world)
+(send *axis* :translate #f(110 0 0) :world)
 (send *irtviewer* :draw-objects)
 
 (send *pr2* :larm :inverse-kinematics

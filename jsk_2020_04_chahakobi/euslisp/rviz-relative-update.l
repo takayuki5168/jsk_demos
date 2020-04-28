@@ -6,7 +6,6 @@
 ;; init 
 (pr2-init)
 
-
 ;; reset-manip-pose
 (send *pr2* :reset-manip-pose)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
@@ -31,16 +30,13 @@
   (setq *msg* msg)
   (print 1)
   (when msg
-    (setq tm (send *l* :get-latest-common-time "head_mount_kinect_rgb_optical_frame" "reference"))
-    (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-    (setq *hoge* (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))
+    (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))
     (let* ((b (send msg :pose))
-	   (cam->icp (ros::tf-pose->coords b))
-	   (icp->obj (send *l* :lookup-transform "head_mount_kinect_rgb_optical_frame" "reference" tm))
-	   ;; (cam-coords (send (send *pr2* :head_mount_kinect_rgb_optical_frame_lk) :copy-worldcoords)))
-	   (cam-coords (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2)))
-      (setq obj-coord (send (send cam-coords :transform cam->icp) :transform icp->obj))
+	  (cam->obj-coords (ros::tf-pose->coords b))
+	  ;; (cam-coords (send (send *pr2* :head_mount_kinect_rgb_optical_frame_lk) :copy-worldcoords)))
+	  (cam-coords (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2)))
+      (setq obj-coord (send cam-coords :transform cam->obj-coords))
       (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
       (setq found-obj t)
       (print (list 'found? found-obj obj-pos))
@@ -75,3 +71,5 @@
   (ros::sleep)
   )
 
+
+;; ikを解く
