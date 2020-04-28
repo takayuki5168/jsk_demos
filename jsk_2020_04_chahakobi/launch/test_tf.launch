@@ -3,7 +3,7 @@
 
   <node name="referene_tf_publisher"
         pkg="tf" type="static_transform_publisher"
-        args="0 0.13 1.22 -1.57 2.45 0 map reference 10" />
+        args="0 0.13 1.22 -1.57 2.48 0 map reference 10" />
   
   <node name="pcd_to_pointcloud"
         pkg="pcl_ros" type="pcd_to_pointcloud"
