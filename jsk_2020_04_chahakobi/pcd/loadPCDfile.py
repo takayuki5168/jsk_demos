@@ -2,11 +2,17 @@
 
 import numpy as np
 import open3d as o3d
+import sys
 
 if __name__ == "__main__":
 
+    file_name = "kettle_attention.pcd"
+    if len(sys.argv)>=2:
+        file_name = sys.argv[1]
+
     print("Load a ply point cloud, print it, and render it")
-    pcd = o3d.io.read_point_cloud("sample_pcd_172000000.pcd")
+    pcd = o3d.io.read_point_cloud(file_name)
+    # pcd = o3d.io.read_point_cloud("kettle_attention.pcd")
     print(pcd)
     print(np.asarray(pcd.points))
     o3d.visualization.draw_geometries([pcd])
