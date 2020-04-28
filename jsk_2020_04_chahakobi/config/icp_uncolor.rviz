@@ -63,7 +63,7 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: Intensity
+      Color Transformer: RGB8
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -574,10 +574,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.13039793074131012
+      Pitch: 0.24539795517921448
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.5453959703445435
+      Yaw: 1.9053901433944702
     Saved: ~
 Window Geometry:
   Displays:
