@@ -45,17 +45,19 @@
 (setq *b* (instance ros::transform-broadcaster :init))
 
 (print 3)
+(load "models/kettle-object.l")
+(setq *kettle* (kettle))
+(send *kettle* :locate #f(500 0 1000) :world)
 (load "models/arrow-object.l")
 (setq *axis* (arrow))
-
-(objects (list *pr2* *axis*))
+(send *axis* :newcoords (send (send *kettle* :handle-handle0) :copy-worldcoords))
+(objects (list *pr2* *kettle* *axis*))
 (setq found-obj nil)
-;;(do-until-key 
-(until found-obj
+(do-until-key ;;
+;;(until found-obj
   (print 4)
   (when (> (norm obj-pos) 0)
-    (send *axis* :move-to obj-coord :world)
-    (print obj-coord)
+    (send *kettle* :move-to obj-coord :world)
     (send *irtviewer* :draw-objects)
 
     ;;Rvizに表示をする。
@@ -69,34 +71,5 @@
   (ros::sleep)
   )
 
-(send *axis* :move-to obj-coord :world) 
-(send *axis* :translate #f(-100 0 0) :world)
-(send *axis* :rotate (deg2rad -90) :y)  
-(send *irtviewer* :draw-objects)
 
-(send *axis* :locate #f(0 0 -40))
-
-(send *ri* :stop-grasp :larm)
-(send *pr2* :larm :inverse-kinematics
-      *axis*
-      :rotation-axis :t
-      :debug-view t)
-(send *ri* :angle-vector (send *pr2* :angle-vector))
-(send *ri* :wait-interpolation)
-
-(send *axis* :translate #f(120 0 0) :world)
-(send *pr2* :larm :inverse-kinematics
-      *axis*
-      :rotation-axis :t
-      :debug-view t)
-(send *ri* :angle-vector (send *pr2* :angle-vector))
-(send *ri* :wait-interpolation)
-
-(send *ri* :start-grasp :larm)
-
-
-(defun pick-up ()
-  (send *pr2* :larm :move-end-pos #f(0 0 50) :world)
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  )
+;; ikを解く

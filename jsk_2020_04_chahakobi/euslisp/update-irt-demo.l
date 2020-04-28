@@ -332,6 +332,10 @@
 ;; 机まで持っていく
 (defun go-to-desk ()
   (send *robot* :move-to *desk-spot* :world)
+
+  (send *irtviewer* :look-all
+	(geo::make-bounding-box
+	 (flatten (send-all (send *robot* :bodies) :vertices)))) 
   
   (send *robot* :rarm :inverse-kinematics
 	*desk-point*
@@ -384,5 +388,6 @@
   (pick-up-kettle2)
   (pour-hot-water)
   (put-kettle2)
+  (pick-up-cup)
   )
   

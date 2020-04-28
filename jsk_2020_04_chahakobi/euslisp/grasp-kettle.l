@@ -34,10 +34,10 @@
     (setq tm (send *l* :get-latest-common-time "head_mount_kinect_rgb_optical_frame" "reference"))
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
     (let* ((b (send msg :pose))
-	   (ref->obj-coords (ros::tf-pose->coords b))
-	   (cam->ref (send *l* :lookup-transform "head_mount_kinect_rgb_optical_frame" "reference" tm))
+	   (cam->icp (ros::tf-pose->coords b))
+	   (icp->obj (send *l* :lookup-transform "head_mount_kinect_rgb_optical_frame" "reference" tm))
 	   (cam-coords (send (send *pr2* :head_mount_kinect_rgb_optical_frame_lk) :copy-worldcoords)))
-      (setq obj-coord (send (send cam-coords :transform cam->ref) :transform ref->obj-coords))
+      (setq obj-coord (send (send cam-coords :transform cam->icp) :transform icp->obj))
       (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
       (setq found-obj t)
       (print (list 'found? found-obj obj-pos))
@@ -75,12 +75,13 @@
   )
 
 ;; IKを解いてつかむ
-
 (send *kettle* :move-to obj-coord :world)
 (send *axis* :move-to (send (send *kettle* :handle-handle0) :worldcoords) :world)
-(send *axis* :translate #f(-100 0 0) :world)
+(send *axis* :translate #f(-80 0 0) :world)
 (send *axis* :rotate (deg2rad 180) :y) 
 (send *irtviewer* :draw-objects)
+
+(send *axis* :locate #f(0 0 -40))
 
 (send *ri* :stop-grasp :larm)
 (send *pr2* :larm :inverse-kinematics
@@ -90,7 +91,7 @@
 (send *ri* :angle-vector (send *pr2* :angle-vector))
 (send *ri* :wait-interpolation)
 
-(send *axis* :translate #f(120 0 0) :world)
+(send *axis* :translate #f(100 0 0) :world)
 (send *irtviewer* :draw-objects)
 
 (send *pr2* :larm :inverse-kinematics
@@ -99,4 +100,5 @@
       :debug-view t)
 (send *ri* :angle-vector (send *pr2* :angle-vector))
 (send *ri* :wait-interpolation)
+
 (send *ri* :start-grasp :larm)
