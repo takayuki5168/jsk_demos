@@ -9,7 +9,7 @@
       duration: 0.5
       binary: false
       compressed: false
-      fixed_frame: referene
+      fixed_frame: reference
     </rosparam>
   </node>
 </launch>
