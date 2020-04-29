@@ -31,6 +31,6 @@
   <group if="$(arg gui)">
     <node name="rviz"
           pkg="rviz" type="rviz"
-          args="-d $(find jsk_2020_04_chahakobi)/config/icp.rviz"/>
+          args="-d $(find jsk_2020_04_chahakobi)/config/icp_uncolor.rviz"/>
   </group>
 </launch>
