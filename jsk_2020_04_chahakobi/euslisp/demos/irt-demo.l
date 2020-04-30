@@ -23,10 +23,10 @@
 (if (send *kettle* :parent) (send (send *kettle* :parent) :dissoc *kettle*))
 (send *kettle* :locate #f(0 0 -500))
 
-(load "model/kettle-body.l")
+(load "../model/kettle-body.l")
 (setq *kettle-body* (kettle-body))
 (send *kettle-body* :newcoords (make-coords :pos #f(500.0 1500.0 825.0) :rpy #f(-3.142 0.0 0.0)))
-(load "model/kettle-lid.l")
+(load "../model/kettle-lid.l")
 (setq *kettle-lid* (kettle-lid))
 (send *kettle-lid* :newcoords (make-coords :pos #f(500 1500 825) :rpy #f(-3.142 0 0)))
 (send *kettle-body* :assoc *kettle-lid*)
