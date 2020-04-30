@@ -102,7 +102,7 @@
   )
 
 (defun pose3 ()
-  (send *axis* :rotate (deg2rad 60) :z)
+  (send *axis* :rotate (deg2rad -60) :z)
   (send *axis* :rotate (deg2rad -80) :z)
   (send *pr2* :larm :inverse-kinematics
 	*axis*
