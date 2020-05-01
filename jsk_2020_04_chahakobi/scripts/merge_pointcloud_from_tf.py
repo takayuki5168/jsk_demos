@@ -24,6 +24,7 @@ def main():
     # ptcloud_sub = message_filters.Subscriber('~input', PointCloud2)
     ptcloud_sub = message_filters.Subscriber('/pcl_nodelet/ExtractIndices/output', PointCloud2)
     semantic_sub = message_filters.Subscriber("/semantic_annotation_merge",Header)
+    # ts = message_filters.ApproximateTimeSynchronizer([ptcloud_sub, semantic_sub],10,0.1,allow_headerless=True)
     ts = message_filters.ApproximateTimeSynchronizer([ptcloud_sub, semantic_sub],10,0.1,allow_headerless=True)
     ts.registerCallback(Merger.callback_all)
     # #subsrcibe to topic, where the ptclouds are published that should be merged
