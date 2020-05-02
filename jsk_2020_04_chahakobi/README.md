@@ -25,8 +25,14 @@ roseus kinematics-demo.l
 ```
 roslaunch jsk_2020_04_chahakobi gazebo_test.launch
 ```
+WIP これから実現するgazeboシミュレーション。
+- 73b2の環境を使って行うようにする。
+- やかんをglobalなRegistrationからつかむ。
+- (干渉などを気にしながら)やかんに水をいれる。
+- やかんをもってコップにお湯を注ぐ。
 
-テーブルの上のやかんをICPで認識して掴む
+#### ICP Registration
+テーブルの上のやかんをICPで認識して掴む。道具の点群情報からRegistrationをして道具の認識を行う。
 ```
 roslaunch jsk_2020_04_chahakobi grasp_kettle.launch
 
@@ -36,12 +42,19 @@ roscd jsk_2020_04_chahakobi/euslisp/
 roseus grasp-kettle.l
 ```
 
-WIP これから実現するgazeboシミュレーション。
-- 73b2の環境を使って行うようにする。
-- やかんをglobalなRegistrationからつかむ。
-- (干渉などを気にしながら)やかんに水をいれる。
-- やかんをもってコップにお湯を注ぐ。
+#### 点群からモデルを作る
+ロボットに道具を持たせて動かしながら点群を撮り、点群をmergeして360°の道具の点群モデルを作る。
+```
+roslaunch jsk_2020_04_chahakobi table_can.launch
 
+roslaunch jsk_2020_04_chahakobi make_model_test.launch
+
+roscd jsk_2020_04_chahakobi/scripts/
+python merge_pointcloud_from_tf_test.py
+
+roscd jsk_2020_04_chahakobi/euslisp/make-models/
+roseus can-model.l
+```
 
 ## デモの流れ
 
