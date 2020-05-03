@@ -47,14 +47,27 @@ roseus grasp-kettle.l
 ```
 roslaunch jsk_2020_04_chahakobi table_can.launch
 
-roslaunch jsk_2020_04_chahakobi make_model_test.launch
+roslaunch jsk_2020_04_chahakobi make_model_auto.launch
 
-roscd jsk_2020_04_chahakobi/scripts/
-python merge_pointcloud_from_tf_test.py
+roslaunch jsk_2020_04_chahakobi ptcloud2pcd_iemon_auto.launch
 
 roscd jsk_2020_04_chahakobi/euslisp/make-models/
-roseus can-model.l
+roseus iemon-model-auto.l
 ```
+
+これで保存された合成点群のPCDファイルからPointCloudを出してattention clipperで一部を切り出す。
+```
+ roslaunch jsk_2020_04_chahakobi pcd_to_ptcloud_iemon.launch INPUT:="/home/kanazawa/semi_ws/src/jsk_demos/jsk_2020_04_chahakobi/pcd/iemon/iemon_auto_94103000.pcd 0.1"
+
+roslaunch jsk_2020_04_chahakobi ptcloud2pcd_iemon_only.launch
+```
+
+保存したpcdファイルを変換する。ファイル名などは適宜変更する。
+```
+roscd jsk_2020_04_chahakobi/python/
+python3 trimesh_test.py ../pcd/iemon/iemon_only.pcd ../stl/iemon_auto.stl
+```
+出来たSTLファイルを[jsk_model_tools](https://github.com/jsk-ros-pkg/jsk_model_tools#convert-from-cad-manually)を使ってeusモデルに変換する。
 
 ## デモの流れ
 
