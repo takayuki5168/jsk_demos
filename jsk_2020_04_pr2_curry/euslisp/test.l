@@ -1,7 +1,5 @@
 #!/usr/bin/env roseus
 
-;; detect_cans_in_fridge_201202/euslisp/main.l を参考に書いていく
-
 ;; robot initialize
 (load "package://pr2eus/pr2.l")   
 (setq *robot* (pr2)) 
@@ -19,12 +17,12 @@
 
 
 ;; set まな板
-(load "cutting-board.l")
+(load "model/cutting-board.l")
 (setq *cutting-board* (cutting-board))
 (send *cutting-board* :locate #f(650 0 825))
 
 ;; set 調理鍋
-(load "cooking-pot.l")
+(load "model/cooking-pot.l")
 (setq *pot* (cooking-pot))
 (send *pot* :locate #f(680 500 830))
 
@@ -37,7 +35,6 @@
 
 (setq *env-list* (list *kitchen* *knife* *cutting-board* *pot*))
 
-(objects (append *env-list* *robot*)) 
-;;(objects (list *env-list* *robot*))
+(objects (append *env-list* (list *robot*))) 
 
 
