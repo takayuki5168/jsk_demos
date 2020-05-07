@@ -36,7 +36,7 @@
 
 (defun grasp ()
   (send *irtviewer* :draw-objects)
-
+  
   (send *axis* :move-to (send (car (send *knife* :handle)) :copy-worldcoords) :world)
   (send *axis* :rotate (deg2rad 90) :z)
   (send *axis* :rotate (deg2rad 90) :x)

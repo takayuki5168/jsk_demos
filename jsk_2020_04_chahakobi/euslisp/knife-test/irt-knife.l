@@ -13,7 +13,7 @@
 ;; init
 (load "models/knife-object.l")
 (setq *knife* (knife))
-(send *knife* :locate #f(600 0 705) :world)
+(send *knife* :locate #f(700 0 705) :world)
 (send *knife* :rotate (deg2rad -90) :x)
 
 (load "models/room73b2-karimoku-table-object.l")
@@ -26,13 +26,22 @@
 (objects (list *pr2* *knife* *axis* *table*))
 
 ;; IKを解いてつかむ
+(send *axis* :move-to (send (car (send *knife* :handle)) :copy-worldcoords) :world)
+(send *axis* :rotate (deg2rad 90) :z)
+(send *axis* :rotate (deg2rad -90) :x)
 
 (defun grasp ()
   (send *irtviewer* :draw-objects)
+  (send *axis* :move-to (send (car (send *knife* :handle)) :copy-worldcoords) :world)
+  (send *axis* :translate #f(-100 0 150) :world)
+  (send *pr2* :larm :inverse-kinematics
+	*axis*
+	:rotation-axis :t
+	:debug-view t)
 
   (send *axis* :move-to (send (car (send *knife* :handle)) :copy-worldcoords) :world)
   (send *axis* :rotate (deg2rad 90) :z)
-  (send *axis* :rotate (deg2rad 90) :x)
+  (send *axis* :rotate (deg2rad -90) :x)
   (send *axis* :translate #f(0 0 50) :world)
 
   (send *pr2* :larm :inverse-kinematics
@@ -48,20 +57,39 @@
 	:rotation-axis :t
 	:debug-view t)
   
-  (send (send *pr2* :rarm :end-coords :parent) :assoc *knife*))
+  (send (send *pr2* :larm :end-coords :parent) :assoc *knife*))
 
 (defun pick ()
   (send *pr2* :larm :move-end-pos #f(0 0 100) :world
 	:debug-view t :look-at-target t)
   )
 
+(defun grasp-r ()
+  (send *irtviewer* :draw-objects)
 
-(defun publish-semantic-annotation-merge (annotation-str)
-  (setq msg (instance std_msgs::header :init))
-  (send msg :stamp (ros::time-now))
-  (send msg :frame_id annotation-str)
-  (ros::ros-info "msg [~A]" (send msg :frame_id))
-  (ros::publish "semantic_annotation_merge" msg)
+  (send *axis* :move-to (send (car (send *knife* :handle)) :copy-worldcoords) :world)
+  (send *axis* :rotate (deg2rad 90) :z)
+  (send *axis* :rotate (deg2rad 90) :x)
+  (send *axis* :translate #f(0 0 50) :world)
+
+  (send *pr2* :rarm :inverse-kinematics
+	*axis*
+	:rotation-axis :t
+	:debug-view t)
+
+  (send *axis* :translate #f(0 0 -50) :world)
+  (send *irtviewer* :draw-objects)
+
+  (send *pr2* :rarm :inverse-kinematics
+	*axis*
+	:rotation-axis :t
+	:debug-view t)
+  
+  (send (send *pr2* :rarm :end-coords :parent) :assoc *knife*))
+
+(defun pick-r ()
+  (send *pr2* :rarm :move-end-pos #f(0 0 100) :world
+	:debug-view t :look-at-target t)
   )
 
 
@@ -73,10 +101,10 @@
 	:debug-view t)
   (send *pr2* :head :look-at (send *knife* :worldpos))
   (setq *pose1* (send *pr2* :angle-vector))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  (publish-semantic-annotation-merge (format nil "vision_0"))
-  (unix:sleep 1)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
+  ;; (send *ri* :wait-interpolation)
+  ;; (publish-semantic-annotation-merge (format nil "vision_0"))
+  ;; (unix:sleep 1)
   )
 
 (defun pose2 ()
@@ -86,10 +114,10 @@
 	:rotation-axis t
 	:debug-view t)
   (send *pr2* :head :look-at (send *knife* :worldpos))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  (publish-semantic-annotation-merge (format nil "vision_1"))
-  (unix:sleep 1)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
+  ;; (send *ri* :wait-interpolation)
+  ;; (publish-semantic-annotation-merge (format nil "vision_1"))
+  ;; (unix:sleep 1)
   )
 
 (defun pose3 ()
@@ -99,10 +127,10 @@
 	:rotation-axis t
 	:debug-view t)
   (send *pr2* :head :look-at (send *knife* :worldpos))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  (publish-semantic-annotation-merge (format nil "vision_2"))
-  (unix:sleep 1)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
+  ;; (send *ri* :wait-interpolation)
+  ;; (publish-semantic-annotation-merge (format nil "vision_2"))
+  ;; (unix:sleep 1)
   )
 
 (defun pose4 ()
@@ -112,10 +140,10 @@
 	:rotation-axis t
 	:debug-view t)
   (send *pr2* :head :look-at (send *knife* :worldpos))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  (publish-semantic-annotation-merge (format nil "vision_3"))
-  (unix:sleep 1)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
+  ;; (send *ri* :wait-interpolation)
+  ;; (publish-semantic-annotation-merge (format nil "vision_3"))
+  ;; (unix:sleep 1)
   )
 
 (defun pose5 ()
@@ -127,10 +155,10 @@
 	:rotation-axis t
 	:debug-view t)
   (send *pr2* :head :look-at (send *knife* :worldpos))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  (publish-semantic-annotation-merge (format nil "vision_4"))
-  (unix:sleep 1)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
+  ;; (send *ri* :wait-interpolation)
+  ;; (publish-semantic-annotation-merge (format nil "vision_4"))
+  ;; (unix:sleep 1)
   )
 
 (defun pose6 ()
@@ -143,17 +171,17 @@
 	:rotation-axis t
 	:debug-view t)
   (send *pr2* :head :look-at (send *knife* :worldpos))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
+  ;; (send *ri* :wait-interpolation)
 
-  (publish-semantic-annotation-merge (format nil "vision_5"))
-  (unix:sleep 1)
+  ;; (publish-semantic-annotation-merge (format nil "vision_5"))
+  ;; (unix:sleep 1)
   )
 
 
 (defun pose7 ()
   (send *pr2* :angle-vector *pose1*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  (publish-semantic-annotation-merge (format nil "vision_end"))
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
+  ;; (send *ri* :wait-interpolation)
+  ;; (publish-semantic-annotation-merge (format nil "vision_end"))
   )

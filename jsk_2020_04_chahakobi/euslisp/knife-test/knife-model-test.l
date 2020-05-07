@@ -36,13 +36,19 @@
 
 (defun grasp ()
   (send *irtviewer* :draw-objects)
+  (send *axis* :move-to (send (car (send *knife* :handle)) :copy-worldcoords) :world)
+  (send *axis* :translate #f(-100 0 150) :world)
+  (send *pr2* :larm :inverse-kinematics
+	*axis*
+	:rotation-axis :t
+	:debug-view t)
 
   (send *axis* :move-to (send (car (send *knife* :handle)) :copy-worldcoords) :world)
   (send *axis* :rotate (deg2rad 90) :z)
   (send *axis* :rotate (deg2rad 90) :x)
-  (send *axis* :translate #f(0 0 50) :world)
+  (send *axis* :translate #f(20 0 50) :world)
 
-  (send *ri* :stop-grasp :rarm)
+  (send *ri* :stop-grasp :larm)
   (send *pr2* :larm :inverse-kinematics
 	*axis*
 	:rotation-axis :t
@@ -60,7 +66,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
   
-  (send *ri* :start-grasp :rarm :wait t)
+  (send *ri* :start-grasp :larm :wait t)
   (send (send *pr2* :larm :end-coords :parent) :assoc *knife*))
 
 (defun pick ()
@@ -175,4 +181,17 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
   (publish-semantic-annotation-merge (format nil "vision_end"))
+  )
+
+(defun make-pose1 ()
+  (pose1)
+  (pose2)
+  (pose3)
+  (pose4)
+  (pose5)
+  (pose6)
+  )
+
+(defun make-pose2 ()
+  (pose7)
   )
