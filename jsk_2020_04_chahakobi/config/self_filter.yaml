@@ -20,13 +20,13 @@ self_see_links:
   - name: l_wrist_roll_link
     padding: .01
   - name: l_gripper_palm_link
-    padding: .04 #globe +0.03
+    padding: .01 #.04 #globe +0.03
   - name: l_gripper_l_finger_link
-    padding: .04 #globe +0.03
+    padding: .01  #.04 #globe +0.03
   - name: l_gripper_l_finger_tip_link
     padding: .01
   - name: l_gripper_r_finger_link
-    padding: .04 #globe +0.03
+    padding: .01  #.04 #globe +0.03
   - name: l_gripper_r_finger_tip_link
     padding: .01
   - name: l_shoulder_pan_link
@@ -50,13 +50,13 @@ self_see_links:
   - name: r_wrist_roll_link
     padding: .01
   - name: r_gripper_palm_link
-    padding: .04 #globe +0.03
+    padding: .01 #.04 #globe +0.03
   - name: r_gripper_l_finger_link
-    padding: .04 #globe +0.03
+    padding: .01 #.04 #globe +0.03
   - name: r_gripper_l_finger_tip_link
     padding: .01
   - name: r_gripper_r_finger_link
-    padding: .04 #globe +0.03
+    padding: .01 #.04 #globe +0.03
   - name: r_gripper_r_finger_tip_link
     padding: .01
   - name: r_shoulder_pan_link
