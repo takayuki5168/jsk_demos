@@ -20,7 +20,7 @@
 ;; init
 (load "models/iemon-object.l")
 (setq *iemon* (iemon))
-(send *iemon* :locate #f(750 0 770) :world)
+(send *iemon* :locate #f(750 0 765) :world)
 ;; (send *iemon* :rotate (deg2rad 180) :z) 
 
 (load "models/room73b2-karimoku-table-object.l")
@@ -38,7 +38,7 @@
 
 ;; IKを解いてつかむ
 (send *axis* :move-to (send *iemon* :worldcoords) :world)
-(send *axis* :translate #f(-80 0 40) :world)
+(send *axis* :translate #f(-80 0 30) :world)
 
 (defun grasp ()
   (send *axis* :move-to (send *iemon* :worldcoords) :world)
@@ -66,10 +66,11 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
   
-  (send *ri* :start-grasp :larm)
+  (send *ri* :start-grasp :larm :wait t)
+  (unix:sleep 2)
   (send (send *pr2* :larm :end-coords :parent) :assoc *iemon*)
 
-  (send *pr2* :larm :move-end-pos #f(0 0 100) :world
+  (send *pr2* :larm :move-end-pos #f(0 0 200) :world
 	:debug-view t :look-at-target t)
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
@@ -225,6 +226,53 @@
   (format t ";; please run (r-pose1)~%")
   )
 
+(defun just-motikae ()
+  (send *axis* :newcoords (make-coords :pos #f(400 0 800) :rpy #f(0 0 -1.57)))
+  (send *pr2* :larm :inverse-kinematics
+	*axis*
+	:rotation-axis t
+	:debug-view t)
+
+  (send *axis2* :move-to (send *iemon* :worldcoords) :world)
+  (send *axis2* :locate #f(0 0 -55))
+  (send *axis2* :rotate (deg2rad -90) :y)
+
+  ;; 少し手前にIKを解く
+  (send *axis2* :translate #f(0 -40 0) :world)
+  (send *ri* :stop-grasp :rarm)
+  (send *pr2* :rarm :inverse-kinematics
+	*axis2*
+	:rotation-axis t
+	:debug-view t)
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
+  (send *ri* :wait-interpolation)
+
+  ;; Ikを解いて掴む
+  (send *axis2* :translate #f(0 40 0) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*axis2*
+	:rotation-axis t
+	:debug-view t)
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
+  (send *ri* :wait-interpolation)
+
+  ;; 持ち替え
+  (send *ri* :start-grasp :rarm :wait t)
+  (send *ri* :stop-grasp :larm)
+  (send (send *pr2* :larm :end-coords :parent) :dissoc *iemon*)
+  (send (send *pr2* :rarm :end-coords :parent) :assoc *iemon*)
+  (unix:sleep 2)
+  (format t ";; please run (r-set-pose)~%")
+  )
+
+(defun r-set-pose ()
+  (send *pr2* :reset-manip-pose)
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
+  (send *ri* :wait-interpolation)
+  (format t ";; please run (r-pose1)~%")
+  )
+  
+
 (defun r-pose1 ()
   (send *axis2* :newcoords (make-coords :pos #f(500 0 950) :rpy #f(0 -0.524 0)))
   (send *pr2* :rarm :inverse-kinematics
@@ -277,10 +325,10 @@
 	:rotation-axis t
 	:debug-view t)
 
-  (publish-semantic-annotation-merge (format nil "vision_end"))
-
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
+
+  (publish-semantic-annotation-merge (format nil "vision_end"))
   )
   
 
