@@ -18,8 +18,8 @@ voxel_size = 0.002
 
 if __name__ == "__main__":
 
-    file1_name = "../pcd/iemon_merged_l.pcd"
-    file2_name = "../pcd/iemon_merged_r.pcd"
+    file1_name = "../pcd/make_iemon_model/iemon_merged_l.pcd"
+    file2_name = "../pcd/make_iemon_model/iemon_merged_r.pcd"
         
     print("Load a pcd point cloud, print it, and render it")
     pcd1 = o3d.io.read_point_cloud(file1_name)
@@ -38,5 +38,5 @@ if __name__ == "__main__":
     for point_id in range(len(pcds)):
         pcd_combined += pcds[point_id]
     pcd_combined_down = pcd_combined.voxel_down_sample(voxel_size=voxel_size)
-    o3d.io.write_point_cloud("../pcd/iemon_merged_lr.pcd", pcd_combined_down)
+    o3d.io.write_point_cloud("../pcd/make_iemon_model/iemon_combined_model.pcd", pcd_combined_down)
     o3d.visualization.draw_geometries([pcd_combined_down])
