@@ -266,6 +266,15 @@
   )
 
 (defun r-set-pose ()
+  ;; 少しずらす
+  (send *axis2* :translate #f(0 -50 0) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*axis2*
+	:rotation-axis t
+	:debug-view t)
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
+  (send *ri* :wait-interpolation)
+  
   (send *pr2* :reset-manip-pose)
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
