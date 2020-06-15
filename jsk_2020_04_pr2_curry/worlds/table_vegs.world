@@ -47,12 +47,12 @@
     <include>
       <name>potato</name>
       <uri>model://potato</uri>
-      <pose>0.98 -0.10 0.78 0.0 0.0 3.14</pose>
+      <pose>0.98 -0.15 0.78 0.0 0.0 3.14</pose>
     </include>
     <include>
       <name>onion</name>
       <uri>model://onion</uri>
-      <pose>0.98 0.10 0.78 0.0 0.0 3.14</pose>
+      <pose>0.98 0.15 0.78 0.0 0.0 3.14</pose>
     </include>
     <include>
       <name>carrot</name>
