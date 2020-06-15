@@ -34,3 +34,20 @@ PR2が一般家庭の台所で、一般家庭にある道具を使って、外�
 (now-devel)
 ```
 で今作っている部分の手前までを実行できる。  
+
+
+## gazeno test
+gazeboを使ってシミュレーションをする。
+
+### テーブルの上に野菜
+
+```
+roslaunch jsk_2020_04_pr2_curry table_vegs.launch
+```
+```
+roslaunch jsk_2020_04_pr2_curry tabletop_test.launch
+```
+```
+roscd jsk_2020_04_pr2_curry/euslisp/
+rlwrap roseus gazebo-test.l 
+```
