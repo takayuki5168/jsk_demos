@@ -37,7 +37,7 @@
     <include>
       <name>room73b2-karimoku-table-0</name>
       <uri>model://room73b2-karimoku-table_static</uri>
-      <pose>0.90 0.0 0.0 0.0 0.0 0</pose>
+      <pose>0.80 0.0 0.0 0.0 0.0 0</pose>
     </include>
     <!-- <include> -->
     <!--   <name>cutting-board</name> -->
@@ -47,17 +47,17 @@
     <include>
       <name>potato</name>
       <uri>model://potato</uri>
-      <pose>0.7 -0.15 0.78 0.0 0.0 3.14</pose>
+      <pose>0.6 -0.2 0.75 0.0 0.0 3.14</pose>
     </include>
     <include>
       <name>onion</name>
       <uri>model://onion</uri>
-      <pose>0.7 0.15 0.78 0.0 0.0 3.14</pose>
+      <pose>0.6 0.2 0.75 0.0 0.0 3.14</pose>
     </include>
     <include>
       <name>carrot</name>
       <uri>model://carrot</uri>
-      <pose>0.7 0 0.78 0.0 0.0 0</pose>
+      <pose>0.6 0 0.75 0.0 0.0 0</pose>
     </include>
   </world>
 </sdf>
