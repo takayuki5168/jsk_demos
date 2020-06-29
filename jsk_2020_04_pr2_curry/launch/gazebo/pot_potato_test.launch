@@ -1,7 +1,7 @@
 <launch>
   <arg name="gui" default="true" />
-  <arg name="physics" default="ode" />
-
+  <arg name="physics" default="ode" />   <!-- you can use ode, bullet, simbody and dart -->
+  
   <!-- load scene in gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="gui" value="$(arg gui)" />
