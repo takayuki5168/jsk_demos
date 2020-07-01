@@ -113,6 +113,9 @@
   )
 
 (defun peel-test1 ()
+  (if (not (boundp '*potato*))
+      (set-potato :w 90 :l 60 :h 60))
+  
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 180) :x :world)
   (send *arrow* :translate (float-vector (/ width 2) 0 (* height -1)))
@@ -153,6 +156,9 @@
   )
 
 (defun peel-test2 ()
+  (if (not (boundp '*potato*))
+      (set-potato :w 90 :l 60 :h 60))
+
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 180) :x :world)
   (send *arrow* :translate (float-vector (/ width 2) 0 (* height -1)))
@@ -192,8 +198,7 @@
     )
 
   (send p1 :set-color :moccasin)
-  (send *viewer* :draw-objects)
-  
+  (send *viewer* :draw-objects)  
   
   (warn "you can retry (peel-test1) , (peel-test2) or you want to finish please run (finish) ~%")
   )
@@ -224,9 +229,15 @@
   (set-larm)
   )
 
+(defun set-peel ()
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-peeler)
+  (set-larm)
+  )
+
 (defun exec-peel ()
   (set-potato :w 90 :l 60 :h 60)  
   (set-peeler)
   (set-larm)
-  (peel-test)
+  (peel-test1)
   )
