@@ -16,6 +16,7 @@ TODO! need to change target of *ri*
 test tabletop recognition and grasp vegs from above
 
 ```
+roslaunch jsk_2020_04_pr2_curry tabletop_test.launch
 rlwrap roseus table-grasp-from-above.l
 ```
 
