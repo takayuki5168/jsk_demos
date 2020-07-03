@@ -70,10 +70,11 @@
 
   ;; grasp knife
   (send *ri* :stop-grasp :rarm :wait t)
-  (send *ri* :speak-jp "包丁を握らせて下さい")
+  ;; (send *ri* :speak-jp "包丁を握らせて下さい")
   (unix:sleep s-time)
-  (send *ri* :start-grasp :rarm :wait t)
-
+  ;; (send *ri* :start-grasp :rarm :wait t)
+  (send *ri* :start-grasp :rarm :wait t :gain 100)
+  
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *pr2* :rarm :end-coords :assoc *knife*)
@@ -96,10 +97,11 @@
 
   ;; grasp knife
   (send *ri* :stop-grasp :rarm :wait t)
-  (send *ri* :speak-jp "包丁を握らせて下さい")
+  ;; (send *ri* :speak-jp "包丁を握らせて下さい")
   (unix:sleep s-time)
-  (send *ri* :start-grasp :rarm :wait t)
-
+  ;; (send *ri* :start-grasp :rarm :wait t)
+  (send *ri* :start-grasp :rarm :wait t :gain 100)
+  
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *knife* :rotate (deg2rad 90) :x)
@@ -114,6 +116,12 @@
   )
 
 (defun set-larm ()
+  (if (not (boundp '*knife*))
+      (progn
+	  (setq *knife* (knife))
+	  (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+	  (send *pr2* :rarm :end-coords :assoc *knife*)))
+
   (setq *arrow* (arrow))
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
 
@@ -291,3 +299,38 @@
   (set-larm)
   )
 
+
+
+(defun now-test ()
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+  )
+
+
+
+(defun test1 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (cut-test1)  
+  )
+
+(defun test2 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (cut-test2)  
+  )
+
+(defun test3 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (cut-test3)  
+  )

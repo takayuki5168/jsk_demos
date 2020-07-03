@@ -52,6 +52,7 @@
   (setq *potato* (potato :w w :l l :h h))
   (send *potato* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 835.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
   (send *potato* :peel)
+  (send *potato* :translate #f(0 0 40) :world)
   
   (objects (list *room* *pr2* *cutting-board* *potato*))
   (send *irtviewer* :look-all
