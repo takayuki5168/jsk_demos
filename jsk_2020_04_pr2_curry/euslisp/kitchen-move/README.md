@@ -8,7 +8,14 @@ move to kitchen-spot (infront of kitchenboard).
 ```
 roscore
 rlwrap roseus move-to-kitchen.l
+
+## go to /eng2/7f/room73B2-front-of-kitchenboard spot
+(move-to-kitchenboard-ri)
+
+## go to kitchen-spot original spot
+(move-to-kitchen-ri)
 ```
+
 
 TODO! need to change target of *ri*
 

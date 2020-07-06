@@ -4,6 +4,8 @@
 (load "package://pr2eus/pr2-interface.l")
 (pr2-init)
 
+(load "package://jsk_fetch_startup/euslisp/navigation-utils.l")
+
 
 ;; set spots
 (setq *cook-spot* (send *room73b2* :spot "cook-spot"))
@@ -20,10 +22,14 @@
   )
 
 (defun move-to-kitchen-ri ()
-    (send *ri* :speak-jp "台所まで移動します")
-    (send *ri* :clear-costmap)
-    (send *ri* :move-to (make-coords :pos #f(1100 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map") ;; need change value 
-    (send *ri* :wait-interpolation))
+  (send *ri* :speak-jp "台所まで移動します")
+  (send *ri* :clear-costmap)
+  (send *ri* :move-to (make-coords :pos #f(1100 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map") ;; need change value 
+  (send *ri* :wait-interpolation))
+
+(defun move-to-kitchenboard-ri ()
+  (go-to-spot "/eng2/7f/room73B2-front-of-kitchenboard")
+  )
 
 
 (move-to-kitchen-irt)
@@ -34,5 +40,5 @@
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 
 
-(warn "please run (move-to-kitchen-ri)~%")
+(warn "please run (move-to-kitchen-ri) or (move-to-kitchenboard-ri)~%")
 ;; (move-to-kitchen-ri)
