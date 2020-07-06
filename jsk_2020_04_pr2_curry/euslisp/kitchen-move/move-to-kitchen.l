@@ -22,11 +22,17 @@
 (defun move-to-kitchen-ri ()
     (send *ri* :speak-jp "台所まで移動します")
     (send *ri* :clear-costmap)
-    (send *ri* :move-to (make-coords :pos #f(2001 6500 351) :rpy (float-vector pi/2 0 0)) :frame-id "/map") ;; need change value 
+    (send *ri* :move-to (make-coords :pos #f(1100 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map") ;; need change value 
     (send *ri* :wait-interpolation))
 
 
 (move-to-kitchen-irt)
-;; (move-to-kitchen-ri)
 
 (objects (list *room* *pr2*))
+(send *irtviewer* :look-all
+      (geo::make-bounding-box 
+       (flatten (send-all (send *pr2* :bodies) :vertices))))
+
+
+(warn "please run (move-to-kitchen-ri)~%")
+;; (move-to-kitchen-ri)
