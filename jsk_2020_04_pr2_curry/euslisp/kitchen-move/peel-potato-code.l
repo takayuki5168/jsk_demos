@@ -126,8 +126,8 @@
       (set-potato :w 90 :l 60 :h 60))
   
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :x :world)
-  (send *arrow* :translate (float-vector (/ width 2) 0 (* height -1)))
+  (send *arrow* :rotate (deg2rad 180) :z :world)
+  (send *arrow* :translate (float-vector (/ width 2) 0 (* height 1)))
   
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -139,7 +139,7 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
-  (send *arrow* :translate (float-vector 0 0 (* 1 height)))
+  (send *arrow* :translate (float-vector 0 0 (* -1 height)))
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -169,8 +169,8 @@
       (set-potato :w 90 :l 60 :h 60))
 
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :x :world)
-  (send *arrow* :translate (float-vector (/ width 2) 0 (* height -1)))
+  (send *arrow* :rotate (deg2rad 180) :z :world)
+  (send *arrow* :translate (float-vector (/ width 2) 0 (* height 1)))
   
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -182,7 +182,7 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
-  (send *arrow* :translate (float-vector 0 0 (+ (* 1 height) 10)))
+  (send *arrow* :translate (float-vector 0 0 (+ (* -1 height) 10)))
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))

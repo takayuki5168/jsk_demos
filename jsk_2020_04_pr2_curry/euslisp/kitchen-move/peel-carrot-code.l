@@ -45,7 +45,8 @@
 (defun set-carrot ()
   
   (setq *carrot* (carrot))
-  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 835.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2030.0 (+ 835.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *carrot* :rotate (deg2rad 180) :z :world)
   (send *carrot* :cut)
   
   (objects (list *room* *pr2* *cutting-board* *carrot*))
@@ -85,6 +86,7 @@
 (defun set-larm ()
   (setq *arrow* (arrow))
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
+  (send *arrow* :rotate (deg2rad 180) :z :world)
 
   (objects (list *room* *pr2* *cutting-board* *carrot* *peeler* *arrow*))
   (send *irtviewer* :look-all
@@ -113,8 +115,8 @@
       (set-carrot))
   
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :x :world)
-  (send *arrow* :translate (float-vector (/ width 2) 0 (* height -1)))
+  ;; (send *arrow* :rotate (deg2rad 180) :z :world)
+  (send *arrow* :translate (float-vector (/ width 2) 0 (* height 1)))
   
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -126,7 +128,7 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
-  (send *arrow* :translate (float-vector 0 0 (* 1 height)))
+  (send *arrow* :translate (float-vector 0 0 (* -1 height)))
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -155,8 +157,8 @@
       (set-carrot))
 
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :x :world)
-  (send *arrow* :translate (float-vector (/ width 2) 0 (* height -1)))
+  ;; (send *arrow* :rotate (deg2rad 180) :z :world)
+  (send *arrow* :translate (float-vector (/ width 2) 0 (* height 1)))
   
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -168,7 +170,7 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
-  (send *arrow* :translate (float-vector 0 0 (* 1 height)))
+  (send *arrow* :translate (float-vector 0 0 (* -1 height)))
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -199,6 +201,7 @@
 (defun finish ()
   (send *ri* :stop-grasp :larm :wait t)
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
+  (send *arrow* :rotate (deg2rad 180) :z :world)
   (send *arrow* :translate #f(0 -100 100) :world)
   (send *pr2* :larm :inverse-kinematics (send *arrow* :copy-worldcoords))
   (send *viewer* :draw-objects)
