@@ -26,6 +26,8 @@
   (send *pr2* :move-to *kitchen-spot* :world)
   )
 (move-to-kitchen-irt)
+
+
 (send *pr2* :reset-manip-pose)
 
 (objects (list *room* *pr2* *cutting-board*))
