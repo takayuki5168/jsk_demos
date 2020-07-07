@@ -18,6 +18,26 @@ rlwrap roseus move-to-kitchen.l
 
 TODO! need to change target of *ri*
 
+## wipe topboard
+```
+source ~/semi_ws/devel/setup.bash
+roscd jsk_2020_04_pr2_curry/euslisp/kitchen-move
+rlwrap roseus wipe-topboard.l
+
+## set wipe
+(set-rarm)
+## wipe part
+(wipe)
+## more
+(more)
+
+## just to be sure
+(one-more)
+
+## after finish
+(finish)
+```
+
 ## Tabletop grasp test
 test tabletop recognition and grasp vegs from above
 
