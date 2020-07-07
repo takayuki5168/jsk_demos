@@ -45,7 +45,7 @@
 (defun set-carrot ()
 
   (setq *carrot* (carrot))
-  (send *carrot* :transform (make-coords :pos (float-vector 500.0 1950.0 (+ 830.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *carrot* :transform (make-coords :pos (float-vector 500.0 1910.0 (+ 830.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
   (send *carrot* :cut)
   
   (objects (list *room* *pr2* *cutting-board* *carrot*))
@@ -217,7 +217,7 @@
   (send *ri* :wait-interpolation)
 
   (setq interval 10)
-  (dotimes (i (+ (round (/ height interval)) 1))
+  (dotimes (i (+ (round (/ height interval)) 2))
     (send *arrow* :translate (float-vector interval 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *arrow*

@@ -64,6 +64,7 @@
   
   (setq *onion* (onion :w w :l l :h h))
   (send *onion* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 830.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *onion* :rotate (deg2rad 90) :z :world)
   (send *onion* :cut)
   
   (objects (list *room* *pr2* *cutting-board* *onion*))
@@ -138,6 +139,7 @@
 
   (setq *arrow* (arrow))
   (send *arrow* :newcoords (send *onion* :copy-worldcoords))
+  (send *arrow* :rotate (deg2rad -90) :z :world)
 
   (objects (list *room* *pr2* *cutting-board* *onion* *knife* *arrow*))
   (send *irtviewer* :look-all
