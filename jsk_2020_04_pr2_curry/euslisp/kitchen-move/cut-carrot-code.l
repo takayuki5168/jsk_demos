@@ -243,6 +243,38 @@
   (warn "you can retry (cut-test1) , (cut-test2) , (cut-test3) or you want to finish please run (finish) ~%")
   )
 
+(defun true-coords ()
+  (format t "now coords in eus: ~A ~%" (send (car (send *knife* :attention)) :copy-worldcoords))
+  
+  (send *ri* :state :potentio-vector)
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  (format t "now real coords : ~A ~%" (send (car (send *knife* :attention)) :copy-worldcoords))
+
+  )
+
+(defun continue-cut (num)
+  (setq interval 10)
+  (dotimes (i num)
+    (send *arrow* :translate (float-vector interval 0 (/ interval -2)))
+    (send *pr2* :rarm :inverse-kinematics
+	  *arrow*
+	  :move-target (car (send *knife* :attention))
+	  :rotation-axis t
+	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+
+    (send *arrow* :translate (float-vector (* interval -1) 0 (/ interval -2)))
+    (send *pr2* :rarm :inverse-kinematics
+	  *arrow*
+	  :move-target (car (send *knife* :attention))
+	  :rotation-axis t
+	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)  
+  ))
 
 
 (defun finish ()

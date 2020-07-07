@@ -35,7 +35,7 @@ rlwrap roseus wipe-topboard.l
 (one-more)
 
 ## after finish
-(finish)
+(finish)t
 ```
 
 ## Tabletop grasp test
@@ -109,4 +109,5 @@ rlwrap roseus cut-potato-code.l
 (finish)
 ```
 
-also exec `(set-cut)` and `(hor-test)` (horizontal grasp)
+also exec `(set-cut)` and `(hor-test)` (horizontal grasp)  
+there are also util func `(true-coords)` and `(continue-cut 2)`
