@@ -13,12 +13,15 @@
 (setq *desk-spot* (make-coords :pos #f(3470 -1900 0) :rpy #f(-1.57 0 0)))
 
 (setq *kitchen-spot* (send *room73b2* :spot "kitchen-spot"))
-
+(setq */eng2/7f/room73B2-front-of-kitchenboard* (send *room73b2* :spot "/eng2/7f/room73B2-front-of-kitchenboard"))
 
 ;; キッチンの場所まで移動
 
 (defun move-to-kitchen-irt ()
   (send *pr2* :move-to *kitchen-spot* :world)
+  )
+(defun move-to-kitchenboard-irt ()
+  (send *pr2* :move-to */eng2/7f/room73B2-front-of-kitchenboard* :world)
   )
 
 (defun move-to-kitchen-ri ()
@@ -31,6 +34,13 @@
   (go-to-spot "/eng2/7f/room73B2-front-of-kitchenboard")
   )
 
+(defun set-pose ()
+  (send *pr2* :reset-manip-pose)
+  (send *pr2* :torso_lift_joint :joint-angle 325)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  )
 
 (move-to-kitchen-irt)
 
@@ -40,5 +50,5 @@
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 
 
-(warn "please run (move-to-kitchen-ri) or (move-to-kitchenboard-ri)~%")
+(warn "please run (move-to-kitchen-ri) or (move-to-kitchenboard-ri) and (set-pose)~%")
 ;; (move-to-kitchen-ri)
