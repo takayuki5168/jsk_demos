@@ -16,16 +16,40 @@ rlwrap roseus move-to-kitchen.l
 (move-to-kitchen-ri)
 ```
 
-
 TODO! need to change target of *ri*
 
 ## Tabletop grasp test
 test tabletop recognition and grasp vegs from above
 
+in gazebo
 ```
+### gazebo launch
+source ~/semi_ws/devel/setup.bash
+roslaunch table_test_vegs.launch physics:=dart
+
+### tabletop launch
+source ~/semi_ws/devel/setup.bash
 roslaunch jsk_2020_04_pr2_curry tabletop_test.launch
+
+### euslisp
+source ~/semi_ws/devel/setup.bash
+roscd jsk_2020_04_pr2_curry/euslisp/kitchen-move
 rlwrap roseus table-grasp-from-above.l
 ```
+
+in real robot
+```
+### table top launch
+source ~/semi_ws/devel/setup.bash
+roslaunch jsk_2020_04_pr2_curry tabletop_pr2_test.launch
+
+### euslisp
+source ~/semi_ws/devel/setup.bash
+roscd jsk_2020_04_pr2_curry/euslisp/kitchen-move
+rlwrap roseus table-grasp-from-above.l
+```
+
+
 
 ## peel potato test
 test peeling potato by peeler
