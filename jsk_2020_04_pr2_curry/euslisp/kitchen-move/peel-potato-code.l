@@ -8,7 +8,7 @@
  ;; set まな板
 (load "../model/cutting-board.l")
 (setq *cutting-board* (cutting-board))
-(send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 825.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
+(send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 820.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
 
 ;; set objects
 (load "../model/potato-test-model.l")
@@ -50,7 +50,7 @@
   (setq height h)
   
   (setq *potato* (potato :w w :l l :h h))
-  (send *potato* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 835.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *potato* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 830.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
   (send *potato* :peel)
   
   (objects (list *room* *pr2* *cutting-board* *potato*))
@@ -71,7 +71,7 @@
 
   ;; grasp peeler
   (send *ri* :stop-grasp :rarm :wait t)
-  ;; (send *ri* :speak-jp "ピーラーを握らせて下さい")
+  (send *ri* :speak-jp "ピーラーを握らせて下さい")
   (unix:sleep s-time)
   ;; (send *ri* :start-grasp :rarm :wait t)
   ;; (send *ri* :start-grasp :rarm :wait t :arg :gain 100)

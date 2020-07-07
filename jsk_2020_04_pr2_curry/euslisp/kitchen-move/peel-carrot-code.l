@@ -8,7 +8,7 @@
  ;; set まな板
 (load "../model/cutting-board.l")
 (setq *cutting-board* (cutting-board))
-(send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 825.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
+(send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 820.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
 
 ;; set objects
 (load "../model/carrot-test-model.l")
@@ -45,7 +45,7 @@
 (defun set-carrot ()
   
   (setq *carrot* (carrot))
-  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2030.0 (+ 835.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2030.0 (+ 830.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
   (send *carrot* :rotate (deg2rad 180) :z :world)
   (send *carrot* :cut)
   
@@ -69,7 +69,8 @@
   (send *ri* :stop-grasp :rarm :wait t)
   (send *ri* :speak-jp "ピーラーを握らせて下さい")
   (unix:sleep s-time)
-  (send *ri* :start-grasp :rarm :wait t)
+  ;; (send *ri* :start-grasp :rarm :wait t)
+  (send *ri* :start-grasp :rarm :wait t :gain 100)
 
   (setq *peeler* (peeler))
   (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
@@ -235,4 +236,29 @@
   (set-peeler)
   (set-larm)
   (peel-test1)
+  )
+
+(defun now-test ()
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+  )
+
+
+
+(defun test1 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (peel-test1)  
+  )
+
+(defun test2 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (peel-test2)  
   )

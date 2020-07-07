@@ -8,7 +8,7 @@
  ;; set まな板
 (load "../model/cutting-board.l")
 (setq *cutting-board* (cutting-board))
-(send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 825.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
+(send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 820.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
 
 ;; set objects
 (load "../model/carrot-test-model.l")
@@ -45,7 +45,7 @@
 (defun set-carrot ()
 
   (setq *carrot* (carrot))
-  (send *carrot* :transform (make-coords :pos (float-vector 500.0 1950.0 (+ 835.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *carrot* :transform (make-coords :pos (float-vector 500.0 1950.0 (+ 830.0 (/ height 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
   (send *carrot* :cut)
   
   (objects (list *room* *pr2* *cutting-board* *carrot*))
@@ -68,7 +68,8 @@
   (send *ri* :stop-grasp :rarm :wait t)
   (send *ri* :speak-jp "包丁を握らせて下さい")
   (unix:sleep s-time)
-  (send *ri* :start-grasp :rarm :wait t)
+  ;; (send *ri* :start-grasp :rarm :wait t)
+  (send *ri* :start-grasp :rarm :wait t :gain 100)
 
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
@@ -94,7 +95,8 @@
   (send *ri* :stop-grasp :rarm :wait t)
   (send *ri* :speak-jp "包丁を握らせて下さい")
   (unix:sleep s-time)
-  (send *ri* :start-grasp :rarm :wait t)
+  ;; (send *ri* :start-grasp :rarm :wait t)
+  (send *ri* :start-grasp :rarm :wait t :gain 100)
 
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
@@ -278,12 +280,45 @@
   (set-carrot)  
   (set-knife-ver)
   (set-larm)
-  (cut-test1)
+  (cut-test3)
   )
 
 (defun hor-test ()
   (set-carrot)  
   (set-knife-hor)
   (set-larm)
+  (cut-test3)
   )
 
+
+(defun now-test ()
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+  )
+
+(defun test1 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (cut-test1)  
+  )
+
+(defun test2 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (cut-test2)  
+  )
+
+(defun test3 ()
+  (unix:sleep 3)
+  
+  (set-potato :w 90 :l 60 :h 60)  
+  (set-larm)
+
+  (cut-test3)  
+  )
