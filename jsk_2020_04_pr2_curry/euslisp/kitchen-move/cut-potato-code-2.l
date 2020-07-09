@@ -31,6 +31,7 @@
 
 
 (send *pr2* :reset-manip-pose)
+(send *pr2* :torso_lift_joint :joint-angle 325)
 
 (objects (list *room* *pr2* *cutting-board*))
 (send *irtviewer* :look-all
@@ -141,6 +142,8 @@
   
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 20) :y)
+
+  (send *arrow* :translate #f(-60 0 0) :world)
 
   (objects (list *room* *pr2* *cutting-board* *potato* *knife* *arrow*))
   (send *irtviewer* :look-all
@@ -296,7 +299,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *arrow* :translate #f(50 0 0) :world)
+  ;; (send *arrow* :translate #f(50 0 0) :world)
 
   (setq interval 10)
   (dotimes (i (+ (round (/ height interval)) 1))

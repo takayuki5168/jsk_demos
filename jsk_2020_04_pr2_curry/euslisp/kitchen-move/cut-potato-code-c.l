@@ -31,6 +31,7 @@
 
 
 (send *pr2* :reset-manip-pose)
+(send *pr2* :torso_lift_joint :joint-angle 325)
 
 (objects (list *room* *pr2* *cutting-board*))
 (send *irtviewer* :look-all
@@ -142,6 +143,8 @@
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 20) :y)
 
+  (send *arrow* :translate #f(-60 0 0) :world)
+
   (objects (list *room* *pr2* *cutting-board* *potato* *knife* *arrow*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
@@ -149,13 +152,13 @@
 
   (send *ri* :stop-grasp :larm :wait t)
   (send *arrow* :translate #f(0 -100 100) :world)
-  (send *arrow* :translate (float-vector 0 (/ width -3) (/ height 2)) :world)
+  (send *arrow* :translate (float-vector 0 (- (/ width -3) 20) (/ height 2)) :world)
   (send *pr2* :larm :inverse-kinematics (send *arrow* :copy-worldcoords))
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *arrow* :translate #f(0 100 -100) :world)
+  (send *arrow* :translate #f(0 100 -120) :world)
   (send *pr2* :larm :inverse-kinematics (send *arrow* :copy-worldcoords))
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
@@ -286,6 +289,27 @@
 
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 (+ (* height 1) 100)))  
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis :y
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate (float-vector 0 0 -70) :world)  
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis :y
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 (* height 1)))  
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -296,7 +320,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *arrow* :translate #f(50 0 0) :world)
+  ;; (send *arrow* :translate #f(50 0 0) :world)
 
   (setq interval 10)
   (dotimes (i (+ (round (/ height interval)) 1))

@@ -97,6 +97,14 @@
 	(send *pr2* :rarm :end-coords :assoc *peeler*)))
 
   (setq *arrow* (arrow))
+
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 100) :world)
+  (send *pr2* :larm :inverse-kinematics (send *arrow* :copy-worldcoords))
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
 
   (objects (list *room* *pr2* *cutting-board* *potato* *peeler* *arrow*))
