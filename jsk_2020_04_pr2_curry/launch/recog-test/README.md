@@ -69,3 +69,10 @@ roslaunch jsk_2020_04_pr2_curry tabletop_pcd_test.launch
 source ~/semi_ws/devel/setup.bash
 roslaunch jsk_2020_04_pr2_curry cutting_board_top_pcd.launch
 ```
+
+#### make box in eus
+```
+source ~/semi_ws/devel/setup.bash
+roscd jsk_2020_04_pr2_curry/euslisp/recog-test/
+rlwrap roseus box-with-rec.l
+```
