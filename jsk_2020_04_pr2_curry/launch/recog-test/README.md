@@ -49,8 +49,23 @@ source ~/semi_ws/devel/setup.bash
 roslaunch jsk_2020_04_pr2_curry pcd_to_ptcloud_pr2.launch pcd:=/home/kanazawa/semi_ws/src/jsk_demos/jsk_2020_04_pr2_curry/pcd/potato_on_board_0702.pcd
 ```
 
-#### pcd with rosbag
+### pcd with rosbag
+pcd to ptcloud with play rosbag.
+
+#### pcd and rosbag launch
 ```
 source ~/semi_ws/devel/setup.bash
 roslaunch jsk_2020_04_pr2_curry pcd_rosbag_test.launch pcd:=/home/kanazawa/semi_ws/src/jsk_demos/jsk_2020_04_pr2_curry/pcd/carrot_on_board_0708.pcd
+```
+
+#### tabletop recog
+```
+source ~/semi_ws/devel/setup.bash
+roslaunch jsk_2020_04_pr2_curry tabletop_pcd_test.launch
+```
+
+#### cutting board top recog
+```
+source ~/semi_ws/devel/setup.bash
+roslaunch jsk_2020_04_pr2_curry cutting_board_top_pcd.launch
 ```
