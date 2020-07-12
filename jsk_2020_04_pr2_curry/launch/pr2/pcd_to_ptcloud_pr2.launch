@@ -1,6 +1,6 @@
 <launch>
   <arg name="gui" default="true"/>
-  <arg name="pcd" default="$(find jsk_2020_04_pr2_curry)/pcd/sample_pcd_1593679305117617.pcd" />
+  <arg name="pcd" default="$(find jsk_2020_04_pr2_curry)/pcd/potato_on_board_0702.pcd" />
 
   <node name="pcd_to_pointcloud"
         pkg="pcl_ros" type="pcd_to_pointcloud"
