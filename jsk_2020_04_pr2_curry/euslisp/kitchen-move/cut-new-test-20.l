@@ -38,7 +38,7 @@
 (send *pr2* :reset-manip-pose)
 (send *pr2* :torso_lift_joint :joint-angle 325)
 
-(objects (list *room* *pr2* *cutting-board*))
+(objects (list *kitchen* *pr2* *cutting-board*))
 (send *irtviewer* :look-all
       (geo::make-bounding-box 
        (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -62,7 +62,7 @@
   (send *potato* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
   (send *potato* :cut)
   
-  (objects (list *room* *pr2* *cutting-board* *potato*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -89,7 +89,7 @@
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *pr2* :rarm :end-coords :assoc *knife*)
 
-  (objects (list *room* *pr2* *cutting-board* *potato* *knife*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *knife*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -117,7 +117,7 @@
   (send *knife* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *knife*)
 
-  (objects (list *room* *pr2* *cutting-board* *potato* *knife*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *knife*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -152,7 +152,7 @@
   ;; 少し奥にするために
   (send *arrow* :translate #f(-60 0 0) :world)
 
-  (objects (list *room* *pr2* *cutting-board* *potato* *knife* *arrow*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *knife* *arrow*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -199,7 +199,7 @@
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 20) :y)
 
-  (objects (list *room* *pr2* *cutting-board* *potato* *knife* *arrow*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *knife* *arrow*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))

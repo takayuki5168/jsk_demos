@@ -111,3 +111,66 @@ rlwrap roseus cut-potato-code.l
 
 also exec `(set-cut)` and `(hor-test)` (horizontal grasp)  
 there are also util func `(true-coords)` and `(continue-cut 2)`
+
+
+## cut new test
+```
+rlwrap roseus cut-new-test-20.l
+
+(set-potato :w 90 :l 60 :h 60)  
+(set-knife-ver)
+(set-larm) # also (set-larm2)
+(cut-test3)
+
+(larm-cut) # also (larm-cut2)
+
+(finish)
+```
+also exec `(test3)` and `(hor-test)`, `(exec-cut)`.  
+there are also util func `(true-coords)` and `(continue-cut 2)`
+
+## peel new test
+```
+rlwrap roseus peel-new-test-20.l
+
+(set-potato :w 90 :l 60 :h 60)  
+(set-peeler)
+(set-larm)
+(peel-test1)
+
+(finish)
+```
+also exec `(test1)` and `(test3)`, `(exec-peel)` , `(strong-test)`.  
+
+## carrot new surface test
+```
+rlwrap roseus carrot-new-surface-test.l
+
+(set-knife-ver)
+(set-larm)
+(cut-test3)
+(move-carrot)
+(change-peeler)
+(peel-test)
+(finish-pose)
+(put-carrot)
+(next-grasp)
+(set-peel)
+```
+also exec `exec-all` and `next-set`
+
+## surface carrot test
+only surface part
+```
+rlwrap roseus surface-carrot-test.l
+
+(set-larm)
+(change-peeler)
+(peel-test)
+(finish-pose)
+(put-carrot)
+(next-grasp)
+(set-peel)
+```
+
+also exec `exec-all` and `next-set`

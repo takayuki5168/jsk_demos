@@ -35,7 +35,7 @@
 (send *pr2* :reset-manip-pose)
 (send *pr2* :torso_lift_joint :joint-angle 325)
 
-(objects (list *room* *pr2* *cutting-board*))
+(objects (list *kitchen* *pr2* *cutting-board*))
 (send *irtviewer* :look-all
       (geo::make-bounding-box 
        (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -59,7 +59,7 @@
   (send *potato* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
   (send *potato* :peel)
   
-  (objects (list *room* *pr2* *cutting-board* *potato*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -86,7 +86,7 @@
   (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *pr2* :rarm :end-coords :assoc *peeler*)
 
-  (objects (list *room* *pr2* *cutting-board* *potato* *peeler*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *peeler*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -115,7 +115,7 @@
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 20) :y)
 
-  (objects (list *room* *pr2* *cutting-board* *potato* *peeler* *arrow*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *peeler* *arrow*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -161,7 +161,7 @@
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 20) :y)
 
-  (objects (list *room* *pr2* *cutting-board* *potato* *peeler* *arrow*))
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *peeler* *arrow*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
