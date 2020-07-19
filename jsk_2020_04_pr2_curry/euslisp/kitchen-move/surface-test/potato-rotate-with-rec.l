@@ -119,8 +119,9 @@
 (send *arrow* :newcoords (send obj-coord :copy-worldcoords))
 
 (load "../../model/potato-new-type.l")
-(setq *potato* (potato :w  width :l length :h height))
+(setq *potato* (potato :w (+ width 15) :l length :h height))
 (send *potato* :newcoords (send obj-coord :copy-worldcoords))
+(send *potato* :translate #f(7.5 0 0))
 (send *potato* :rotate (deg2rad 180) :x)
 (send *potato* :cut)
 

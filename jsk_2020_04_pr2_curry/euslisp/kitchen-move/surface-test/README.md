@@ -160,3 +160,89 @@ cut and peel carrot second set.
 (finish)
 ```
 also exec `(now-test)` and `(exec-all)`.  
+
+## with rec
+codes with recognition.
+
+### potato
+progaram for potato.  
+
+play rosbag.  
+```
+source ~/semi_ws/devel/setup.bash
+roslaunch jsk_2020_04_pr2_curry pcd_rosbag_test.launch pcd:=/home/kanazawa/semi_ws/src/jsk_demos/jsk_2020_04_pr2_curry/pcd/carrot_on_board_0708.pcd
+```
+cutting board top recog.
+```
+source ~/semi_ws/devel/setup.bash
+roslaunch jsk_2020_04_pr2_curry cutting_board_top_pcd.launch
+```
+
+#### potato-move-with-rec
+grasp and move potato.
+```
+rlwrap roseus potato-move-with-rec.l
+
+(move-potato)
+(finish)
+```
+also exec `(now-devel)` and `(now-test)`.  
+
+#### potato-surface-proto-with-rec
+cut and peel potato first set.
+```
+rlwrap roseus potato-surface-proto-with-rec.l
+
+(grasp-potato)
+(set-knife-hor)
+(cut-test3)
+
+(change-peeler)
+(peel-test)
+(finish-pose)
+
+(put-potato)
+(next-grasp)
+(set-peel)
+
+(next-set)
+
+(peel-test2)
+(finish)
+```
+also exec `(now-test)` and `(exec-all)`.
+
+#### potato-rotate-with-rec
+grasp and rotate potato.
+```
+rlwrap roseus potato-rotate-with-rec.l
+
+(rotate-potato)
+(finish)
+```
+also exec `(now-devel)` and `(now-test)`.  
+
+#### potato-surface-second-with-rec
+cut and peel potato second set.
+```
+rlwrap roseus potato-surface-second-with-rec.l
+
+(grasp-potato-second)
+
+(set-knife-hor)
+(cut-test3-second)
+
+(change-peeler-second)
+(peel-test)
+(finish-pose)
+
+(put-potato-second)
+(next-grasp-second)
+(set-peel)
+
+(next-set)
+
+(peel-test2)  
+(finish)
+```
+also exec `(now-test)` and `(exec-all)`.  
