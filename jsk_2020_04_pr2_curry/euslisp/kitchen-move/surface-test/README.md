@@ -127,6 +127,8 @@ also exec `(now-test)` and `(exec-all)`.
 #### carrot-rotate
 grasp and move carrot for second set.
 ```
+rlwrap roseus carrot-rotate.l
+
 (set-carrot :w width :l length :h height)
 (move-carrot-1)
 
@@ -139,6 +141,8 @@ also exec `(now-devel)` and `(now-test)`.
 #### carrot-surface-second
 cut and peel carrot second set.
 ```
+rlwrap roseus carrot-surface-second.l
+
 (set-carrot :w width :l length :h height)
 (move-carrot-1)
 (grasp-carrot-second)
@@ -243,6 +247,90 @@ rlwrap roseus potato-surface-second-with-rec.l
 (next-set)
 
 (peel-test2)  
+(finish)
+```
+also exec `(now-test)` and `(exec-all)`.  
+
+### carrot
+progaram for carrot.  
+
+play rosbag.  
+```
+source ~/semi_ws/devel/setup.bash
+roslaunch jsk_2020_04_pr2_curry pcd_rosbag_test.launch pcd:=/home/kanazawa/semi_ws/src/jsk_demos/jsk_2020_04_pr2_curry/pcd/carrot_on_board_2_0708.pcd
+```
+cutting board top recog.
+```
+source ~/semi_ws/devel/setup.bash
+roslaunch jsk_2020_04_pr2_curry cutting_board_top_pcd.launch
+```
+
+#### carrot-move-with-rec
+grasp and move carrot.
+```
+rlwrap roseus potato-move-with-rec.l
+
+(move-carrot)
+
+(finish)
+```
+also exec `(now-devel)` and `(now-test)`.  
+
+#### carrot-surface-proto-with-rec
+cut and peel potato first set.
+```
+rlwrap roseus carrot-surface-proto-with-rec.l
+
+(grasp-carrot)
+(set-knife-hor)
+(cut-test3)
+
+(change-peeler)
+(peel-test)
+(finish-pose)
+
+(put-carrot)
+(next-grasp)
+(set-peel)
+
+(next-set)
+
+(peel-test2)
+(finish)
+```
+also exec `(now-test)` and `(exec-all)`.  
+
+#### carrot-rotate-with-rec
+grasp and rotate carrot.
+```
+rlwrap roseus carrot-rotate-with-rec.l
+
+(move-carrot)
+(finish)
+```
+also exec `(now-devel)` and `(now-test)`.  
+
+#### carrot-surface-second-with-rec.l
+cut and peel carrot second set.
+```
+rlwrap roseus carrot-surface-second-with-rec.l
+
+(grasp-carrot-second)
+(set-knife-hor)
+(cut-test3-second)
+
+(change-peeler-second)
+(peel-pose)
+(peel-carrot-test)
+(finish-pose)
+
+(put-carrot-second)
+(next-grasp-second)
+(set-peel)
+
+(next-set)
+
+(peel-test2)
 (finish)
 ```
 also exec `(now-test)` and `(exec-all)`.  
