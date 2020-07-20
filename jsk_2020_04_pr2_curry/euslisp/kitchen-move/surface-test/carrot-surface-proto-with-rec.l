@@ -18,8 +18,7 @@
 
   ;; set objects
   (load "../../model/peeler.l")
-  ;; (load "../../model/my-knife.l")
-  (load "../../model/knife-new-attention.l")
+  (load "../../model/my-knife.l")
   (load "models/arrow-object.l")
   (setq *arrow* (arrow))
 
@@ -44,12 +43,12 @@
   ;; def global values
   (setq s-time 2)
 
-  ;; set potato
-  (load "../../model/potato-new-type.l")
+  ;; set carrot
+  (load "../../model/carrot-test-new-type.l")
 
-  (setq width 90)
-  (setq length 60)
-  (setq height 60)
+  (setq width 160)
+  (setq length 40)
+  (setq height 40)
   )
 
 (init)
@@ -58,7 +57,7 @@
 (defvar *topic-name* "/segmentation_decomposer/boxes")
 
 ;; ros init
-(ros::roseus "potato_rec_test" :anonymous t)
+(ros::roseus "carrot_rec_test" :anonymous t)
 (ros::load-ros-manifest "jsk_recognition_msgs")
 (setq *l* (instance ros::transform-listener :init))
 (setq found-obj nil)
@@ -119,39 +118,21 @@
 (setq *arrow* (arrow))
 (send *arrow* :newcoords (send obj-coord :copy-worldcoords))
 
-(load "../../model/potato-new-type.l")
-(setq *potato* (potato :w (+ width 15) :l length :h height))
-(send *potato* :newcoords (send obj-coord :copy-worldcoords))
-(send *potato* :rotate (deg2rad 180) :x)
-(send *potato* :cut)
-(objects (list *potato* *pr2* *cutting-board* *kitchen*))
+(load "../../model/carrot-test-new-type.l")
+(setq *carrot* (carrot :w  width :l length :h height))
+(send *carrot* :newcoords (send obj-coord :copy-worldcoords))
+(send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
+(send *carrot* :rotate (deg2rad 180) :x)
+(send *carrot* :cut)
+(objects (list *carrot* *pr2* *cutting-board* *kitchen*))
 (send *irtviewer* :look-all
       (geo::make-bounding-box 
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 (send *irtviewer* :draw-objects)
 
-(warn "please run  (grasp-potato-second) ~%")
+(warn "please run  (grasp-carrot) ~%")
 
-(defun move-potato-1 ()
-  (send p4 :dissoc p7)
-  (send p7 :translate #f(0 100 0) :world)
-
-  (send *potato* :rotate (deg2rad 180) :z :world)
-
-  (send *potato* :translate #f(7.5 0 0))
-  
-  (send *viewer* :draw-objects)
-
-  ;; add for second
-  (send p1 :set-color :moccasin)
-  (send p2 :set-color :moccasin)
-  (send p3 :set-color :moccasin)
-  (send *viewer* :draw-objects)
-  )
-
-(move-potato-1)
-
-(defun grasp-potato-second ()
+(defun grasp-carrot ()
   ;;少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 250) :world)
@@ -163,18 +144,19 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; じゃがいもの掴む所に
-  (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :z :world)
-  (send *arrow* :rotate (deg2rad 30) :y)
+  ;; 人参の掴む所に
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 20 (/ height 2)))
+  (send *arrow* :rotate (deg2rad -90) :z)
+  (send *arrow* :rotate (deg2rad 70) :y)
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
   (send *arrow* :translate #f(0 -100 100) :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
-	:rotation-axis t
-	:debug-view t)
+  	:rotation-axis t
+  	:debug-view t)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
@@ -182,8 +164,8 @@
   (send *arrow* :translate #f(0 100 -100) :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
-	:rotation-axis t
-	:debug-view t)
+  	:rotation-axis t
+  	:debug-view t)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
@@ -191,7 +173,7 @@
   ;;gripperを閉じる
   (send *ri* :start-grasp :larm :wait t)
      
-  ;; (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   (warn "please run  (set-knife-hor) ~%")
   )
 
@@ -205,11 +187,10 @@
   
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *knife* :translate #f(12 0 0))
   (send *knife* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *knife*)
 
-  (objects (list *kitchen* *pr2* *cutting-board* *potato* *knife*))
+  (objects (list *kitchen* *pr2* *cutting-board* *carrot* *knife*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
@@ -217,9 +198,9 @@
   (warn "please run (cut-test3) ~%")
   )
 
-(defun cut-test3-second ()
-  (if (not (boundp '*potato*))
-      (set-potato :w width :l length :h height))
+(defun cut-test3 ()
+  (if (not (boundp '*carrot*))
+      (set-carrot :w width :l length :h height))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
@@ -234,7 +215,7 @@
 
   ;; 少し上に包丁を
 
-  (send *arrow* :newcoords (send *cut-point-2* :copy-worldcoords))
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 (* height 1)))  
 
   ;; 少し上にするために
@@ -313,15 +294,16 @@
   (warn "you can retry (cut-test3), (continue-cut 4) or you want to finish please run (change-peeler)  ~%")
   )
 
-(defun move-potato-2 ()
-  (send p4 :dissoc p8)
-  (send p8 :translate #f(0 80 0) :world)
+(defun move-carrot-1 ()
+  (send c2 :dissoc c1)
+  (send c1 :translate #f(0 100 0) :world)
   (send *viewer* :draw-objects)
 
   )
 
-(defun change-peeler-second ()
-  (move-potato-2)
+
+(defun change-peeler ()
+  (move-carrot-1)
 
   (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
   
@@ -362,15 +344,55 @@
   (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *pr2* :rarm :end-coords :assoc *peeler*)
 
-  (objects (list *kitchen* *pr2* *cutting-board* *potato* *peeler*))
+  (objects (list *kitchen* *pr2* *cutting-board* *carrot* *peeler*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
 
+  (warn "please run (peel-pose) ~%")
+  )
+
+(defun peel-pose ()
+  (send *pr2* :larm :end-coords :assoc *carrot*)
+
+  ;; 少し持ち上げる
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+	*arrow*
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  ;; 回転させる
+  (send *arrow* :rotate (deg2rad 180) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+	*arrow*
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+  
+  ;; 置く
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 -100) :world)
+  (send *pr2* :larm :inverse-kinematics
+	*arrow*
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  ;; 一応dissoc
+  (send *pr2* :larm :end-coords :dissoc *carrot*)
   (warn "please run (peel-test) ~%")
   )
 
-(defun peel-test ()
+(defun peel-carrot-test ()
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 200) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -381,10 +403,16 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
     
+  ;; (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  ;; (send *arrow* :rotate (deg2rad 180) :z)
+  ;; (send *arrow* :translate (float-vector 0 0 (* 1 height)) :world)
+  ;; (send *arrow* :rotate (deg2rad 60) :y)
+  ;; (send *arrow* :translate (float-vector 0 100 100) :world)
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :z)
   (send *arrow* :translate (float-vector 0 0 (* 1 height)) :world)
-  (send *arrow* :rotate (deg2rad 60) :y)
+  (send *arrow* :rotate (deg2rad -70) :y)
+  (send *arrow* :translate (float-vector (+ (/ width -2) 25) 0 0))
+  (send *arrow* :rotate (deg2rad 30) :y)
   (send *arrow* :translate (float-vector 0 100 100) :world)
 
   (send *pr2* :rarm :inverse-kinematics
@@ -445,12 +473,12 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)  
 
-  (warn "please run (put-potato)~%")
+  (warn "please run (put-carrot)~%")
   )
 
 
-(defun put-potato-second ()
-  (send *pr2* :larm :end-coords :assoc *potato*)
+(defun put-carrot ()
+  (send *pr2* :larm :end-coords :assoc *carrot*)
   (setq *larm-peel-coords* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
 
   ;; 上に上げる
@@ -469,7 +497,7 @@
 
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
-	:move-target *cut-point-2*
+	:move-target *cut-point-1*
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
@@ -478,32 +506,36 @@
 
   (setq *larm-put-coords* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
 
-  ;; release potato
-  (send *pr2* :larm :end-coords :dissoc *potato*)
+  ;; release carrot
+  (send *pr2* :larm :end-coords :dissoc *carrot*)
   (send *ri* :stop-grasp :rarm :wait t)
 
 
-  (send *arrow* :newcoords (send *larm-put-coords* :copy-worldcoords))
-  (send *arrow* :translate #f(0 0 80) :world)
-  (send *pr2* :larm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
+  ;; (send *arrow* :newcoords (send *larm-put-coords* :copy-worldcoords))
+  ;; (send *arrow* :translate #f(0 0 80) :world)
+  ;; (send *pr2* :larm :inverse-kinematics
+  ;; 	(send *arrow* :copy-worldcoords)
+  ;; 	:rotation-axis t
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  ;; (send *ri* :wait-interpolation)
 
-  (setq *larm-wait-coords* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  ;; (setq *larm-wait-coords* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   
   (warn "please run (next-grasp)~&")
   )
 
-(defun next-grasp-second ()
+(defun next-grasp ()
   ;; 
-  (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :z)
-  (send *arrow* :rotate (deg2rad -30) :z :world)
-  (send *arrow* :rotate (deg2rad 30) :y)
+  ;; (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
+  ;; (send *arrow* :rotate (deg2rad -30) :z :world)
+  ;; (send *arrow* :rotate (deg2rad 30) :y)
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 20 (/ height 2)))
+  (send *arrow* :rotate (deg2rad -90) :z)
+  (send *arrow* :rotate (deg2rad 70) :y)
+  (send *arrow* :rotate (deg2rad 30) :z :world)
 
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -514,7 +546,7 @@
   (send *ri* :wait-interpolation)
 
   (setq *larm-grasp-coords* (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *pr2* :larm :end-coords :assoc *potato*)
+  (send *pr2* :larm :end-coords :assoc *carrot*)
   (send *ri* :start-grasp :larm :wait t)
   
   (warn "please run (set-peel)~&")
@@ -544,17 +576,17 @@
   )
 
 (defun peel-test2 ()
-  (peel-test)
+  (peel-carrot-test)
   (warn "please run (finish-pose2)~&")
   )
 
 (defun finish-pose2 ()
   (finish-pose)
-  (warn "please run (put-potato2)~&")  
+  (warn "please run (put-carrot2)~&")  
   )
 
-(defun put-potato2 ()
-  (send *pr2* :larm :end-coords :assoc *potato*)
+(defun put-carrot2 ()
+  (send *pr2* :larm :end-coords :assoc *carrot*)
   
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 150) :world)
@@ -576,16 +608,16 @@
   (send *ri* :wait-interpolation)
 
   (send *ri* :stop-grasp :larm :wait t)
-  (send *pr2* :larm :end-coords :dissoc *potato*)
+  (send *pr2* :larm :end-coords :dissoc *carrot*)
   
-  (send *arrow* :newcoords (send *larm-wait-coords* :copy-worldcoords))
-  (send *pr2* :larm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
+  ;; (send *arrow* :newcoords (send *larm-wait-coords* :copy-worldcoords))
+  ;; (send *pr2* :larm :inverse-kinematics
+  ;; 	(send *arrow* :copy-worldcoords)
+  ;; 	:rotation-axis t
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  ;; (send *ri* :wait-interpolation)
   
   (warn "please run (next-grasp2)~&")
   )
@@ -600,7 +632,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *pr2* :larm :end-coords :assoc *potato*)
+  (send *pr2* :larm :end-coords :assoc *carrot*)
   (send *ri* :start-grasp :larm :wait t)
   
   (warn "please run (set-peel)~&")  
@@ -636,54 +668,57 @@
 (defun next-set ()
   (peel-test2)
   (finish-pose2)
-  (put-potato2)
+  (put-carrot2)
   (next-grasp2)
   (set-peel)  
   )
 
 (defun now-devel ()
-  ;; (set-potato :w width :l length :h height)
-  ;; (move-potato-1)
-  (grasp-potato-second)
-  
+  ;; (set-carrot :w width :l length :h height)
+  (grasp-carrot)
   (set-knife-hor)
-  (cut-test3-second)
-  
+  (cut-test3)
+
+  (change-peeler)
+  (peel-pose)
+  (peel-carrot-test)
+  (finish-pose)
+
+  (put-carrot)
+  (next-grasp)
+  ;; (set-peel)
   )
 
 
 (defun now-test ()
-  ;; (set-potato :w width :l length :h height)
-  ;; (move-potato-1)
-  (grasp-potato-second)
-  
+  ;; (set-carrot :w width :l length :h height)
+  (grasp-carrot)
   (set-knife-hor)
-  (cut-test3-second)
+  (cut-test3)
 
-  (change-peeler-second)
-  (peel-test)
+  (change-peeler)
+  (peel-pose)
+  (peel-carrot-test)
   (finish-pose)
 
-  (put-potato-second)
-  (next-grasp-second)
+  (put-carrot)
+  (next-grasp)
   (set-peel)
   )
 
 
 (defun exec-all ()
-  ;; (set-potato :w width :l length :h height)
-  ;; (move-potato-1)
-  (grasp-potato-second)
-  
+  ;; (set-carrot :w width :l length :h height)
+  (grasp-carrot)
   (set-knife-hor)
-  (cut-test3-second)
+  (cut-test3)
 
-  (change-peeler-second)
+  (change-peeler)
   (peel-test)
   (finish-pose)
 
-  (put-potato-second)
-  (next-grasp-second)
+  (put-carrot)
+  (next-grasp)
   (set-peel)
 
   (dotimes (i 10)
