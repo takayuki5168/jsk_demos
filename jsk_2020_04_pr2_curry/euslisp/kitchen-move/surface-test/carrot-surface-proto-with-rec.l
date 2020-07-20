@@ -18,7 +18,8 @@
 
   ;; set objects
   (load "../../model/peeler.l")
-  (load "../../model/my-knife.l")
+  ;; (load "../../model/my-knife.l")
+  (load "../../model/knife-new-attention.l")
   (load "models/arrow-object.l")
   (setq *arrow* (arrow))
 
@@ -187,6 +188,7 @@
   
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *knife* :translate #f(12 0 0))
   (send *knife* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *knife*)
 
