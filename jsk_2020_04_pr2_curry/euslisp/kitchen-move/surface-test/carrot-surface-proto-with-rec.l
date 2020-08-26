@@ -42,7 +42,7 @@
   (objects (list *pr2* *cutting-board*))
 
   ;; def global values
-  (setq s-time 2)
+  (setq s-time 3)
 
   ;; set carrot
   (load "../../model/carrot-test-new-type.l")
@@ -510,8 +510,7 @@
 
   ;; release carrot
   (send *pr2* :larm :end-coords :dissoc *carrot*)
-  (send *ri* :stop-grasp :rarm :wait t)
-
+  (send *ri* :stop-grasp :larm :wait t)
 
   ;; (send *arrow* :newcoords (send *larm-put-coords* :copy-worldcoords))
   ;; (send *arrow* :translate #f(0 0 80) :world)

@@ -82,6 +82,7 @@
     (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2)))
 
     (setq obj-coord (send cam-coords :transform cam->obj-coords))
+    ;; 補完して位置を決める
     (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
     (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
     (setq height tmp)
@@ -129,7 +130,7 @@
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 (send *irtviewer* :draw-objects)
 
-(warn "please run  (move-potato) ~%")
+(warn "please run  (move-potato)  , (only-grasp) or (now-test)~%")
 
 
 (defun move-potato ()
@@ -220,6 +221,46 @@
   (send *viewer* :draw-objects)
   )
 
+
+(defun only-grasp ()
+  ;;少し上に
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 250) :world)
+  (send *pr2* :larm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis nil
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;;gripperを開く
+  (send *ri* :stop-grasp :larm :wait t)
+
+    ;; じゃがいもの掴む所に
+  (send *arrow* :newcoords (send *potato* :copy-worldcoords))
+  (send *arrow* :rotate (deg2rad 90) :y)
+  (send *arrow* :translate #f(0 0 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate #f(0 0 -100) :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;;gripperを閉じる
+  (send *ri* :start-grasp :larm :wait t)
+  )
 
 
 (defun now-devel ()

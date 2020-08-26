@@ -42,7 +42,7 @@
   (objects (list *pr2* *cutting-board*))
 
   ;; def global values
-  (setq s-time 2)
+  (setq s-time 3)
 
   ;; set potato
   ;; (load "../../model/potato-test-model.l")
@@ -184,7 +184,7 @@
   (send *ri* :speak-jp "包丁を握らせて下さい")
   (unix:sleep s-time)
   (send *ri* :start-grasp :rarm :wait t :gain 100)
-  
+
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *knife* :translate #f(12 0 0))
@@ -463,7 +463,7 @@
 
   ;; release potato
   (send *pr2* :larm :end-coords :dissoc *potato*)
-  (send *ri* :stop-grasp :rarm :wait t)
+  (send *ri* :stop-grasp :larm :wait t)
 
 
   (send *arrow* :newcoords (send *larm-put-coords* :copy-worldcoords))
