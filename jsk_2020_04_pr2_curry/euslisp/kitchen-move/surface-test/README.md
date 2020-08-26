@@ -165,7 +165,21 @@ rlwrap roseus carrot-surface-second.l
 ```
 also exec `(now-test)` and `(exec-all)`.  
 
+### onion
+WIP  
+just cut.
+```
+rlwrap roseus only-cut-test.l
+
+(hor-test)
+(cut-test3)
+(finish)
+```
+`(test3)` : 包丁を持った状態で切る所だけ．  
+
+
 ## with rec
+
 codes with recognition.
 
 ### potato
