@@ -414,14 +414,11 @@
   ;; (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
-  (set-peeler)
-  
-
-  ;; (set-knife-hor)
-  ;; (cut-test)
-  ;; (finish-pose)
-  ;; (put-potato)
-  ;; (reset-larm)
+  (grasp-peeler)
+  (peel-test)
+  (finish-pose-peel)
+  (put-potato-rotate)
+  (reset-larm)
   )
 
 
@@ -440,12 +437,12 @@
 
 
 (defun exec-all ()
-  ;; (set-potato :w width :l length :h height)
-  (grasp-potato)
-  (set-knife-hor)
-  (cut-test)
-  (finish-pose)
-  (put-potato)
+  ;; (set-potato-peel :w width :l length :h height)
+  (grasp-potato-peel)
+  (set-potato)
+  (grasp-peeler)
+  (peel-test)
+  (finish-pose-peel)
+  (put-potato-rotate)
   (reset-larm)
-  (change-peeler)
   )

@@ -425,11 +425,11 @@
   ;; (set-carrot-peel :w width :l length :h height)
   (grasp-carrot-peel)
   (set-carrot)
-  ;; (set-peeler)
-  ;; (peel-test)
-  ;; (finish-pose-peel)
-  ;; (put-carrot-rotate)
-  ;; (reset-larm)
+  (grasp-peeler)
+  (peel-test)
+  (finish-pose-peel)
+  (put-carrot-rotate)
+  (reset-larm)
   )
 
 
