@@ -75,7 +75,6 @@
   (warn "please run (grasp-potato) ~%")
   )
 
-
 (defun grasp-potato ()
   ;;少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
@@ -88,10 +87,22 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
+  ;;少し前に
+  (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
+  (send *arrow* :translate #f(-200 50 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 30) :y)
-
+  
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
   (send *arrow* :translate #f(0 -100 100) :world)
@@ -209,7 +220,7 @@
 
     )
   
-  (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (change-peeler)  ~%")
+  (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
   )
 
 (defun continue-cut (num)
@@ -234,7 +245,7 @@
     (send *viewer* :draw-objects)
     (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
     (send *ri* :wait-interpolation))
-  (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (change-peeler)  ~%")
+  (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
   )
 
 (defun move-potato-1 ()
@@ -261,7 +272,7 @@
   (send *ri* :wait-interpolation)
 
   (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
-  (send *arrow* :translate (float-vector 0 0 150) :world)
+  (send *arrow* :translate (float-vector 0 0 50) :world)
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *knife* :attention))
@@ -269,6 +280,28 @@
 	:debug-view t)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 50) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 50) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
   (send *ri* :wait-interpolation)
   
   ;; set pose
@@ -351,9 +384,22 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; 左手を少し後ろに
-  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(100 0 0) :world)
+  ;; 少し上にして水平に
+  (send *arrow* :newcoords (make-coords :pos (send *arrow* :worldpos)))
+  (send *arrow* :translate #f(0 0 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 手前にする
+  (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
+  (send *arrow* :translate #f(150 -100 100) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
@@ -368,7 +414,7 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 8000)
   (send *ri* :wait-interpolation)  
 
   (warn "please run (change-peeler)~&")
@@ -415,7 +461,7 @@
 (defun now-test ()
   (set-potato :w width :l length :h height)
   (grasp-potato)
-  (set-knife-hor)
+  ;; (set-knife-hor)
   (cut-test)
   (finish-pose)
   (put-potato)
