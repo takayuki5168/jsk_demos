@@ -83,7 +83,6 @@
   (warn "please run (grasp-potato-peel) ~%")
   )
 
-
 (defun grasp-potato-peel ()
   ;;少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
@@ -153,7 +152,8 @@
   (send *ri* :wait-interpolation)
 
   ;; じゃがいもを置く．
-  (send *arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 (- (+ 850.0 (/ height 2)) 20)) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 (- (+ 850.0 (/ height 2)) 30)) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *arrow* :translate #f(0 0 100) :world)
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
@@ -184,7 +184,7 @@
   (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *peeler* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *peeler*)
-  
+
   (objects (list *kitchen* *pr2* *cutting-board* *potato* *peeler*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
@@ -195,6 +195,7 @@
 
 (defun grasp-peeler ()
   ;; ピーラーを握る
+  (send *ri* :stop-grasp :rarm :wait t)
   (send *ri* :speak-jp "ピーラーを握らせて下さい")
   (unix:sleep s-time)
   (send *ri* :start-grasp :rarm :wait t :gain 100)
@@ -213,6 +214,8 @@
   )
 
 (defun peel-test ()
+  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
+
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 200) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -249,7 +252,12 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
-  (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
+
+  (send *arrow* :translate (float-vector 0 0 -40) :world)
+  ;; (send *arrow* :translate (float-vector 0 0 -60) :world)
+  ;; (send *arrow* :translate (float-vector 0 0 -50) :world)
+
+  ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -277,10 +285,9 @@
   )
 
 (defun finish-pose-peel ()
-  ;; 左手を少し上に
+  ;; 手を少し上に
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  ;; (send *arrow* :translate #f(0 0 50) :world)
-  (send *arrow* :translate #f(0 0 150) :world)
+  (send *arrow* :translate #f(100 0 150) :world)
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
@@ -288,7 +295,7 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-
+  
   ;; set pose
   (send *arrow* :newcoords (make-coords :pos #f(800.191 2189.104 866.677) :rpy #f(-2.341 -0.222 -0.482)))
   (send *pr2* :rarm :inverse-kinematics
@@ -296,8 +303,8 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  (send *ri* :wait-interpolation)  
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
+  (send *ri* :wait-interpolation)
 
   (warn "please run (put-potato-rotate)~%")
   )
@@ -354,7 +361,6 @@
 (defun reset-larm ()
   ;; 左手を少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  ;; (send *arrow* :translate #f(0 0 50) :world)
   (send *arrow* :translate #f(0 0 150) :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -363,10 +369,23 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-  
-  ;; 左手を少し後ろに
-  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(150 0 0) :world)
+
+  ;; 少し上にして水平に
+  (send *arrow* :newcoords (make-coords :pos (send *arrow* :worldpos)))
+  (send *arrow* :translate #f(0 0 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 手前にする
+  (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
+  (send *arrow* :translate #f(140 -100 90) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
@@ -381,28 +400,25 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 8000)
   (send *ri* :wait-interpolation)  
   )
 
 (defun now-devel ()
-  (set-potato-peel :w width :l length :h height)
+  ;; (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
-  (set-peeler)
-  
-
-  ;; (set-knife-hor)
-  ;; (cut-test)
-  ;; (finish-pose)
-  ;; (put-potato)
-  ;; (reset-larm)
+  (grasp-peeler)
+  (peel-test)
+  (finish-pose-peel)
+  (put-potato-rotate)
+  (reset-larm)
   )
 
 
 
 (defun now-test ()
-  (set-potato-peel :w width :l length :h height)
+  ;; (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
@@ -415,12 +431,12 @@
 
 
 (defun exec-all ()
-  (set-potato :w width :l length :h height)
-  (grasp-potato)
-  (set-knife-hor)
-  (cut-test)
-  (finish-pose)
-  (put-potato)
+  ;; (set-potato-peel :w width :l length :h height)
+  (grasp-potato-peel)
+  (set-potato)
+  (grasp-peeler)
+  (peel-test)
+  (finish-pose-peel)
+  (put-potato-rotate)
   (reset-larm)
-  (change-peeler)
   )

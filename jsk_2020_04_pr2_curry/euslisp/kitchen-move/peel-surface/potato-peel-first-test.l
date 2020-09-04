@@ -138,7 +138,7 @@
 (send *irtviewer* :draw-objects)
 
 
-(warn "please run (grasp-potato-peel) or (now-devel)~%")
+(warn "please run (grasp-potato) or (now-devel)~%")
 
 (defun grasp-potato ()
   ;;少し上に
@@ -190,8 +190,7 @@
 
   ;;gripperを閉じる
   (send *ri* :start-grasp :larm :wait t)
-     
-  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+
   (warn "please run  (set-peeler) or (grasp-peeler) ~%")
   )
 
@@ -231,7 +230,7 @@
   )
 
 (defun peel-test ()
-  (send *ri* :start-grasp :larm :wait t :gain 10)
+  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 200) :world)
@@ -270,8 +269,10 @@
 
   ;; 皮剥き始める所
 
-  ;; (send *arrow* :translate (float-vector 0 0 -40) :world)
-  (send *arrow* :translate (float-vector 0 0 -60) :world)
+  (send *arrow* :translate (float-vector 0 0 -40) :world)
+  ;; (send *arrow* :translate (float-vector 0 0 -60) :world)
+  ;; (send *arrow* :translate (float-vector 0 0 -50) :world)
+  ;; (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -385,10 +386,22 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-  
-  ;; 左手を少し後ろに
+
+  ;; 少し上にして水平に
+  (send *arrow* :newcoords (make-coords :pos (send *arrow* :worldpos)))
+  (send *arrow* :translate #f(0 0 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 手前にする
   (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
-  (send *arrow* :translate #f(150 -100 100) :world)
+  (send *arrow* :translate #f(140 -100 90) :world)
   (send *arrow* :rotate (deg2rad 90) :z :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
