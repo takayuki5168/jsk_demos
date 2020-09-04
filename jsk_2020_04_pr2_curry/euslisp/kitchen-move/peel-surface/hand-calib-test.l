@@ -22,3 +22,8 @@
 (send *pr2* :larm :inverse-kinematics *lt*)
 (send *ri* :angle-vector (send *pr2* :angle-vector))
 (send *ri* :wait-interpolation)
+
+(setq *arrow* (arrow))
+(send *arrow* :newcoords (make-coords :pos #f(600 0 1000)))
+(send *pr2* :head :look-at (send *arrow* :worldpos))
+(send *ri* :angle-vector (send *pr2* :angle-vector))
