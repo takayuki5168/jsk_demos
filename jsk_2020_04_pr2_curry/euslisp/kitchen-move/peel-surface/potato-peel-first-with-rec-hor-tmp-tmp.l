@@ -183,6 +183,7 @@
 
   ;; (send *arrow* :translate #f(-10 -15 0) :world)
   (send *arrow* :translate #f(-10 -20 0) :world)
+  ;; (send *arrow* :translate #f(0 -22 0) :world)
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
@@ -287,7 +288,8 @@
   )
 
 (defun peel-test ()
-  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
+  ;; (send *ri* :start-grasp :larm :wait t :gain 0.1)
+  (send *ri* :start-grasp :larm :wait t :gain 0.05)
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 200) :world)
