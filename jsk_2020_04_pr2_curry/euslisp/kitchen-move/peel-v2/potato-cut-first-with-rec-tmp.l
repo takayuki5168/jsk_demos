@@ -43,6 +43,8 @@
 
   ;; def global values
   (setq s-time 3)
+  
+  (setq adj 0)
 
   ;; set potato
   (load "../../model/potato-new-type.l")
@@ -186,6 +188,8 @@
 
   ;;gripperを閉じる
   (send *ri* :start-grasp :larm :wait t)
+
+  (send *ri* :start-grasp :larm :wait t :gain 0.05)
      
   (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   (warn "please run  (set-knife-hor) ~%")
@@ -231,7 +235,11 @@
   ;; 少し上に包丁を
 
   (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
-  (send *arrow* :translate (float-vector 0 0 (* height 1)))  
+  (send *arrow* :translate (float-vector 0 0 (* height 1)))
+
+  ;;調整
+  ;; (send *arrow* :translate #f(0 10 0))
+  (send *arrow* :translate (float-vector 0 adj 0))
 
   ;; 少し上にするために
   (setq offset 10)
@@ -437,6 +445,15 @@
   ;; 左手を少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate #f(0 0 50) :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
