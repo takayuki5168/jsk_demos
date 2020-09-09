@@ -1,23 +1,27 @@
 (defun init ()
-  (load "../../model/my-room73b2-scene.l")
   (if (not (boundp '*room*))
-      (setq *room* (room73b2)))
-
-  (load "models/room73b2-kitchen-object.l")
+      (progn
+        (load "../../model/my-room73b2-scene.l")
+        (setq *room* (room73b2))
+        ))
+    
   (if (not (boundp '*kitchen*))
-      (progn (
-              (setq *kitchen* (room73b2-kitchen))
-              (send *kitchen* :transform (make-coords :pos (float-vector 305.0 2175.0 20.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
-              )))
+      (progn 
+        (load "models/room73b2-kitchen-object.l")
+        (setq *kitchen* (room73b2-kitchen))
+        (send *kitchen* :transform (make-coords :pos (float-vector 305.0 2175.0 20.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+        ))
 
-  (load "package://pr2eus/pr2-interface.l")
   (if (not (boundp '*pr2*))
-      (pr2-init))
+      (progn
+        (load "package://pr2eus/pr2-interface.l")
+        (pr2-init)
+        ))
 
   ;; set まな板
   (load "../../model/cutting-board.l")
   (setq *cutting-board* (cutting-board))
-  (send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 840.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
+  (send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 840.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 
   ;; set objects
   (load "../../model/peeler.l")
