@@ -1,20 +1,24 @@
 (defun init ()
   (load "../../model/my-room73b2-scene.l")
-  (setq *room* (room73b2))
+  (if (not (boundp '*room*))
+      (setq *room* (room73b2)))
 
   (load "models/room73b2-kitchen-object.l")
-  (setq *kitchen* (room73b2-kitchen))
-  (send *kitchen* :transform (make-coords :pos (float-vector 305.0 2175.0 20.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
+  (if (not (boundp '*kitchen*))
+      (progn (
+              (setq *kitchen* (room73b2-kitchen))
+              (send *kitchen* :transform (make-coords :pos (float-vector 305.0 2175.0 20.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+              )))
 
   (load "package://pr2eus/pr2-interface.l")
-  (pr2-init)
-  ;; (pr2)
+  (if (not (boundp '*pr2*))
+      (pr2-init))
 
 
   ;; set まな板
   (load "../../model/cutting-board.l")
   (setq *cutting-board* (cutting-board))
-  (send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 840.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
+  (send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 840.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 
   ;; set objects
   ;; (load "../../model/peeler.l")
@@ -44,6 +48,9 @@
 
   ;; def global values
   (setq s-time 3)
+
+  ;; 調整用
+  (setq adj 10)
 
   ;; set potato
   (load "../../model/potato-new-type.l")
@@ -334,6 +341,11 @@
   ;; (send *arrow* :translate (float-vector 0 0 -50) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
+
+  ;;調整
+  ;; (send *arrow* :translate #f(0 10 0))
+  (send *arrow* :translate (float-vector 0 adj 0))
+
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -408,6 +420,12 @@
   (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
   
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
+
+  ;;調整
+  ;; (send *arrow* :translate #f(0 10 0))
+  (send *arrow* :translate (float-vector 0 adj 0))
+
+  
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -525,7 +543,11 @@
 
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
 
-  ;; 調整
+  ;;調整
+  ;; (send *arrow* :translate #f(0 10 0))
+  (send *arrow* :translate (float-vector 0 adj 0))
+
+  ;; peel-test-2 調整
   (send *arrow* :translate (float-vector 0 10 0))
 
   (send *pr2* :rarm :inverse-kinematics
@@ -646,7 +668,11 @@
 
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
 
-  ;; 調整
+  ;;調整
+  ;; (send *arrow* :translate #f(0 10 0))
+  (send *arrow* :translate (float-vector 0 adj 0))
+
+  ;; peel-test-3 調整
   (send *arrow* :translate (float-vector 0 -10 0))
   
   (send *pr2* :rarm :inverse-kinematics
@@ -860,19 +886,7 @@
   (put-potato-rotate)
   (reset-larm)
   )
-  
-
-(defun now-peel ()
-  ;; (set-potato-peel :w width :l length :h height)
-  (grasp-potato-peel)
-  (set-potato)
-  (set-peeler)
-  (peel-test2)
-  (finish-pose-peel)
-  (put-potato-rotate)
-  (reset-larm)  
-  )
-  
+    
 
 (defun now-peel ()
   ;; (set-potato-peel :w width :l length :h height)

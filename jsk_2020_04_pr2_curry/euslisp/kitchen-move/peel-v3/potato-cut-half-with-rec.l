@@ -1,15 +1,18 @@
 (defun init ()
   (load "../../model/my-room73b2-scene.l")
-  (setq *room* (room73b2))
+  (if (not (boundp '*room*))
+      (setq *room* (room73b2)))
 
   (load "models/room73b2-kitchen-object.l")
-  (setq *kitchen* (room73b2-kitchen))
-  (send *kitchen* :transform (make-coords :pos (float-vector 305.0 2175.0 20.0) :rot #2f((1.0 2.449294e-16 0.0) (-2.449294e-16 1.0 0.0) (0.0 0.0 1.0))))
+  (if (not (boundp '*kitchen*))
+      (progn (
+              (setq *kitchen* (room73b2-kitchen))
+              (send *kitchen* :transform (make-coords :pos (float-vector 305.0 2175.0 20.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+              )))
 
   (load "package://pr2eus/pr2-interface.l")
-  (pr2-init)
-  ;; (pr2)
-
+  (if (not (boundp '*pr2*))
+      (pr2-init))
 
   ;; set まな板
   (load "../../model/cutting-board.l")
@@ -44,6 +47,9 @@
   ;; def global values
   (setq s-time 3)
 
+  ;; 調整用
+  (setq adj 5)
+
   ;; set potato
   (load "../../model/potato-new-type.l")
 
@@ -74,26 +80,27 @@
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
   (when msg
-    (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
-    (setq *dim* (send *bbox* :dimensions))
-    (setq width (* (send *dim* :x) 1000))
-    (setq length (* (send *dim* :y) 1000))
-    (setq height (* (send *dim* :z) 1000))
-    (setq *pose* (send *bbox* :pose))
-    (setq cam->obj-coords (ros::tf-pose->coords *pose*))
-    (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2)))
-
-    (setq obj-coord (send cam-coords :transform cam->obj-coords))
-    ;; 補完して位置を決める
-    (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
-    (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
-    (setq height tmp)
-    
-    (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-    (setq found-obj t)
-    (print (list 'found? found-obj obj-pos))
-    obj-pos))
-
+    (let ((cam-coords nil))
+      (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
+      (setq *dim* (send *bbox* :dimensions))
+      (setq width (* (send *dim* :x) 1000))
+      (setq length (* (send *dim* :y) 1000))
+      (setq height (* (send *dim* :z) 1000))
+      (setq *pose* (send *bbox* :pose))
+      (setq cam->obj-coords (ros::tf-pose->coords *pose*))
+      (when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
+        (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
+                               (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
+      (when cam-coords
+        (setq obj-coord (send cam-coords :transform cam->obj-coords))
+        (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
+        (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
+        (setq height tmp)
+        
+        (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
+        (setq found-obj t)
+        (print (list 'found? found-obj obj-pos)))
+      obj-pos)))
 
 ;; subscribeして認識
 (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
@@ -185,10 +192,25 @@
   (send *ri* :start-grasp :larm :wait t)
      
   (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
-  (warn "please run  (set-knife-hor) ~%")
+  (warn "please run  (grasp-knife-hor) ~%")
   )
 
 (defun set-knife-hor ()
+  (setq *knife* (knife))
+  (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *knife* :translate #f(12 0 0))
+  (send *knife* :rotate (deg2rad 90) :x)
+  (send *pr2* :rarm :end-coords :assoc *knife*)
+
+  (objects (list *kitchen* *pr2* *cutting-board* *potato* *knife*))
+  (send *irtviewer* :look-all
+	(geo::make-bounding-box 
+	 (flatten (send-all (send *pr2* :bodies) :vertices))))
+
+  (warn "please run (cut-test) ~%")
+  )
+
+(defun grasp-knife-hor ()
 
   ;; grasp knife
   (send *ri* :stop-grasp :rarm :wait t)
@@ -430,7 +452,7 @@
 (defun now-devel ()
   ;; (set-potato :w width :l length :h height)
   (grasp-potato)
-  (set-knife-hor)
+  (grasp-knife-hor)
   (cut-test)
   (finish-pose)
   (reset-larm)
@@ -451,7 +473,7 @@
 (defun exec-all ()
   ;; (set-potato :w width :l length :h height)
   (grasp-potato)
-  (set-knife-hor)
+  (grasp-knife-hor)
   (cut-test)
   (finish-pose)
   (reset-larm)
