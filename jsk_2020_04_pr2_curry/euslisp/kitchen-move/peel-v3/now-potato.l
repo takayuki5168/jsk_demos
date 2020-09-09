@@ -9,16 +9,16 @@
 (load "peeler-change.l")
 
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-first-with-rec-tmp.l")
 (now-peel)
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-second-with-rec-tmp.l")
 (now-peel)
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-second-with-rec-tmp.l")
 (now-peel)
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-second-with-rec-tmp.l")
 (now-peel)
 
 
@@ -34,15 +34,15 @@
 (load "peeler-change.l")
 
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-first-with-rec-tmp.l")
 (now-peel)
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-second-with-rec-tmp.l")
 (now-peel)
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-second-with-rec-tmp.l")
 (now-peel)
 ;; 剥く
-(load "potato-peel-ver2-first-with-rec-tmp.l")
+(load "potato-peel-ver3-second-with-rec-tmp.l")
 (now-peel)
 
