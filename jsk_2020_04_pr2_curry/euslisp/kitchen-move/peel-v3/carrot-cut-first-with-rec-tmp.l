@@ -191,7 +191,7 @@
 
   (send *ri* :start-grasp :larm :wait t :gain 0.05)  
  
-  (warn "please run  (set-knife-hor) ~%")
+  (warn "please run  (grasp-knife-hor) ~%")
   )
 
 (defun grasp-knife-hor ()
@@ -202,6 +202,24 @@
   (unix:sleep s-time)
   (send *ri* :start-grasp :rarm :wait t :gain 100)
   
+  (setq *knife* (knife))
+  (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  ;; (send *knife* :translate #f(12 0 0))
+
+  (send *knife* :translate #f(20 0 0))
+
+  (send *knife* :rotate (deg2rad 90) :x)
+  (send *pr2* :rarm :end-coords :assoc *knife*)
+
+  (objects (list *kitchen* *pr2* *cutting-board* *carrot* *knife*))
+  (send *irtviewer* :look-all
+	(geo::make-bounding-box 
+	 (flatten (send-all (send *pr2* :bodies) :vertices))))
+
+  (warn "please run (cut-test) ~%")
+  )
+
+(defun set-knife-hor ()
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   ;; (send *knife* :translate #f(12 0 0))
@@ -590,7 +608,7 @@
 (defun now-devel ()
   ;; (set-carrot :w width :l length :h height)
   (grasp-carrot)
-  (set-knife-hor)
+  (grasp-knife-hor)
   (cut-test)
   (finish-pose)
   (put-carrot)
@@ -603,7 +621,7 @@
 (defun now-test ()
   ;; (set-carrot :w width :l length :h height)
   (grasp-carrot)
-  ;; (set-knife-hor)
+  (set-knife-hor)
   (cut-test)
   (finish-pose)
   (put-carrot)
@@ -615,10 +633,20 @@
 (defun exec-all ()
   ;; (set-carrot :w width :l length :h height)
   (grasp-carrot)
-  (set-knife-hor)
+  (grasp-knife-hor)
   (cut-test)
   (finish-pose)
   (put-carrot)
   (reset-larm)
   (change-peeler)
+  )
+
+(defun now-cut ()
+  ;; (set-potato :w width :l length :h height)
+  (grasp-potato)
+  (set-knife-hor)
+  (cut-test)
+  (finish-pose)
+  (put-potato)
+  (reset-larm)
   )

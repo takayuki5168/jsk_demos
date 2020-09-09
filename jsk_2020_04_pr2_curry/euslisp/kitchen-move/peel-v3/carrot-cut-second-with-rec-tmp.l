@@ -628,7 +628,7 @@
   (finish-pose)
   (put-carrot)
   (reset-larm)
-  (change-peeler)
+  ;; (change-peeler)
   )
 
 
@@ -658,4 +658,17 @@
   (put-carrot)
   (reset-larm)
   (change-peeler)
+  )
+
+(defun now-test ()
+  ;; (set-carrot :w width :l length :h height)
+  (grasp-carrot)
+  (set-carrot)
+  (set-larm)
+  (set-knife-hor)
+  (cut-test)
+  (finish-pose)
+  (put-carrot)
+  (reset-larm)
+  ;; (change-peeler)
   )
