@@ -347,7 +347,7 @@
 
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
 
-
+  
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -518,9 +518,9 @@
   ;;調整
   ;; (send *arrow* :translate #f(0 10 0))
   (send *arrow* :translate (float-vector 0 adj 0))
-
+  
   ;; peel-test-2 調整
-  (send *arrow* :translate (float-vector 0 25 0))
+  (send *arrow* :translate (float-vector 0 10 0))
   
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -550,7 +550,6 @@
   (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
-
 
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -646,7 +645,7 @@
   (send *arrow* :translate (float-vector 0 adj 0))
 
   ;; peel-test-3 調整
-  (send *arrow* :translate (float-vector 0 -25 0))
+  (send *arrow* :translate (float-vector 0 -10 0))
 
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -676,6 +675,7 @@
   (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
+
   
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*

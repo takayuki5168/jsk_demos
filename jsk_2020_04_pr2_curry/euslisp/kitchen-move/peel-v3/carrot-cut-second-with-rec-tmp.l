@@ -268,7 +268,7 @@
 (defun set-larm ()
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
-  (send (send *pr2* :larm :end-coords) :dissoc *potato*)
+  (send (send *pr2* :larm :end-coords) :dissoc *carrot*)
 
   ;; 左手を上げる
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))

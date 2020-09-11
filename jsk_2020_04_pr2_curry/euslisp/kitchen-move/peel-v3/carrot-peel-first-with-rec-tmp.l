@@ -133,9 +133,9 @@
 (setq *arrow* (arrow))
 (send *arrow* :newcoords (send obj-coord :copy-worldcoords))
 
-;; (load "../../model/carrot-test-new-type.l")
-(load "../../model/carrot-ellipsoid-model.l")
-(setq *carrot* (carrot :w  width :l length :h height))
+(load "../../model/carrot-test-new-type.l")
+;; (load "../../model/carrot-ellipsoid-model.l")
+;; (setq *carrot* (carrot :w  width :l length :h height))
 ;; (send *carrot* :newcoords (send obj-coord :copy-worldcoords))
 ;; (send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
 ;; (send *carrot* :rotate (deg2rad 180) :x)
@@ -150,6 +150,7 @@
 (send *carrot* :translate #f(0 0 -7.5) :world)
 (send *carrot* :rotate (deg2rad 180) :x)
 (send *carrot* :rotate (deg2rad -90) :x :world)
+(send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
 
 (send *carrot* :cut)
 
@@ -192,7 +193,7 @@
 
   ;; 人参の掴む所に
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
-  (send *arrow* :translate (float-vector -20 0 0))
+  (send *arrow* :translate (float-vector (- (- 20 (/ width 2)) 20) 0 0))
   (send *arrow* :rotate (deg2rad 70) :y)
 
   (send *arrow* :translate #f(-10 -22 0) :world)
@@ -223,7 +224,7 @@
   (send *ri* :start-grasp :larm :wait t)
   (send (send *pr2* :larm :end-coords) :assoc *carrot*)
 
-  ;; (send *ri* :start-grasp :larm :wait t :gain 0.1)
+  (send *ri* :start-grasp :larm :wait t :gain 0.05)
 
   (warn "please run  (set-carrot) ~%")
   )
@@ -657,13 +658,13 @@
 
 
 (defun now-peel ()
-  ;; (set-potato-peel :w width :l length :h height)
-  (grasp-potato-peel)
-  (set-potato)
+  ;; (set-carrot-peel :w width :l length :h height)
+  (grasp-carrot-peel)
+  (set-carrot)
   (set-peeler)
   (peel-test)
   (finish-pose-peel)
-  (put-potato-rotate)
+  (put-carrot-rotate)
   (reset-larm)
   
   )

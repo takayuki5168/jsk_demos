@@ -52,11 +52,11 @@
   (setq s-time 3)
 
   ;; 調整用
-  (setq adj 5)
+  (setq adj 10)
 
   ;; set carrot
-  ;; (load "../../model/carrot-test-new-type.l")
-  (load "../../model/carrot-ellipsoid-model.l")
+  (load "../../model/carrot-test-new-type.l")
+  ;; (load "../../model/carrot-ellipsoid-model.l")
 
   (setq width 160)
   (setq length 40)
@@ -133,10 +133,11 @@
 (setq *arrow* (arrow))
 (send *arrow* :newcoords (send obj-coord :copy-worldcoords))
 
-;; (load "../../model/carrot-test-new-type.l")
-(load "../../model/carrot-ellipsoid-model.l")
+(load "../../model/carrot-test-new-type.l")
+;; (load "../../model/carrot-ellipsoid-model.l")
 (setq *carrot* (carrot :w  width :l length :h height))
 (send *carrot* :newcoords (send obj-coord :copy-worldcoords))
+(send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
 (send *carrot* :rotate (deg2rad 180) :x)
 (send *carrot* :cut)
 (objects (list *carrot* *pr2* *cutting-board* *kitchen*))
@@ -173,6 +174,9 @@
   
   ;; 人参の掴む所に
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
+
+  (send *arrow* :translate (float-vector (+ (/ width -2) 20) 0 0))
+
   (send *arrow* :rotate (deg2rad 70) :y)
 
   (send *arrow* :translate #f(-10 -20 -10) :world)
@@ -250,7 +254,7 @@
 
 (defun cut-test ()
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(0 0 100) :world)
+  (send *arrow* :translate #f(0 0 150) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis nil
@@ -366,7 +370,7 @@
 
   (setq interval 10)
   (dotimes (i (+ (round (/ height interval)) 1))
-    (send *arrow* :translate (float-vector interval 0 (/ interval -2)))
+    (send *arrow* :translate (float-vector (* interval 2) 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *arrow*
 	  :move-target (car (send *knife* :attention))
@@ -376,9 +380,86 @@
     (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
     (send *ri* :wait-interpolation)
 
-    (send *arrow* :translate (float-vector (* interval -1) 0 (/ interval -2)))
+    (send *arrow* :translate (float-vector (* interval -2) 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *arrow*
+	  :move-target (car (send *knife* :attention))
+	  :rotation-axis t
+	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+
+    )
+  
+  (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
+  )
+
+(defun cut-test-3 ()
+  (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 100) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis nil
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+
+  ;; 少し上に包丁を
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 (* height 1)))
+
+  ;;調整
+  ;; (send *arrow* :translate #f(0 10 0))
+  (send *arrow* :translate (float-vector 0 adj 0))
+
+  ;; 少し上にするために
+  (setq offset 10)
+ 
+  (send *arrow* :translate (float-vector 0 0 offset))  
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+
+  (send *arrow* :translate (float-vector 0 0 (* offset -1)))  
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (setq interval 10)
+  (dotimes (i (+ (round (/ height interval)) 1))
+    (send *arrow* :translate (float-vector (* interval 2) 0 (* interval -1)))
+    (send *pr2* :rarm :inverse-kinematics
+	  *arrow*
+	  :move-target (car (send *knife* :attention))
+	  :rotation-axis t
+	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+
+    (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+    (setq *k-arrow* (arrow))
+    (send *k-arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+    (send *k-arrow* :translate (float-vector (* interval -2) 0 (/ interval 2)))
+    
+    (send *arrow* :translate (float-vector (* interval -2) 0 0))
+
+    (send *pr2* :rarm :inverse-kinematics
+	  *k-arrow*
 	  :move-target (car (send *knife* :attention))
 	  :rotation-axis t
 	  :debug-view t)
@@ -471,7 +552,18 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 100 -100 50) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
 
   ;; set pose
@@ -481,7 +573,7 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
   (send *ri* :wait-interpolation)  
 
   (warn "please run (put-carrot)~%")  
@@ -583,7 +675,7 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
   (send *ri* :wait-interpolation)  
 
   (warn "please run (change-peeler)~&")
