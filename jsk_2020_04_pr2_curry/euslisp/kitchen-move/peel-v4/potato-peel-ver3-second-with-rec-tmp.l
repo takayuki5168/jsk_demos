@@ -929,5 +929,5 @@
   (peel-test-3)
   (finish-pose-peel)
   (put-potato-rotate)
-  (reset-larm)  
+  (avoid-larm)  
   )

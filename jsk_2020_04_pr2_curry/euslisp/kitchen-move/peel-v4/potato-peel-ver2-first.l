@@ -729,6 +729,6 @@
   (peel-test2)
   (finish-pose-peel)
   (put-potato-rotate)
-  (reset-larm)  
+  (avoid-larm)  
   )
   

@@ -742,7 +742,7 @@
 
 
 (defun now-devel ()
-  (set-potato-peel :w width :l length :h height)
+  ;; (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (grasp-peeler)
@@ -762,13 +762,12 @@
   (peel-test)
   (finish-pose-peel)
   (put-potato-rotate)
-  (reset-larm)
-  
+  (reset-larm)  
   )
 
 
 (defun exec-all ()
-  (set-potato-peel :w width :l length :h height)
+  ;; (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (grasp-peeler)
@@ -780,7 +779,7 @@
 
 
 (defun to-peel ()
-  (set-potato-peel :w width :l length :h height)
+  ;; (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
@@ -799,13 +798,13 @@
   
 
 (defun now-peel ()
-  (set-potato-peel :w width :l length :h height)
+  ;; (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
   (peel-test2)
   (finish-pose-peel)
   (put-potato-rotate)
-  (reset-larm)  
+  (avoid-larm)
   )
   

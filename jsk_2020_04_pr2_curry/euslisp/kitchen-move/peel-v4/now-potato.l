@@ -19,7 +19,7 @@
 (now-peel)
 ;; 剥く
 (load "potato-peel-ver3-second-with-rec-tmp.l")
-(now-peel)
+(now-test)
 
 
 ;; 包丁に持ち替える
@@ -44,5 +44,5 @@
 (now-peel)
 ;; 剥く
 (load "potato-peel-ver3-second-with-rec-tmp.l")
-(now-peel)
+(now-test)
 
