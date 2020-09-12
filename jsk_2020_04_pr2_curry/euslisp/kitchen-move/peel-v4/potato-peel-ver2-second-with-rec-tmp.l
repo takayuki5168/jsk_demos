@@ -42,10 +42,16 @@
     (send *pr2* :move-to *kitchen-spot* :world)
     )
   (move-to-kitchen-irt)
-  (send *pr2* :reset-manip-pose)
-  (send *pr2* :torso_lift_joint :joint-angle 325)
+  ;; (send *pr2* :reset-manip-pose)
+  ;; (send *pr2* :torso_lift_joint :joint-angle 325)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  ;; (send *ri* :wait-interpolation)
+  (setq *angle-vector-0* #f(325.0 45.918 -19.9401 104.684 -121.15 -182.857 -72.0687 66.4371 -75.9561 52.4204 -108.237 -109.764 -0.099029 -9.45949 8.91288 0.0 50.0))
+  (send *pr2* :angle-vector *angle-vector-0*)
+  (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+  
 
   (objects (list *pr2* *cutting-board*))
 
@@ -57,9 +63,13 @@
   ;; set potato
   (load "../../model/potato-new-type.l")
 
-  (setq width 90)
+  ;; (setq width 90)
+  ;; (setq length 60)
+  ;; (setq height 60)
+
+  (setq width 60)
   (setq length 60)
-  (setq height 60)
+  (setq height 75)
   )
 
 (init)
@@ -83,7 +93,7 @@
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
   (when msg
-	  (let ((cam-coords nil))
+          (let ((cam-coords nil))
       (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
       (setq *dim* (send *bbox* :dimensions))
       (setq width (* (send *dim* :x) 1000))
@@ -91,9 +101,9 @@
       (setq height (* (send *dim* :z) 1000))
       (setq *pose* (send *bbox* :pose))
       (setq cam->obj-coords (ros::tf-pose->coords *pose*))
-  		(when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
+                (when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
         (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
-  			                       (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
+                                               (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
       (when cam-coords
         (setq obj-coord (send cam-coords :transform cam->obj-coords))
         ;; 補完して位置を決める
@@ -167,35 +177,32 @@
 (warn "please run (grasp-potato-peel) or (now-devel)~%")
 
 (defun grasp-potato-peel ()
-  ;;少し上に
-  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(0 0 250) :world)
-  (send *pr2* :larm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:rotation-axis nil
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
+  ;; ;;少し上に
+  ;; (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  ;; (send *arrow* :translate #f(0 0 250) :world)
+  ;; (send *pr2* :larm :inverse-kinematics
+  ;; 	(send *arrow* :copy-worldcoords)
+  ;; 	:rotation-axis nil
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  ;; (send *ri* :wait-interpolation)
 
-  ;; 左手を少し前に
-  (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
-  (send *arrow* :translate #f(-200 50 50) :world)
-  (send *arrow* :rotate (deg2rad 90) :z :world)
-  (send *pr2* :larm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
+  ;; ;; 左手を少し前に
+  ;; (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
+  ;; (send *arrow* :translate #f(-200 50 50) :world)
+  ;; (send *arrow* :rotate (deg2rad 90) :z :world)
+  ;; (send *pr2* :larm :inverse-kinematics
+  ;; 	(send *arrow* :copy-worldcoords)
+  ;; 	:rotation-axis t
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  ;; (send *ri* :wait-interpolation)
 
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 30) :y)
-
-  ;; (send *arrow* :translate #f(-10 -15 0) :world)
-  (send *arrow* :translate #f(-10 -20 0) :world)
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
@@ -668,9 +675,8 @@
   (send *pr2* :larm :end-coords :dissoc *potato*)
   (send *ri* :stop-grasp :larm :wait t)
 
-  (warn "please run (reset-larm)~&")
+  (warn "please run (reset-larm) or (avoid-larm)~&")
   )
-
 
 (defun reset-larm ()
   ;; 左手を少し上に
@@ -734,21 +740,22 @@
   )
 
 
+
 (defun now-devel ()
-  ;; (set-potato-peel :w width :l length :h height)
+  (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (grasp-peeler)
   (peel-test)
   (finish-pose-peel)
   (put-potato-rotate)
-  (reset-larm)
+  ;; (reset-larm)
   )
 
 
 
 (defun now-test ()
-  ;; (set-potato-peel :w width :l length :h height)
+  (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
@@ -761,7 +768,7 @@
 
 
 (defun exec-all ()
-  ;; (set-potato-peel :w width :l length :h height)
+  (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (grasp-peeler)
@@ -773,7 +780,7 @@
 
 
 (defun to-peel ()
-  ;; (set-potato-peel :w width :l length :h height)
+  (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
@@ -792,7 +799,7 @@
   
 
 (defun now-peel ()
-  ;; (set-potato-peel :w width :l length :h height)
+  (set-potato-peel :w width :l length :h height)
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
