@@ -163,6 +163,9 @@
   ;; (send *arrow* :rotate (deg2rad 30) :y)
   (send *arrow* :rotate (deg2rad 45) :y)
 
+  ;; (send *arrow* :translate #f(-10 -15 0) :world)
+  (send *arrow* :translate #f(-10 -20 0) :world)
+
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
   (send *arrow* :translate #f(0 -100 100) :world)
