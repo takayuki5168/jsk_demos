@@ -97,6 +97,8 @@
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
 
+  (setq interval height)
+  
   (warn "please run (grasp-potato-peel) ~%")
   )
 
@@ -236,7 +238,9 @@
   )
 
 (defun peel-test ()
-  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  (send *pr2* :head :look-at (send (send *pr2* :larm :end-coords) :worldpos))
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 200) :world)
@@ -253,83 +257,9 @@
   (send *arrow* :translate (float-vector 0 0 (* 1 height)) :world)
   (send *arrow* :rotate (deg2rad 60) :y)
   (send *arrow* :translate (float-vector 0 100 100) :world)
-
-  (send *pr2* :rarm :inverse-kinematics
-	*arrow*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  (send *arrow* :translate (float-vector 0 -100 -100) :world)
-  (send *pr2* :rarm :inverse-kinematics
-	*arrow*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  ;; 皮剥き始める所
-
-  (send *arrow* :translate (float-vector 0 0 -40) :world)
-  ;; (send *arrow* :translate (float-vector 0 0 -60) :world)
-  ;; (send *arrow* :translate (float-vector 0 0 -50) :world)
-
-  ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
 
   ;;調整
-  ;; (send *arrow* :translate #f(0 10 0))
   (send *arrow* :translate (float-vector 0 adj 0))
-  
-  (send *pr2* :rarm :inverse-kinematics
-	*arrow*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  ;; 剥き終わり
-  (send *arrow* :rotate (deg2rad -30) :y)
-  (send *arrow* :translate (float-vector (* (+ width 20) -1) 0 0) )
-  (send *arrow* :rotate (deg2rad 30) :y)
-
-  (send *pr2* :rarm :inverse-kinematics
-	*arrow*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
-  (warn "you can retry (peel-test) or (finish-pose-peel)~%")
-  (warn "you can retry (set-peel-2)~%")
-  )
-
-(defun peel-test2 ()
-  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
-
-  (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(0 0 200) :world)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:rotation-axis nil
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-    
-  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :z)
-  (send *arrow* :translate (float-vector 0 0 (* 1 height)) :world)
-  (send *arrow* :rotate (deg2rad 60) :y)
-  (send *arrow* :translate (float-vector 0 100 100) :world)
 
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -351,19 +281,15 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
+  (send *arrow* :translate (float-vector 0 0 (* -1 interval)) :world)
+
+  ;; (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 -40) :world)
   ;; (send *arrow* :translate (float-vector 0 0 -60) :world)
   ;; (send *arrow* :translate (float-vector 0 0 -50) :world)
 
-  (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
-  
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
-
-  ;;調整
-  ;; (send *arrow* :translate #f(0 10 0))
-  (send *arrow* :translate (float-vector 0 adj 0))
-  
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -432,7 +358,9 @@
   )
 
 (defun peel-test-2 ()
-  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  (send *pr2* :head :look-at (send (send *pr2* :larm :end-coords) :worldpos))
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 200) :world)
@@ -451,7 +379,12 @@
   (send *arrow* :rotate (deg2rad 60) :y)
   (send *arrow* :translate (float-vector 0 100 100) :world)
 
-  
+  ;;調整
+  (send *arrow* :translate (float-vector 0 adj 0))
+
+  ;; peel-test-2 調整
+  (send *arrow* :translate (float-vector 0 25 0))
+
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -472,22 +405,15 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
+  (send *arrow* :translate (float-vector 0 0 (* -1 interval)) :world)
+
+  ;; (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 -40) :world)
   ;; (send *arrow* :translate (float-vector 0 0 -60) :world)
   ;; (send *arrow* :translate (float-vector 0 0 -50) :world)
 
-  (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
-
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
-
-  ;;調整
-  ;; (send *arrow* :translate #f(0 10 0))
-  (send *arrow* :translate (float-vector 0 adj 0))
-  
-  ;; peel-test-2 調整
-  (send *arrow* :translate (float-vector 0 10 0))
-
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -556,7 +482,9 @@
   )
 
 (defun peel-test-3 ()
-  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  (send *pr2* :head :look-at (send (send *pr2* :larm :end-coords) :worldpos))
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 200) :world)
@@ -576,6 +504,12 @@
   (send *arrow* :translate (float-vector 0 0 (* 1 height)) :world)
   (send *arrow* :rotate (deg2rad 60) :y)
   (send *arrow* :translate (float-vector 0 100 100) :world)
+
+  ;;調整
+  (send *arrow* :translate (float-vector 0 adj 0))
+
+  ;; peel-test-3 調整
+  (send *arrow* :translate (float-vector 0 -25 0))
 
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
@@ -597,22 +531,15 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
+  (send *arrow* :translate (float-vector 0 0 (* -1 interval)) :world)
+
+  ;; (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 -40) :world)
   ;; (send *arrow* :translate (float-vector 0 0 -60) :world)
   ;; (send *arrow* :translate (float-vector 0 0 -50) :world)
 
-  (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
-
   ;; (send *arrow* :translate (float-vector 0 0 (- (* -1 height) 20)) :world)
-
-  ;;調整
-  ;; (send *arrow* :translate #f(0 10 0))
-  (send *arrow* :translate (float-vector 0 adj 0))
-
-  ;; peel-test-3 調整
-  (send *arrow* :translate (float-vector 0 -10 0))
-  
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -781,7 +708,7 @@
   (grasp-potato-peel)
   (set-potato)
   (grasp-peeler)
-  (peel-test2)
+  (peel-test)
   (set-peel-2)
   (peel-test-2)
   (set-peel-3)
@@ -798,7 +725,7 @@
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
-  (peel-test2)
+  (peel-test)
   (set-peel-2)
   (peel-test-2)
   (set-peel-3)
@@ -814,7 +741,7 @@
   (grasp-potato-peel)
   (set-potato)
   (grasp-peeler)
-  (peel-test2)
+  (peel-test)
   (set-peel-2)
   (peel-test-2)
   (set-peel-3)
@@ -830,8 +757,7 @@
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
-  ;; (peel-test)
-  (peel-test2)
+  (peel-test)
 
   (warn "please run (from-peel)~&")
   )
@@ -848,7 +774,7 @@
   (grasp-potato-peel)
   (set-potato)
   (set-peeler)
-  (peel-test2)
+  (peel-test)
   (set-peel-2)
   (peel-test-2)
   (set-peel-3)

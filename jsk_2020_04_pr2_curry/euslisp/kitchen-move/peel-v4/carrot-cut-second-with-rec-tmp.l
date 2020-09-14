@@ -64,6 +64,7 @@
 
 (init)
 
+
 ;; トピックなどを定義
 (defvar *topic-name* "/segmentation_decomposer/boxes")
 
@@ -160,7 +161,6 @@
 (send *irtviewer* :draw-objects)
 
 (warn "please run (grasp-carrot) or (now-devel)~%")
-
 
 (defun grasp-carrot ()
   ;;少し上に
@@ -283,7 +283,15 @@
 
   (send *arrow* :rotate (deg2rad -70) :y)
   (send *arrow* :rotate (deg2rad 180) :z :world)
+  (send *arrow* :translate #f(-30 0 0))
   (send *arrow* :rotate (deg2rad 70) :y)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
 
   (send *arrow* :translate #f(0 0 -100) :world)
   (send *pr2* :larm :inverse-kinematics
@@ -636,7 +644,7 @@
   )
 
 (defun now-devel ()
-  ;; (set-carrot :w width :l length :h height)
+  (set-carrot-cut :w width :l length :h height)
   (grasp-carrot)
   (set-carrot)
   (set-larm)
@@ -651,7 +659,7 @@
 
 
 (defun now-test ()
-  ;; (set-carrot :w width :l length :h height)
+  (set-carrot-cut :w width :l length :h height)
   (grasp-carrot)
   (set-carrot)
   (set-larm)
@@ -665,7 +673,7 @@
 
 
 (defun exec-all ()
-  ;; (set-carrot :w width :l length :h height)
+  (set-carrot-cut :w width :l length :h height)
   (grasp-carrot)
   (set-carrot)
   (set-larm)
@@ -678,7 +686,7 @@
   )
 
 (defun now-test ()
-  ;; (set-carrot :w width :l length :h height)
+  (set-carrot-cut :w width :l length :h height)
   (grasp-carrot)
   (set-carrot)
   (set-larm)
