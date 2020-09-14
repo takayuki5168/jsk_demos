@@ -45,6 +45,8 @@
   ;; def global values
   (setq s-time 3)
 
+  (setq adj 10)
+
   ;; set potato
   (load "../../model/potato-new-type.l")
 
@@ -132,6 +134,8 @@
       (geo::make-bounding-box 
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 (send *irtviewer* :draw-objects)
+
+(setq interval height)
 
 (warn "please run (grasp-potato-peel) or (now-devel)~%")
 
@@ -264,7 +268,7 @@
   )
 
 (defun peel-test ()
-  ;; (send *ri* :start-grasp :larm :wait t :gain 1)
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
   ;; 右手を上げる
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
@@ -290,6 +294,9 @@
   ;; (send *arrow* :rotate (deg2rad 60) :y)
   ;; (send *arrow* :translate (float-vector 0 100 100) :world)
 
+  ;;調整
+  (send *arrow* :translate (float-vector 0 adj 0))
+
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *peeler* :attention))
@@ -310,7 +317,9 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
-  (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
+  (send *arrow* :translate (float-vector 0 0 (* -1 interval)) :world)
+
+  ;; (send *arrow* :translate (float-vector 0 0 (* -1 height)) :world)
 
   ;; (send *arrow* :translate (float-vector 0 0 -40) :world)
   ;; (send *arrow* :translate (float-vector 0 0 -60) :world)
