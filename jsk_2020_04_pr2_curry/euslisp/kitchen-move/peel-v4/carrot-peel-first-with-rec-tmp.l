@@ -52,7 +52,7 @@
   (setq s-time 3)
 
   ;; 調整用
-  (setq adj 10)
+  (setq adj 0)
 
   ;; set carrot
   (load "../../model/carrot-test-new-type.l")
@@ -198,7 +198,9 @@
   (send *arrow* :translate (float-vector (- (- 20 (/ width 2)) 20) 0 0))
   (send *arrow* :rotate (deg2rad 70) :y)
 
-  (send *arrow* :translate #f(-10 -22 0) :world)
+  ;; (send *arrow* :translate #f(-10 -22 0) :world)
+  ;; (send *arrow* :translate #f(10 -15 0) :world) 
+  (send *arrow* :translate #f(15 -15 -15) :world) 
 
 
   ;;gripperを開く
@@ -592,7 +594,7 @@
 
 
 (defun now-peel ()
-  (set-carrot-peel :w width :l length :h height)
+  ;; (set-carrot-peel :w width :l length :h height)
   (grasp-carrot-peel)
   (set-carrot)
   (set-peeler)
