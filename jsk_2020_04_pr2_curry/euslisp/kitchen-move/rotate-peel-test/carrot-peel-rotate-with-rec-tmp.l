@@ -46,12 +46,13 @@
   ;; (setq adj 10)
   (setq adj 0)
 
-  (setq adj2 60)
+  (setq adj2 0)
 
   ;; set carrot
   (load "../../model/carrot-ellipsoid-model.l")
+  ;; (load "../../model/carrot-test-new-type.l")
 
-  (setq width 160)
+  (setq width 150)
   (setq length 40)
   (setq height 40)
   )
@@ -78,24 +79,27 @@
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
   (when msg
-    (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
-    (setq *dim* (send *bbox* :dimensions))
-    (setq width (* (send *dim* :x) 1000))
-    (setq length (* (send *dim* :y) 1000))
-    (setq height (* (send *dim* :z) 1000))
-    (setq *pose* (send *bbox* :pose))
-    (setq cam->obj-coords (ros::tf-pose->coords *pose*))
-    (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2)))
-
-    (setq obj-coord (send cam-coords :transform cam->obj-coords))
-    (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
-    (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
-    (setq height tmp)
-    
-    (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-    (setq found-obj t)
-    (print (list 'found? found-obj obj-pos))
-    obj-pos))
+    (let ((cam-coords nil))
+      (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
+      (setq *dim* (send *bbox* :dimensions))
+      (setq width (* (send *dim* :x) 1000))
+      (setq length (* (send *dim* :y) 1000))
+      (setq height (* (send *dim* :z) 1000))
+      (setq *pose* (send *bbox* :pose))
+      (setq cam->obj-coords (ros::tf-pose->coords *pose*))
+      (when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
+        (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
+                               (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
+      (when cam-coords
+        (setq obj-coord (send cam-coords :transform cam->obj-coords))
+        (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
+        (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
+        (setq height tmp)
+        
+        (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
+        (setq found-obj t)
+        (print (list 'found? found-obj obj-pos)))
+      obj-pos)))
 
 
 ;; subscribeして認識
@@ -127,9 +131,9 @@
 (load "../../model/carrot-test-new-type.l")
 (setq *carrot* (carrot :w  width :l length :h height))
 (send *carrot* :newcoords (send obj-coord :copy-worldcoords))
-(send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
+;; (send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
 (send *carrot* :rotate (deg2rad 180) :x)
-(send *carrot* :cut)
+;; (send *carrot* :cut)
 (objects (list *carrot* *pr2* *cutting-board* *kitchen*))
 (send *irtviewer* :look-all
       (geo::make-bounding-box 
@@ -165,9 +169,9 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-  ;; 人参の掴む所に
+c  ;; 人参の掴む所に
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
-  (send *arrow* :translate (float-vector (+ (/ width -2) 20) 0 0))
+  ;; (send *arrow* :translate (float-vector (+ (/ width -2) 20) 0 0))
   (send *arrow* :translate #f(-20 0 0))
   ;; (send *arrow* :rotate (deg2rad 30) :y)
   (send *arrow* :rotate (deg2rad 45) :y)
