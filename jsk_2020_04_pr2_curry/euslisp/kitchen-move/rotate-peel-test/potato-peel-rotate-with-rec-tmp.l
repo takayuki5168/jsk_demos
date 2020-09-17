@@ -45,7 +45,7 @@
   ;; def global values
   (setq s-time 3)
 
-  (setq adj 10)
+  (setq adj 0)
 
   ;; set potato
   (load "../../model/potato-new-type.l")
@@ -172,7 +172,7 @@
   (send *arrow* :rotate (deg2rad 45) :y)
 
   ;; (send *arrow* :translate #f(-10 -15 0) :world)
-  (send *arrow* :translate #f(-10 -20 0) :world)
+  (send *arrow* :translate #f(20 5 -10) :world)
   
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
