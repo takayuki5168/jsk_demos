@@ -65,6 +65,24 @@
 (init)
 
 
+;;;; WIP!!!!!
+
+;; トピックなどを定義
+(defvar *topic-name* "/right_endeffector/wrench")
+
+;; ros init
+(ros::roseus "wrench_listener" :anonymous t)
+(ros::load-ros-manifest "geometry_msgs")
+(setq *cb-flag* nil)
+
+
+(defun wrench-cb (msg)
+  (setq *msg* msg)
+  
+  )
+
+
+
 
 (warn "please run (set-potato :w 90 :l 60 :h 60) or (now-devel)~%")
 
