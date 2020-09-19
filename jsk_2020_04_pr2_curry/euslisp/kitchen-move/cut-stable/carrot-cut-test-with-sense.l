@@ -65,6 +65,39 @@
 
 (init)
 
+;; トピックなどを定義
+(defvar *topic-name* "/right_endeffector/wrench")
+
+;; ros init
+(ros::roseus "wrench_listener" :anonymous t)
+(ros::load-ros-manifest "geometry_msgs")
+(setq *cb-flag* nil)
+
+
+(defun wrench-y-cb (msg)
+  (when msg
+    (let ((y nil))
+      (setq y (send msg :wrench :force :y))
+      (if (< y -15)
+	  (progn 
+	    (setq *cb-flag* t)
+	    (format t "OK!! ~A ~%" y)
+	    )
+	(format t "~A ~%" y))
+      )))
+
+(defun wrench-z-cb (msg)
+  (when msg
+    (let ((z nil))
+      (setq z (send msg :wrench :force :z))
+      (if (< z -1)
+          (progn 
+            (setq *cb-flag* t)
+            (format t "OK!! z: ~A ~%" z)
+            )
+        (format t "z: ~A ~%" z))
+      )))
+
 (warn "please run (set-carrot :w 160 :l 40 :h 40) or (now-devel)~%")
 
 (defun set-carrot (&rest args &key (w 160) (l 40) (h 40) &allow-other-keys)
