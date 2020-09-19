@@ -78,7 +78,7 @@
   (when msg
     (let ((y nil))
       (setq y (send msg :wrench :force :y))
-      (if (< y -15)
+      (if (< y -10)
 	  (progn 
 	    (setq *cb-flag* t)
 	    (format t "OK!! ~A ~%" y)
@@ -388,13 +388,14 @@
 (setq adj2 5)
 
 (defun slide-knife ()
-  (send *pr2* :angle-vector (send *ri* :state :angle-vector))
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
   ;; 1cm上げる
   (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 adj2) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
+	:move-target (car (send *knife* :attention))
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
@@ -526,7 +527,7 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   
   ;; set pose
@@ -536,7 +537,7 @@
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
   (send *ri* :wait-interpolation)
 
   (warn "please run (reset-larm)~%")  

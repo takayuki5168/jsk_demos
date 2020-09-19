@@ -43,8 +43,8 @@
   ;; def global values
   (setq s-time 3)
 
-  ;; (setq adj 10)
-  (setq adj 0)
+  (setq adj 10)
+  ;; (setq adj 0)
 
   (setq adj2 0)
 
@@ -144,6 +144,8 @@
 (setq interval height)
 
 
+(setq *y-thre* -12)
+
 ;; add for sense
 (ros::load-ros-manifest "geometry_msgs")
 (setq *cb-flag* nil)
@@ -151,7 +153,7 @@
   (when msg
     (let ((y nil))
       (setq y (send msg :wrench :force :y))
-      (if (< y -10)
+      (if (< y *y-thre*)
           (progn 
             (setq *cb-flag* t)
             (format t "OK!! y: ~A ~%" y)
@@ -194,7 +196,8 @@
   (send *arrow* :rotate (deg2rad 45) :y)
 
   ;; (send *arrow* :translate #f(-10 -15 0) :world)
-  (send *arrow* :translate #f(20 -15 -20) :world)
+  ;; (send *arrow* :translate #f(20 -15 -20) :world)
+  (send *arrow* :translate #f(-10 -15 -10) :world)
 
   ;; (send *carrot* :translate #f(20 -15 -20) :world)
   
@@ -351,7 +354,7 @@
   (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
 
   (until *cb-flag*
-    (send *arrow* :translate (float-vector 0 0 (* 10 -1)))
+    (send *arrow* :translate (float-vector 0 0 (* 10 -1)) :world)
     (send *pr2* :rarm :inverse-kinematics
   	  *arrow*
 	  :move-target (car (send *peeler* :attention))
@@ -384,7 +387,7 @@
 
 (defun touch-test ()
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-  (send *pr2* :head :look-at (send (send *pr2* :larm :end-coords) :worldpos))
+  (send *pr2* :head :look-at (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos))
   (send *ri* :angle-vector (send *pr2* :angle-vector))
 
   ;; 右手を上げる
@@ -400,7 +403,7 @@
 
   ;; 剥く位置
   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(0 20 0) :world)
+  (send *arrow* :translate #f(0 15 0) :world)
   (send *arrow* :rotate (deg2rad -90) :z :world)
 
   (send *arrow* :translate (float-vector 0 0 (* 1 height)) :world)
@@ -437,7 +440,7 @@
   (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
 
   (until *cb-flag*
-    (send *arrow* :translate (float-vector 0 0 (* 10 -1)))
+    (send *arrow* :translate (float-vector 0 0 (* 10 -1)) :world)
     (send *pr2* :rarm :inverse-kinematics
   	  *arrow*
 	  :move-target (car (send *peeler* :attention))

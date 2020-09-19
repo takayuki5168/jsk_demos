@@ -86,6 +86,18 @@
 	(format t "~A ~%" y))
       )))
 
+(defun wrench-y-cb-2 (msg)
+  (when msg
+    (let ((y nil))
+      (setq y (send msg :wrench :force :y))
+      (if (> y -10)
+	  (progn 
+	    (setq *cb-flag* t)
+	    (format t "OK!! ~A ~%" y)
+	    )
+	(format t "~A ~%" y))
+      )))
+
 (defun wrench-z-cb (msg)
   (when msg
     (let ((z nil))
@@ -200,7 +212,7 @@
 	(geo::make-bounding-box 
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
 
-  (warn "please run (cut-test) ~%")
+  (warn "please run (touch-test) ~%")
   )
 
 (defun set-knife-hor ()
@@ -222,9 +234,7 @@
   )
 
 (defun touch-test ()
-  (if (not (boundp '*potato*))
-      (set-potato :w width :l length :h height))
-
+  
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -293,21 +303,51 @@
 
   
   (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
-  (warn "please run (slide-knife) ~%")
+  ;; (warn "please run (slide-knife) ~%")
+  (warn "please run (up-knife) ~%")
+  )
+
+(defun up-knife ()
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (setq interval 5)
+
+  (setq *cb-flag* nil)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb-2)
+    
+  (until *cb-flag*
+    (print 4)
+    (send *arrow* :translate (float-vector 0 0 (* interval 1)))
+    (send *pr2* :rarm :inverse-kinematics
+  	  *arrow*
+  	  :move-target (car (send *knife* :attention))
+  	  :rotation-axis t
+  	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    
+    (ros::spin-once)
+    (ros::sleep)
+    )
+
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  (warn "please run (slide-knife) ~%")  
   )
 
 
 
-(setq adj2 1)
+(setq adj2 15)
 
 (defun slide-knife ()
-  (send *pr2* :angle-vector (send *ri* :state :angle-vector))
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
   ;; 1cm上げる
   (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 adj2) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
+	:move-target (car (send *knife* :attention))
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
@@ -351,13 +391,16 @@
 
 
 (defun cut-all ()
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  ;; 薄切りする間隔
   (setq tmp 15)
   
   (setq acc-y (elt (send (send (car (send *knife* :attention)) :copy-worldcoords) :worldpos) 1))
   (setq now-y (elt (send (send *cut-point-1* :copy-worldcoords) :worldpos) 1))
   (setq adj (- now-y acc-y))
 
-  (setq l-y (elt (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos) 1))
+  (setq l-y (+ (elt (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos) 1) 15))
   (setq length (- acc-y l-y))
 
   (dotimes (i (round (/ length tmp)))
