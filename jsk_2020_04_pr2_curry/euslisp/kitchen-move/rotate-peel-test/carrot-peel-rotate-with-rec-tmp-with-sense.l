@@ -151,7 +151,7 @@
   (when msg
     (let ((y nil))
       (setq y (send msg :wrench :force :y))
-      (if (< y -15)
+      (if (< y -10)
           (progn 
             (setq *cb-flag* t)
             (format t "OK!! y: ~A ~%" y)
