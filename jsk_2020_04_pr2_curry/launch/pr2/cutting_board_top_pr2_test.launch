@@ -1,7 +1,7 @@
 <launch>
   
   
-  <arg name="INPUT" value="/kinect_head/depth_registered/throttled/points" />
+  <arg name="INPUT" default="/kinect_head/depth_registered/throttled/points" />
 
   <arg name="manager" default="rosbag_play_nodelet_manager" />
   <arg name="launch_nodelet_manager" default="true" />
