@@ -9,11 +9,12 @@ def talker():
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         b = BoundingBoxArray()
-        b.header.frame_id  = "head_mount_kinect_rgb_optical_frame"
+        b.header.frame_id  = "/head_mount_kinect_rgb_optical_frame"
         b.header.stamp = rospy.get_rostime()
         b1 = BoundingBox()
-        b1.header.frame_id  = "head_mount_kinect_rgb_optical_frame"
-        b1.header.stamp = rospy.get_rostime()
+        # b1.header.frame_id  = "/head_mount_kinect_rgb_optical_frame"
+        # b1.header.stamp = rospy.get_rostime()
+        b1.header = b.header
         b1.pose.position.x = 0.1
         b1.pose.position.y = 0.1
         b1.pose.position.z = 0.1
