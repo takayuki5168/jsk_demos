@@ -193,7 +193,7 @@
 
   ;; (send *arrow* :translate #f(-10 -15 0) :world)
   ;; (send *arrow* :translate #f(20 5 -10) :world)
-  (send *arrow* :translate #f(-10 -5 -5) :world)
+  (send *arrow* :translate #f(-10 -15 -5) :world)
   
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)

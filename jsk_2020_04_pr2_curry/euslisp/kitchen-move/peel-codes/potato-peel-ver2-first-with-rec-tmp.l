@@ -196,7 +196,8 @@
   (send *arrow* :rotate (deg2rad 30) :y)
 
   ;; (send *arrow* :translate #f(-10 -15 0) :world)
-  (send *arrow* :translate #f(20 -10 -10) :world)
+  ;; (send *arrow* :translate #f(-10 -15 -5) :world)
+  (send *arrow* :translate #f(-10 -15 -3) :world)
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)

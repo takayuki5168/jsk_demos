@@ -139,7 +139,7 @@
 (send *carrot* :newcoords (send obj-coord :copy-worldcoords))
 (send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
 (send *carrot* :rotate (deg2rad 180) :x)
-;; (send *carrot* :cut)
+(send *carrot* :cut)
 (objects (list *carrot* *pr2* *cutting-board* *kitchen*))
 (send *irtviewer* :look-all
       (geo::make-bounding-box 
@@ -175,7 +175,7 @@
   (when msg
     (let ((y nil))
       (setq y (send msg :wrench :force :y))
-      (if (> y -6)
+      (if (> y 0)
 	  (progn 
 	    (setq *cb-flag* t)
 	    (format t "OK!! ~A ~%" y)
@@ -347,6 +347,7 @@
 
   (setq interval 10)
 
+  (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
   (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
     
