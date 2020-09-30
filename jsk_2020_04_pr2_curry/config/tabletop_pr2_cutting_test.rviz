@@ -8,7 +8,7 @@ Panels:
         - /Status1
         - /TF1/Frames1
         - /Kinect PointCloud1
-        - /TabletopObjectsInteractiveMarkers1
+        - /Tabletop Objects1
       Splitter Ratio: 0.5
     Tree Height: 698
   - Class: rviz/Selection
@@ -102,7 +102,7 @@ Visualization Manager:
     - Class: jsk_rviz_plugin/BoundingBoxArray
       Enabled: true
       Name: Tabletop Objects
-      Topic: /cutting_board/segmentation_decomposer/boxes
+      Topic: /segmentation_decomposer/boxes
       Unreliable: false
       Value: true
       alpha: 0.800000011920929
@@ -116,7 +116,7 @@ Visualization Manager:
       Color: 25; 255; 0
       Enabled: true
       Name: Tables
-      Topic: /cutting_board/multi_plane_estimate/output_refined_polygon
+      Topic: /multi_plane_estimate/output_refined_polygon
       Unreliable: false
       Value: true
       coloring: Auto
@@ -131,7 +131,7 @@ Visualization Manager:
       Show Axes: false
       Show Descriptions: true
       Show Visual Aids: false
-      Update Topic: /cutting_board/bounding_box_interactive_marker/update
+      Update Topic: /bounding_box_interactive_marker/update
       Value: true
     - Align Bottom: false
       Background Alpha: 0.800000011920929
