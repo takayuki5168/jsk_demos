@@ -94,7 +94,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Points
-      Topic: /kinect_head_remote/depth_registered/points
+      Topic: /kinect_head/depth_registered/throttled/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
