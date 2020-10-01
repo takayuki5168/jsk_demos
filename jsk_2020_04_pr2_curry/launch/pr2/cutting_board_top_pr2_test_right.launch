@@ -76,6 +76,7 @@
   </node>
 
 
+  <!-- tabletop object detector -->
   <group ns="cutting_board_right">
     <!-- tabletop object detection -->
     <node name="input_relay" pkg="nodelet" type="nodelet"

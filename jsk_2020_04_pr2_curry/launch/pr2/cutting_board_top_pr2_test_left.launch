@@ -1,7 +1,7 @@
 <launch>
   <machine name="localhost" address="localhost" />
 
-  <arg name="manager" default="pr2_cutting_board_nodelet_manager" />
+  <arg name="manager" default="pr2_cutting_board_left_nodelet_manager" />
   <arg name="rosbag" default="false" />
 
   <arg name="run_decompress" value="false" if="$(arg rosbag)" />
@@ -82,8 +82,7 @@
     <node name="input_relay" pkg="nodelet" type="nodelet"
           args="load jsk_topic_tools/Relay /$(arg manager)"
           machine="$(arg machine)">
-      <!-- <remap from="~input" to="$(arg input)" /> -->
-      <remap from="~input" to="/extract_indices_left/output" />
+      <remap from="~input" to="$(arg input)" />
     </node>
     <node name="multi_plane_estimate" pkg="nodelet" type="nodelet"
           args="load jsk_pcl/OrganizedMultiPlaneSegmentation /$(arg manager)"
@@ -113,8 +112,8 @@
       <rosparam subst_value="true">
         use_sensor_frame: true
         sensor_frame: $(arg sensor_frame)
-        <!-- min_height: 0.03 -->
-        min_height: 0.01
+        min_height: 0.03
+        <!-- min_height: 0.01 -->
       </rosparam>
     </node>
     <node name="euclidean_clustering" pkg="nodelet" type="nodelet"
