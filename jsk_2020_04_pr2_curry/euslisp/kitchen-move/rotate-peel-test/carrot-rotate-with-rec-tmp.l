@@ -165,7 +165,6 @@
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 90) :y)
 
-  ;; (send *arrow* :translate #f(-10 -15 0) :world)
   (send *arrow* :translate #f(-10 -20 0) :world)
 
   ;;gripperを開く
