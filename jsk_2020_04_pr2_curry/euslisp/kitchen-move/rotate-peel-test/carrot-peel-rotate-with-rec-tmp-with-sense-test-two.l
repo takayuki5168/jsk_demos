@@ -150,7 +150,7 @@
 (setq *y-thre* -12)
 
 ;; add for sense
-(setq *topic-name* "/segmentation_decomposer/boxes")
+(setq *topic-name* "/right_endeffector/wrench")
 (ros::load-ros-manifest "geometry_msgs")
 (setq *cb-flag* nil)
 (defun wrench-y-cb (msg)
@@ -195,16 +195,12 @@
   ;; 人参の掴む所に
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
   ;; (send *arrow* :translate (float-vector (+ (/ width -2) 20) 0 0))
-  (send *arrow* :translate #f(-20 0 0))
+  ;; (send *arrow* :translate #f(-20 0 0))
+  (send *arrow* :translate #f(-30 0 0))
   (send *arrow* :rotate (deg2rad 45) :y)
 
-  ;; (send *arrow* :translate #f(-10 -15 0) :world)
-  ;; (send *arrow* :translate #f(20 -15 -20) :world)
-  (send *arrow* :translate #f(-10 -15 -10) :world)
-
-  ;; (send *carrot* :translate #f(20 -15 -20) :world)
+  (send *arrow* :translate #f(-10 -15 -5) :world)
   
-
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
   (send *arrow* :translate #f(0 -100 100) :world)
@@ -520,7 +516,7 @@
   ;; 皮剥き始める所
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
-  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
 
   ;; arm が接触するか、一定距離動かす
   (send *c* :translate (float-vector 0 0 (- (* height -1) 10)) :world)
@@ -544,7 +540,8 @@
       (return-from touch-test-2 t))
     )
 
-
+  (warn "it will be never seen! ~%")
+  
   ;; (until *cb-flag*
   ;;   (send *c* :translate (float-vector 0 0 (* 10 -1)) :world)
   ;;   (send *pr2* :rarm :inverse-kinematics
@@ -619,7 +616,7 @@
   ;; 皮剥き始める所
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
-  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
 
   ;; arm が接触するか、一定距離動かす
   (send *c* :translate (float-vector 0 0 (- (* height -1) 10)) :world)

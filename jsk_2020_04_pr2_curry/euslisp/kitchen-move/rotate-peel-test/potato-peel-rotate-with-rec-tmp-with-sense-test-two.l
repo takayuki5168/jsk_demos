@@ -147,7 +147,7 @@
 (setq *y-thre* -12)
 
 ;; add for sense
-(setq *topic-name* "/segmentation_decomposer/boxes")
+(setq *topic-name* "/right_endeffector/wrench")
 (ros::load-ros-manifest "geometry_msgs")
 (setq *cb-flag* nil)
 (defun wrench-y-cb (msg)
@@ -349,7 +349,7 @@
   ;; 皮剥き始める所
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
-  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
   
   (until *cb-flag*
     (send *c* :translate (float-vector 0 0 (* 10 -1)) :world)
@@ -440,7 +440,7 @@
   ;; 皮剥き始める所
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
-  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
 
   ;; arm が接触するか、一定距離動かす
   (send *c* :translate (float-vector 0 0 (- (* height -1) 10)) :world)
