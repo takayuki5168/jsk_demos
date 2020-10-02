@@ -69,6 +69,37 @@ python3 trimesh_test.py ../pcd/iemon/iemon_only.pcd ../stl/iemon_auto.stl
 ```
 出来たSTLファイルを[jsk_model_tools](https://github.com/jsk-ros-pkg/jsk_model_tools#convert-from-cad-manually)を使ってeusモデルに変換する。
 
+##### 点群からモデルを作るを試すやつ
+```
+roslaunch jsk_2020_04_chahakobi table_can.launch
+
+roslaunch jsk_2020_04_chahakobi make_model_auto.launch
+# roslaunch jsk_2020_04_chahakobi make_model_self_filter.launch 
+```
+を立てて置く。
+```
+roslaunch jsk_2020_04_chahakobi ptcloud2pcd_debug_iemon.launch
+```
+でdebug中のポイントクラウドを保存して、
+```
+roslaunch jsk_2020_04_chahakobi ptcloud2pcd_iemon_auto.launch
+```
+で完成したポイントクラウドを保存する。途中で切り替えるか一緒にlaunchを立てる必要がある。
+
+###### 片手
+```
+roscd jsk_2020_04_chahakobi/euslisp/make-models/
+rlwrap roseus iemon-model-left.l
+```
+
+###### 両手
+```
+roscd jsk_2020_04_chahakobi/euslisp/make-models/
+rlwrap roseus iemon-model-dual.l
+```
+
+
+
 ## デモの流れ
 
 - コンロまで行く (go-to-cook)

@@ -40,6 +40,10 @@
 (send *axis* :move-to (send *iemon* :worldcoords) :world)
 (send *axis* :translate #f(-80 0 30) :world)
 
+(setq s-time 3)
+
+(warn "please run (grasp) ~%")
+
 (defun grasp ()
   (send *axis* :move-to (send *iemon* :worldcoords) :world)
   (send *axis* :translate #f(-80 0 40) :world)
@@ -65,6 +69,9 @@
 	:debug-view t)
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
+
+  (send *ri* :speak-jp "物体を握らせて下さい")
+  (unix:sleep s-time)
   
   (send *ri* :start-grasp :larm :wait t)
   (unix:sleep 2)
@@ -199,48 +206,6 @@
   )
 
 
-;; (defun motikae ()
-;;   (send *axis* :newcoords (make-coords :pos #f(400 0 800) :rpy #f(0 0 -1.57)))
-;;   (send *pr2* :larm :inverse-kinematics
-;; 	*axis*
-;; 	:rotation-axis t
-;; 	:debug-view t)
-
-;;   (send *axis2* :move-to (send *iemon* :worldcoords) :world)
-;;   (send *axis2* :locate #f(0 0 -55))
-;;   (send *axis2* :rotate (deg2rad -90) :y)
-
-;;   ;; 少し手前にIKを解く
-;;   (send *axis2* :translate #f(0 -40 0) :world)
-;;   (send *ri* :stop-grasp :rarm)
-;;   (send *pr2* :rarm :inverse-kinematics
-;; 	*axis2*
-;; 	:rotation-axis t
-;; 	:debug-view t)
-;;   (send *ri* :angle-vector (send *pr2* :angle-vector))
-;;   (send *ri* :wait-interpolation)
-
-;;   ;; Ikを解いて掴む
-;;   (send *axis2* :translate #f(0 40 0) :world)
-;;   (send *pr2* :rarm :inverse-kinematics
-;; 	*axis2*
-;; 	:rotation-axis t
-;; 	:debug-view t)
-;;   (send *ri* :angle-vector (send *pr2* :angle-vector))
-;;   (send *ri* :wait-interpolation)
-
-;;   ;; 持ち替え
-;;   (send *ri* :start-grasp :rarm :wait t)
-;;   (send *ri* :stop-grasp :larm)
-;;   (send (send *pr2* :larm :end-coords :parent) :dissoc *iemon*)
-;;   (send (send *pr2* :rarm :end-coords :parent) :assoc *iemon*) 
-
-;;   (send *pr2* :reset-manip-pose)
-;;   (send *ri* :angle-vector (send *pr2* :angle-vector))
-;;   (send *ri* :wait-interpolation)
-
-;;   (format t ";; please run (r-pose1)~%")
-;;   )
 
 (defun motikae ()
   (send *axis* :newcoords (make-coords :pos #f(400 0 800) :rpy #f(0 0 -1.57)))
