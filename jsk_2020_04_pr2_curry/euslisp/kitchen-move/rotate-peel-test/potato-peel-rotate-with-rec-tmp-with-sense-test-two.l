@@ -224,7 +224,8 @@
   (send (send *pr2* :larm :end-coords) :assoc *potato*)
   (send *ri* :start-grasp :larm :wait t :gain 0.05)
      
-  (warn "please run  (set-potato-1) ~%")
+  ;; (warn "please run  (set-potato-1) ~%")
+  (warn "please run (set-peeler) or (grasp-peeler) ~%")
   )
 
 (defun set-potato ()
@@ -251,12 +252,12 @@
 
   )
 
-(defun set-potato-1 ()
-  (setq *p-arrow* (arrow))
-  (send *p-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (set-potato)
-  (warn "please run  (set-peeler) or (grasp-peeler) ~%")
-  )
+;; (defun set-potato-1 ()
+;;   (setq *p-arrow* (arrow))
+;;   (send *p-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+;;   (set-potato)
+;;   (warn "please run  (set-peeler) or (grasp-peeler) ~%")
+;;   )
 
 
 (defun set-peeler ()
@@ -477,6 +478,23 @@
       (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
       (return-from peel-test2 t))
     )
+
+  ;; 剥き終わり
+  (send *c* :rotate (deg2rad -30) :y)
+  (send *c* :translate (float-vector (* (+ width 20) -1) 0 0) )
+  (send *c* :rotate (deg2rad 30) :y)
+  
+  (send *pr2* :rarm :inverse-kinematics
+	*c*
+	:move-target (car (send *peeler* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (warn "fail cancel !! ~%")
+  (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
   )
 
 (defun touch-test ()
@@ -603,6 +621,7 @@
 
 
 (defun set-potato-2 ()
+  (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *p-arrow* :rotate (deg2rad 45) :y :world)
   (set-potato)
@@ -640,7 +659,7 @@
 
 (defun set-potato-5 ()
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *p-arrow* :rotate (deg2rad 180) :y :world)
+  (send *p-arrow* :rotate (deg2rad -45) :y :world)
   (set-potato)
   (warn "please run  (peel-test-5) ~%")  
   )
@@ -652,7 +671,7 @@
 
 (defun set-potato-6 ()
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *p-arrow* :rotate (deg2rad -135) :y :world)
+  (send *p-arrow* :rotate (deg2rad -90) :y :world)
   (set-potato)
   (warn "please run  (peel-test-6) ~%")  
   )
@@ -664,7 +683,7 @@
 
 (defun set-potato-7 ()
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *p-arrow* :rotate (deg2rad -90) :y :world)
+  (send *p-arrow* :rotate (deg2rad -135) :y :world)
   (set-potato)
   (warn "please run  (peel-test-7) ~%")  
   )
@@ -676,7 +695,7 @@
 
 (defun set-potato-8 ()
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *p-arrow* :rotate (deg2rad -45) :y :world)
+  (send *p-arrow* :rotate (deg2rad 180) :y :world)
   (set-potato)
   (warn "please run  (peel-test-8) ~%")  
   )

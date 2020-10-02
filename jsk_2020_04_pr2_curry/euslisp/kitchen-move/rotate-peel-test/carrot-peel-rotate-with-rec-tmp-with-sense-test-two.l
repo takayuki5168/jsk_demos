@@ -228,7 +228,8 @@
 
   (send *ri* :start-grasp :larm :wait t :gain 0.1)
      
-  (warn "please run  (set-carrot-1) ~%")
+  ;; (warn "please run  (set-carrot-1) ~%")
+  (warn "please run  (set-peeler) or (grasp-peeler) ~%")
   )
 
 (defun set-carrot ()
@@ -255,12 +256,12 @@
 
   )
 
-(defun set-carrot-1 ()
-  (setq *c-arrow* (arrow))
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (set-carrot)
-  (warn "please run  (set-peeler) or (grasp-peeler) ~%")
-  )
+;; (defun set-carrot-1 ()
+;;   (setq *c-arrow* (arrow))
+;;   (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+;;   (set-carrot)
+;;   (warn "please run  (set-peeler) or (grasp-peeler) ~%")
+;;   )
 
 (defun set-peeler ()
   ;; ピーラーをセットする．
@@ -540,27 +541,7 @@
       (return-from touch-test-2 t))
     )
 
-  (warn "it will be never seen! ~%")
-  
-  ;; (until *cb-flag*
-  ;;   (send *c* :translate (float-vector 0 0 (* 10 -1)) :world)
-  ;;   (send *pr2* :rarm :inverse-kinematics
-  ;; 	  *c*
-  ;; 	  :move-target (car (send *peeler* :attention))
-  ;; 	  :rotation-axis t
-  ;; 	  :debug-view t)
-  ;;   (send *viewer* :draw-objects)
-  ;;   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  ;;   (send *ri* :wait-interpolation)
-
-  ;;   (setq msg (one-shot-subscribe *topic-name* geometry_msgs::WrenchStamped))
-  ;;   (wrench-y-cb msg)
-    
-  ;;   ;; (ros::spin-once)
-  ;;   ;; (ros::sleep)
-  ;;   )
-
-  ;; (warn "please run (finish-touch) or (exec-peel)~%")
+  (warn "cancel fail! ~%")
   )
 
 (defun peel-test2 ()
@@ -653,6 +634,23 @@
       (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
       (return-from peel-test2 t))
     )
+
+  ;; 剥き終わり
+  (send *c* :rotate (deg2rad -30) :y)
+  (send *c* :translate (float-vector (* (+ width 20) -1) 0 0) )
+  (send *c* :rotate (deg2rad 30) :y)
+  
+  (send *pr2* :rarm :inverse-kinematics
+	*c*
+	:move-target (car (send *peeler* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (warn "fail cancel !!")
+  (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
   )
 
 
@@ -701,6 +699,7 @@
   )
 
 (defun set-carrot-2 ()
+  (setq *c-arrow* (arrow))
   (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *c-arrow* :rotate (deg2rad 45) :y :world)
   (set-carrot)
@@ -737,8 +736,8 @@
   )
 
 (defun set-carrot-5 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *c-arrow* :rotate (deg2rad 180) :y :world)
+  (send *c-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :rotate (deg2rad -45) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-5) ~%")  
   )
@@ -749,8 +748,8 @@
   )
 
 (defun set-carrot-6 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *c-arrow* :rotate (deg2rad -135) :y :world)
+  (send *c-arrow* :newcoords (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :rotate (deg2rad -90) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-6) ~%")  
   )
@@ -761,8 +760,8 @@
   )
 
 (defun set-carrot-7 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *c-arrow* :rotate (deg2rad -90) :y :world)
+  (send *c-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :rotate (deg2rad -135) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-7) ~%")  
   )
@@ -773,8 +772,8 @@
   )
 
 (defun set-carrot-8 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *c-arrow* :rotate (deg2rad -45) :y :world)
+  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :rotate (deg2rad 180) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-8) ~%")  
   )
