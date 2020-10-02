@@ -388,7 +388,7 @@
   (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
   )
 
-(defun touch-test ()
+(defun touch-test-set ()
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
   (send *pr2* :head :look-at (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos))
   (send *ri* :angle-vector (send *pr2* :angle-vector))
@@ -437,6 +437,11 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+
+  (warn "please run (touch-test) or (touch-test-2) ~%")
+  )
+
+(defun touch-test ()
 
   ;; 皮剥き始める所
   (setq *topic-name* "/right_endeffector/wrench")
@@ -465,54 +470,6 @@
   )
 
 (defun touch-test-2 ()
-  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-  (send *pr2* :head :look-at (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-
-  ;; 右手を上げる
-  (setq *c* (make-coords))
-  (send *c* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *c* :translate #f(0 0 200) :world)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *c* :copy-worldcoords)
-	:rotation-axis nil
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  ;; 剥く位置
-  (send *c* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *c* :translate #f(0 15 0) :world)
-  (send *c* :rotate (deg2rad -90) :z :world)
-
-  (send *c* :translate (float-vector 0 0 (* 1 height)) :world)
-  (send *c* :rotate (deg2rad 30) :y)
-  (send *c* :translate (float-vector 0 80 80) :world)
-
-  ;;調整
-  (send *c* :translate (float-vector 0 adj 0))
-
-  (send *c* :translate (float-vector adj2 0 0))
-
-  (send *pr2* :rarm :inverse-kinematics
-	*c*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  (send *c* :translate (float-vector 0 -80 -80) :world)
-  (send *pr2* :rarm :inverse-kinematics
-	*c*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
   (setq *topic-name* "/right_endeffector/wrench")
@@ -649,7 +606,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (warn "fail cancel !!")
+  (warn "fail cancel !! ~%")
   (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
   )
 
