@@ -286,6 +286,7 @@
 (defun touch-test ()
   (setq interval 10)
 
+  (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
   ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
@@ -321,6 +322,7 @@
 (defun touch-test-2 ()
   (setq interval 10)
 
+  (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
   (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
@@ -344,18 +346,21 @@
       (send *ri* :cancel-angle-vector)
       (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
       
-      ;; (warn "please run (slide-knife) ~%")
+      (ros::unsubscribe "/right_endeffector/wrench")
+
       (warn "please run (up-knife) ~%")
       (return-from touch-test-2 t))
     )
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (warn "fail cancel !! ~%")  
+  (warn "please run (up-knife) ~%")  
   )
 
 (defun touch-test-3 ()
   (setq interval 10)
-
-  (setq *topic-name* "/right_endeffector/wrench")
-  (setq *cb-flag* nil)
-  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
 
   ;; armが接触するか，一定距離動かす関数
   (send *arrow* :translate (float-vector 0 0 (- (* height -1) 10)))
@@ -379,6 +384,7 @@
 
   (setq interval 5)
 
+  (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
   ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb-2)
@@ -435,9 +441,17 @@
       (send *ri* :cancel-angle-vector)
       (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
       
+      (ros::unsubscribe "/right_endeffector/wrench")
+
       (warn "please run (slide-knife) ~%")  
       (return-from up-knife-2 t))
     )
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (warn "fail cancel !! ~%")  
+  (warn "please run (slide-knife) ~%")  
   )
 
 
@@ -459,6 +473,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
+  (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
   ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-z-cb)
@@ -525,32 +540,17 @@
       (send *ri* :cancel-angle-vector)
       (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
       
+      (ros::unsubscribe "/right_endeffector/wrench")
+
       (warn "please run (set-cut-1) or (cut-all)~%")  
       (return-from slide-knife-2 t))
     )
 
-  ;; (until *cb-flag*
-  ;;   (print 4)
-  ;;   (send *arrow* :translate #f(0 -5 0) :world)
-  ;;   (send *pr2* :rarm :inverse-kinematics
-  ;; 	  *arrow*
-  ;; 	  :move-target (car (send *knife* :attention))
-  ;; 	  :rotation-axis t
-  ;; 	  :debug-view t)
-  ;;   (send *viewer* :draw-objects)
-  ;;   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  ;;   (send *ri* :wait-interpolation)
-    
-  ;;   (setq msg (one-shot-subscribe *topic-name* geometry_msgs::WrenchStamped))
-  ;;   (wrench-y-cb-2 msg)
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
-  ;;   ;; (ros::spin-once)
-  ;;   ;; (ros::sleep)
-  ;;   )
-
-  ;; (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-
-  ;; (warn "please run (set-cut-1) ~%")  
+  (warn "fail cancel !! ~%")  
+  (warn "please run (set-cut-1) ~%")  
   )
 
 
@@ -944,7 +944,7 @@
   )
 
 (defun now-devel ()
-  ;; (set-carrot :w width :l length :h height)
+  (set-carrot :w width :l length :h height)
   (grasp-carrot)
   (grasp-knife-hor)
   (cut-test)
@@ -957,7 +957,7 @@
 
 
 (defun now-test ()
-  ;; (set-carrot :w width :l length :h height)
+  (set-carrot :w width :l length :h height)
   (grasp-carrot)
   (set-knife-hor)
   (cut-test)
@@ -969,7 +969,7 @@
 
 
 (defun exec-all ()
-  ;; (set-carrot :w width :l length :h height)
+  (set-carrot :w width :l length :h height)
   (grasp-carrot)
   (grasp-knife-hor)
   (cut-test)
@@ -980,7 +980,7 @@
   )
 
 (defun now-cut ()
-  ;; (set-potato :w width :l length :h height)
+  (set-potato :w width :l length :h height)
   (grasp-potato)
   (set-knife-hor)
   (cut-test)
