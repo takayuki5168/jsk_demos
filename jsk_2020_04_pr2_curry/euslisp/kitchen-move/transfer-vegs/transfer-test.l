@@ -43,35 +43,42 @@
   ;; def global values
   (setq s-time 3)
 
-  ;; set carrot
-  (load "../../model/carrot-ellipsoid-model.l")
+  ;; set potato
+  (load "../../model/potato-new-type.l")
 
-  (setq width 150)
-  (setq length 40)
-  (setq height 40)
+  (setq width 30)
+  (setq length 20)
+  (setq height 20)
   )
 
 (init)
 
 
-(warn "please run (set-carrot :w 150 :l 40 :h 40) or (now-devel)~%")
+(warn "please run (set-potato-multi :w 30 :l 20 :h 20) or (now-devel)~%")
 
-(defun set-carrot (&rest args &key (w 150) (l 40) (h 40) &allow-other-keys)
+(defun set-potato-multi (&rest args &key (w 30) (l 20) (h 20) &allow-other-keys)
 
   (setq width w)
   (setq length l)
   (setq height h)
-  
-  (setq *carrot* (carrot :w w :l l :h h))
-  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  ;; (send *carrot* :cut)
-  
-  (objects (list *kitchen* *pr2* *cutting-board* *carrot*))
+
+  (setq *potato* (potato :w w :l l :h h))
+  (send *potato* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
+  (send *potato* :cut)
+
+  (send p4 :dissoc p7)
+  (send p7 :translate #f(0 0 -100) :world)
+  (send p4 :dissoc p8)
+  (send p8 :translate #f(0 0 -100) :world)
+
+  (send p4 :)
+
+  (objects (list *kitchen* *pr2* *cutting-board* *potato*))
   (send *irtviewer* :look-all
-	(geo::make-bounding-box 
+	(geo::make-bounding-box
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
 
-  (warn "please run (grasp-carrot) ~%")
+  (warn "please run (grasp-potato) ~%")
   )
 
 (defun grasp-carrot ()
