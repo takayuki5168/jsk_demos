@@ -1,5 +1,5 @@
 <launch>
-   <machine name="localhost" address="localhost" />
+  <machine name="localhost" address="localhost" />
 
   <arg name="manager" default="pr2_cutting_board_right_nodelet_manager" />
   <arg name="rosbag" default="false" />
