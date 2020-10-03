@@ -1,5 +1,5 @@
 <launch>
-  <arg name="manager" default="pr2_cutting_board_nodelet_manager" />
+  <arg name="manager" default="pr2_decompress_nodelet_manager" />
   <arg name="RGB_CAMERA_INFO" default="/kinect_head/rgb/camera_info" />
   <arg name="RGB_IMAGE" default="/kinect_head/rgb/image_rect_color" />
   <arg name="RGB_REMOTE_IMAGE" default="/kinect_head_remote/rgb/image_rect_color" />
