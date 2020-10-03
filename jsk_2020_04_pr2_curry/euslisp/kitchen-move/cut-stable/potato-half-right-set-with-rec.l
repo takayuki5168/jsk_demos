@@ -67,8 +67,8 @@
 
 
 ;; トピックなどを定義
-;; (defvar *topic-name* "/segmentation_decomposer/boxes")
-(defvar *topic-name* "/cutting_board_right/segmentation_decomposer/boxes")
+(defvar *topic-name* "/segmentation_decomposer/boxes")
+;; (defvar *topic-name* "/cutting_board_right/segmentation_decomposer/boxes")
 
 ;; ros init
 (ros::roseus "potato_rec_test" :anonymous t)
@@ -153,14 +153,9 @@
 (send p8 :translate #f(0 0 -100) :world)  
 
 (send p4 :dissoc p1)
-(send p4 :dissoc p2)
-(send p4 :dissoc p3)
 
 (send p4 :translate #f(0 0 -100) :world)
 (send *viewer* :draw-objects)
-
-(send p1 :assoc p2)
-(send p1 :assoc p3)
 
 ;; test
 (send p1 :translate (float-vector (/ (- width 30) -4) 0 0))

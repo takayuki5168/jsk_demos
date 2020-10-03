@@ -163,8 +163,8 @@
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 90) :y)
 
-  ;; (send *arrow* :translate #f(-10 -15 0) :world)
-  (send *arrow* :translate #f(10 20 -10) :world)
+  (send *arrow* :translate #f(-10 -15 0) :world)
+  ;; (send *arrow* :translate #f(10 20 -10) :world)
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)

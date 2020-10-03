@@ -68,7 +68,7 @@
 
   <node name="extract_indices_right" pkg="nodelet" type="nodelet"
 	  args="standalone jsk_pcl/ExtractIndices" output="screen">
-      <remap from="~input" to="$(arg INPUT)" />
+      <remap from="~input" to="$(arg CLOUD)" />
       <remap from="~indices" to="attention_clipper_right/output/point_indices" />
       <rosparam>
         keep_organized: true

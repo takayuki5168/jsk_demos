@@ -45,7 +45,8 @@
   ;; def global values
   (setq s-time 3)
 
-  (setq adj 10)
+  ;; (setq adj 10)
+  (setq adj 5)
 
   (setq adj2 0)
 
@@ -144,7 +145,7 @@
 
 (setq interval height)
 
-(setq *y-thre* -12)
+(setq *y-thre* -11)
 
 ;; add for sense
 (setq *topic-name* "/right_endeffector/wrench")
@@ -191,12 +192,11 @@
 
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  (send *arrow* :translate #f(-20 0 0))
-  ;; (send *arrow* :rotate (deg2rad 30) :y)
+  ;; (send *arrow* :translate #f(-20 0 0))
+  (send *arrow* :translate #f(-25 0 0))
   (send *arrow* :rotate (deg2rad 45) :y)
 
   ;; (send *arrow* :translate #f(-10 -15 0) :world)
-  ;; (send *arrow* :translate #f(20 5 -10) :world)
   (send *arrow* :translate #f(-10 -15 -5) :world)
   
   ;;gripperを開く
@@ -222,8 +222,9 @@
   ;;gripperを閉じる
   (send *ri* :start-grasp :larm :wait t)
   (send (send *pr2* :larm :end-coords) :assoc *potato*)
-  (send *ri* :start-grasp :larm :wait t :gain 0.05)
-     
+  ;; (send *ri* :start-grasp :larm :wait t :gain 0.05)
+  (send *ri* :start-grasp :larm :wait t :gain 0.1)
+  
   ;; (warn "please run  (set-potato-1) ~%")
   (warn "please run (set-peeler) or (grasp-peeler) ~%")
   )
@@ -350,7 +351,7 @@
   ;; 皮剥き始める所
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
-  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
   
   (until *cb-flag*
     (send *c* :translate (float-vector 0 0 (* 10 -1)) :world)
@@ -439,6 +440,7 @@
   (send *ri* :wait-interpolation)
 
   ;; 皮剥き始める所
+  (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
   (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
@@ -474,6 +476,8 @@
       (send *viewer* :draw-objects)
       (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
       (send *ri* :wait-interpolation)
+
+      (ros::unsubscribe "/right_endeffector/wrench")
       
       (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
       (return-from peel-test2 t))
@@ -492,6 +496,8 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+
+  (ros::unsubscribe "/right_endeffector/wrench")
 
   (warn "fail cancel !! ~%")
   (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
@@ -634,6 +640,7 @@
   )
 
 (defun set-potato-3 ()
+  (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *p-arrow* :rotate (deg2rad 90) :y :world)
   (set-potato)
@@ -646,6 +653,7 @@
   )
 
 (defun set-potato-4 ()
+  (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *p-arrow* :rotate (deg2rad 135) :y :world)
   (set-potato)
@@ -658,6 +666,7 @@
   )
 
 (defun set-potato-5 ()
+  (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *p-arrow* :rotate (deg2rad -45) :y :world)
   (set-potato)
@@ -670,7 +679,9 @@
   )
 
 (defun set-potato-6 ()
-  (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (setq *p-arrow* (arrow))
+  ;; (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *p-arrow* :newcoords (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *p-arrow* :rotate (deg2rad -90) :y :world)
   (set-potato)
   (warn "please run  (peel-test-6) ~%")  
@@ -682,6 +693,7 @@
   )
 
 (defun set-potato-7 ()
+  (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *p-arrow* :rotate (deg2rad -135) :y :world)
   (set-potato)
@@ -694,6 +706,7 @@
   )
 
 (defun set-potato-8 ()
+  (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *p-arrow* :rotate (deg2rad 180) :y :world)
   (set-potato)
@@ -798,7 +811,8 @@
   (send *pr2* :larm :end-coords :assoc *potato*)
   (send *ri* :start-grasp :larm :wait t)
 
-  (send *ri* :start-grasp :larm :wait t :gain 0.05)
+  ;; (send *ri* :start-grasp :larm :wait t :gain 0.05)
+  (send *ri* :start-grasp :larm :wait t :gain 0.1)
 
   ;; set potato
   (send *p-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
