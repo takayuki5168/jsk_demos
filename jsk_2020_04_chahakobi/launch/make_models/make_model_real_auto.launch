@@ -2,8 +2,15 @@
   <arg name="manager" default="pointcloud" />
   <arg name="gui" default="true" />
   <arg name="INPUT" default="/kinect_head_remote/depth_registered/points" />
+  
+  <node name="$(arg manager)" pkg="nodelet" type="nodelet" args="manager"
+        output="screen" />
+        <!-- machine="$(arg machine)" if="$(arg launch_manager)" -->
+        <!-- output="screen" /> -->
 
-  <include file="$(find jsk_2020_04_pr2_curry)/launch/pr2/pr2_decompress.launch" />  
+  <include file="$(find jsk_2020_04_pr2_curry)/launch/pr2/pr2_decompress.launch" >
+        <arg name="manager" value="$(arg manager)" />
+  </include>  
 
   <group ns="pcl_nodelet">
     <node name="$(arg manager)" pkg="nodelet" type="nodelet" args="manager"

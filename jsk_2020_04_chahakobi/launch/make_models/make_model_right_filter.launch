@@ -45,7 +45,7 @@
       </rosparam>
     </node>
 
-    <node name="make_models" pkg="jsk_2020_04_chahakobi" type="merge_pointcloud_rghit_test.py">
+    <node name="make_models" pkg="jsk_2020_04_chahakobi" type="merge_pointcloud_right_test.py">
       <remap from="~input" to="/pcl_nodelet/ExtractIndices/output" />
     </node>
   </group>

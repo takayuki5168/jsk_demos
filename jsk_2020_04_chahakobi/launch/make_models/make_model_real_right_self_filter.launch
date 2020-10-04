@@ -3,7 +3,14 @@
   <arg name="gui" default="true" />
   <arg name="INPUT" default="/kinect_head_remote/depth_registered/points" />
 
-  <include file="$(find jsk_2020_04_pr2_curry)/launch/pr2/pr2_decompress.launch" />
+  <node name="$(arg manager)" pkg="nodelet" type="nodelet" args="manager"
+	output="screen" />
+  <!-- machine="$(arg machine)" if="$(arg launch_manager)" -->
+  <!-- output="screen" /> -->
+
+  <include file="$(find jsk_2020_04_pr2_curry)/launch/pr2/pr2_decompress.launch" >
+        <arg name="manager" value="$(arg manager)" />
+  </include>  
   
   <group ns="pcl_nodelet">
     <node name="$(arg manager)" pkg="nodelet" type="nodelet" args="manager"
@@ -47,7 +54,7 @@
       </rosparam>
     </node>
 
-    <node name="make_models" pkg="jsk_2020_04_chahakobi" type="merge_pointcloud_from_tf_test.py">
+    <node name="make_models" pkg="jsk_2020_04_chahakobi" type="merge_pointcloud_right_test.py">
       <remap from="~input" to="ExtractIndices/output" />
     </node>
   </group>

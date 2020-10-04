@@ -69,6 +69,11 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
 
+  (send *pr2* :rarm :move-end-pos #f(100 -100 -100) :world
+	:debug-view t :look-at-target t)
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
+  (send *ri* :wait-interpolation)
+
   (warn "please run (pose1) ~%")
   )
 
