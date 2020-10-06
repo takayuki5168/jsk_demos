@@ -156,7 +156,8 @@
 (send p4 :translate #f(0 0 -100) :world)
 (send *viewer* :draw-objects)
 
-(send p1 :rotate (deg2rad 90) :x :world)
+;; (send p1 :rotate (deg2rad 90) :x :world)
+(send p1 :rotate (deg2rad -90) :y)
 (send p1 :translate (float-vector 0 0 (* -0.25 (- width 30))) :world)
 
 
