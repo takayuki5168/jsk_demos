@@ -112,8 +112,8 @@
       <rosparam subst_value="true">
         use_sensor_frame: true
         sensor_frame: $(arg sensor_frame)
-        <!-- min_height: 0.03 -->
-        min_height: 0.02
+        min_height: 0.03
+        <!-- min_height: 0.02 -->
       </rosparam>
     </node>
     <node name="euclidean_clustering" pkg="nodelet" type="nodelet"
