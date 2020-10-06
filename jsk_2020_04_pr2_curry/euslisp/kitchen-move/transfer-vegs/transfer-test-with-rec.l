@@ -43,10 +43,6 @@
   ;; def global values
   (setq s-time 3)
 
-  ;; set carrot
-  (load "../../model/carrot-ellipsoid-model.l")
-  ;; (load "../../model/carrot-test-new-type.l")
-
   (setq width 160)
   (setq length 40)
   (setq height 40)
@@ -123,21 +119,18 @@
 (setq *arrow* (arrow))
 (send *arrow* :newcoords (send obj-coord :copy-worldcoords))
 
-(load "../../model/carrot-test-new-type.l")
-(setq *carrot* (carrot :w  width :l length :h height))
-(send *carrot* :newcoords (send obj-coord :copy-worldcoords))
-;; (send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
-(send *carrot* :rotate (deg2rad 180) :x)
-;; (send *carrot* :cut)
-(objects (list *carrot* *pr2* *cutting-board* *kitchen*))
+(setq *tar* (make-cube width length height))
+(send *tar* :newcoords (send obj-coord :copy-worldcoords))
+
+(objects (list *tar* *pr2* *cutting-board* *kitchen*))
 (send *irtviewer* :look-all
       (geo::make-bounding-box 
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 (send *irtviewer* :draw-objects)
 
-(warn "please run (grasp-carrot) or (now-devel)~%")
+(warn "please run (grasp-target) or (now-devel~%")
 
-(defun grasp-carrot ()
+(defun grasp-target-1 ()
   ;;少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 250) :world)
@@ -161,8 +154,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-  ;; 人参の掴む所に
-  (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
+  ;; 掴む所に
+  (send *arrow* :newcoords (send *tar* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 90) :y)
 
   (send *arrow* :translate #f(-10 -20 0) :world)
@@ -189,14 +182,14 @@
 
   ;;gripperを閉じる
   (send *ri* :start-grasp :larm :wait t)
-  (send (send *pr2* :larm :end-coords) :assoc *carrot*)
+  (send (send *pr2* :larm :end-coords) :assoc *tar*)
   (send *ri* :start-grasp :larm :wait t :gain 0.05)
      
-  (warn "please run  (rotate-carrot) ~%")
+  (warn "please run  (put-target) ~%")
   )
 
 
-(defun rotate-carrot ()
+(defun put-target ()
   ;; 左手を上げる
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
@@ -208,7 +201,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; 人参を位置に．
+  ;; 位置に．
   (send *arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *arrow* :rotate (deg2rad 180) :z :world)
 

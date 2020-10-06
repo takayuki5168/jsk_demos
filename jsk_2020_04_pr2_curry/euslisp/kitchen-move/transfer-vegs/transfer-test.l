@@ -43,8 +43,6 @@
   ;; def global values
   (setq s-time 3)
 
-  ;; set potato
-  (load "../../model/potato-new-type.l")
 
   (setq width 30)
   (setq length 20)
@@ -54,34 +52,29 @@
 (init)
 
 
-(warn "please run (set-potato-multi :w 30 :l 20 :h 20) or (now-devel)~%")
+(warn "please run (set-target-multi) or (now-devel)~%")
 
-(defun set-potato-multi (&rest args &key (w 30) (l 20) (h 20) &allow-other-keys)
+(defun set-target-multi ()
 
-  (setq width w)
-  (setq length l)
-  (setq height h)
+  (setq *tar1* (make-cube 30 30 30))
+  (send *tar1* :newcoords (make-coords :pos (float-vector 500.0 1900.0 865) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
 
-  (setq *potato* (potato :w w :l l :h h))
-  (send *potato* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((1.194340e-15 -1.0 0.0) (1.0 1.194340e-15 0.0) (0.0 0.0 1.0))))
-  (send *potato* :cut)
+  (setq *tar2* (make-cube 30 30 30))
+  (send *tar2* :newcoords (make-coords :pos (float-vector 500.0 2000.0 865) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
 
-  (send p4 :dissoc p7)
-  (send p7 :translate #f(0 0 -100) :world)
-  (send p4 :dissoc p8)
-  (send p8 :translate #f(0 0 -100) :world)
+  (setq *tar3* (make-cube 30 30 30))
+  (send *tar3* :newcoords (make-coords :pos (float-vector 500.0 2100.0 865) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
 
-  (send p4 :)
 
-  (objects (list *kitchen* *pr2* *cutting-board* *potato*))
+  (objects (list *kitchen* *tar1* *tar2* *tar3* *pr2* *cutting-board*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
 
-  (warn "please run (grasp-potato) ~%")
+  (warn "please run (grasp-target-1) ~%")
   )
 
-(defun grasp-carrot ()
+(defun grasp-target-1 ()
   ;;少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 250) :world)
@@ -106,7 +99,7 @@
   (send *ri* :wait-interpolation)
   
   ;; 人参の掴む所に
-  (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
+  (send *arrow* :newcoords (send *tar1* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 90) :y)
 
   ;;gripperを開く
@@ -134,11 +127,10 @@
   (send (send *pr2* :larm :end-coords) :assoc *carrot*)
   (send *ri* :start-grasp :larm :wait t :gain 0.05)
      
-  (warn "please run  (rotate-carrot) ~%")
+  (warn "please run  (put-target-1) ~%")
   )
 
-
-(defun rotate-carrot ()
+(defun put-target-1 ()
   ;; 左手を上げる
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
@@ -150,8 +142,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; 人参を位置に．
-  (send *arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  ;; 位置に．
+  (send *arrow* :newcoords (make-coords :pos (float-vector 400.0 2000.0 900) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *arrow* :rotate (deg2rad 180) :z :world)
 
   (send *arrow* :translate #f(0 0 80) :world)
@@ -175,7 +167,7 @@
   (send *ri* :wait-interpolation)
 
   (send *ri* :stop-grasp :larm)
-  (send (send *pr2* :larm :end-coords) :dissoc *carrot*)
+  (send (send *pr2* :larm :end-coords) :dissoc *tar1*)
 
   ;; 左手を上げる
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
