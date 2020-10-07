@@ -67,8 +67,7 @@
 
 
 ;; トピックなどを定義
-;; (defvar *topic-name* "/segmentation_decomposer/boxes")
-(defvar *topic-name* "/cutting_board_right/segmentation_decomposer/boxes")
+(defvar *topic-name* "/segmentation_decomposer/boxes")
 
 ;; ros init
 (ros::roseus "potato_rec_test" :anonymous t)
@@ -83,6 +82,7 @@
 ;; define cb
 (defun object-pose-cb (msg)
   (setq *msg* msg)
+  (setq *boxes* (send msg :boxes))
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
   (when msg
@@ -108,6 +108,40 @@
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
+(defun check-y-coords (bbox)
+  (let ((cam-coords nil))
+    (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
+    (setq *dim* (send bbox :dimensions))
+    (setq width (* (send *dim* :x) 1000))
+    (setq length (* (send *dim* :y) 1000))
+    (setq height (* (send *dim* :z) 1000))
+    (setq *pose* (send bbox :pose))
+    (setq cam->obj-coords (ros::tf-pose->coords *pose*))
+    (when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
+      (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
+                             (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
+    (when cam-coords
+      (setq obj-coord (send cam-coords :transform cam->obj-coords))
+      (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
+      (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
+      (setq height tmp)
+      
+      (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
+      (setq found-obj t)
+
+      (if (> (elt obj-pos 1) *tmp*)
+          (progn
+            (setq *tmp* (elt obj-pos 1))
+            (setq *width* width)
+            (setq *length* length)
+            (setq *height* height)
+            (setq *obj-coord* obj-coord)
+            ))
+      
+      (print (list 'found? found-obj obj-pos)))
+    obj-pos))
+
+
 ;; subscribeして認識
 (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
 (setq *b* (instance ros::transform-broadcaster :init))
@@ -128,21 +162,26 @@
   (ros::sleep)
   )
 
+;; yが最大のboxを使ってモデルを作る．
+(setq *tmp* 0)
+(dolist (i *boxes*)
+  (check-y-coords i))
 
 ;; ikを解く
 (load "models/arrow-object.l")
 (setq *arrow* (arrow))
-(send *arrow* :newcoords (send obj-coord :copy-worldcoords))
+(send *arrow* :newcoords (send *obj-coord* :copy-worldcoords))
 
 ;; (load "../../model/potato-new-type.l")
 (load "../../model/potato-half-model.l")
 
-(setq hoge width)
-(setq width (+ (* height 2) 30))
-(setq height hoge)
 
-(setq *potato* (potato :w  width :l length :h height))
-(send *potato* :newcoords (send obj-coord :copy-worldcoords))
+(setq hoge *width*)
+(setq *width* (+ (* *height* 2) 30))
+(setq *height* hoge)
+
+(setq *potato* (potato :w  *width* :l *length* :h *height*))
+(send *potato* :newcoords (send *obj-coord* :copy-worldcoords))
 
 (send *potato* :rotate (deg2rad 180) :x)
 (send *potato* :cut)
@@ -213,7 +252,7 @@
 
 (defun cut-test-4 ()
   (if (not (boundp '*potato*))
-      (set-potato :w width :l length :h height))
+      (set-potato :w *width* :l *length* :h *height*))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
@@ -228,7 +267,7 @@
 
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-4* :copy-worldcoords))
-  (send *arrow* :translate (float-vector 0 0 (* height 0.5)))
+  (send *arrow* :translate (float-vector 0 0 (* *height* 0.5)))
 
   ;;調整
   (send *arrow* :translate (float-vector 0 adj 0))
@@ -258,7 +297,7 @@
   (send *ri* :wait-interpolation)
 
   (setq interval 10)
-  (dotimes (i (+ (round (/ (* height 0.5) interval)) 1))
+  (dotimes (i (+ (round (/ (* *height* 0.5) interval)) 1))
     (send *arrow* :translate (float-vector interval 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *arrow*
@@ -288,7 +327,7 @@
 
 (defun cut-test-5 ()
   (if (not (boundp '*potato*))
-      (set-potato :w width :l length :h height))
+      (set-potato :w *width* :l *length* :h *height*))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
@@ -303,7 +342,7 @@
 
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-5* :copy-worldcoords))
-  (send *arrow* :translate (float-vector 0 0 (* height 0.5)))
+  (send *arrow* :translate (float-vector 0 0 (* *height* 0.5)))
 
   ;;調整
   (send *arrow* :translate (float-vector 0 adj 0))
@@ -333,7 +372,7 @@
   (send *ri* :wait-interpolation)
 
   (setq interval 10)
-  (dotimes (i (+ (round (/ (* height 0.5) interval)) 1))
+  (dotimes (i (+ (round (/ (* *height* 0.5) interval)) 1))
     (send *arrow* :translate (float-vector interval 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *arrow*
@@ -478,7 +517,7 @@
   )
 
 (defun now-devel ()
-  ;; (set-potato :w width :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-knife-hor)
   (cut-test-4)
   (finish-pose-4)
@@ -489,7 +528,7 @@
 
 
 (defun now-test ()
-  ;; (set-potato :w width :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (set-knife-hor)
   (cut-test-4)
   (finish-pose-4)
@@ -499,7 +538,7 @@
 
 
 (defun exec-all ()
-  ;; (set-potato :w width :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-knife-hor)
   (cut-test-4)
   (finish-pose-4)
