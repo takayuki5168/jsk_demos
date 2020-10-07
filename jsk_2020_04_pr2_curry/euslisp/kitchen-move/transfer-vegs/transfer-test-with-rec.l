@@ -136,6 +136,7 @@
   
   (setq *tar* (make-cube width length height))
   (send *tar* :newcoords (send obj-coord :copy-worldcoords))
+  (send *tar* :rotate (deg2rad 180) :x)
   
   (objects (list *tar* *pr2* *cutting-board* *kitchen*))
   (send *irtviewer* :look-all
@@ -204,7 +205,7 @@
   ;;gripperを閉じる
   (send *ri* :start-grasp :larm :wait t)
   (send (send *pr2* :larm :end-coords) :assoc *tar*)
-  (send *ri* :start-grasp :larm :wait t :gain 0.05)
+  ;; (send *ri* :start-grasp :larm :wait t :gain 0.05)
      
   (warn "please run  (put-target) ~%")
   )
@@ -223,7 +224,8 @@
   (send *ri* :wait-interpolation)
 
   ;; 位置に．
-  (send *arrow* :newcoords (make-coords :pos (float-vector 350.0 2000.0 900) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 350.0 2000.0 900) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *arrow* :newcoords (make-coords :pos (float-vector 280.0 2000.0 950) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0)))) ;; 300も良さげではあった．
 
   (send *arrow* :translate #f(0 0 80) :world)
   (send *pr2* :larm :inverse-kinematics
