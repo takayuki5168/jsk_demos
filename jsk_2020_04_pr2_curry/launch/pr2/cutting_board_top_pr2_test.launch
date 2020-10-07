@@ -59,7 +59,8 @@
     <rosparam>
       initial_pos: [0.7, 0, 0.8]
       initial_rot: [0, 0, 0]
-      dimension_x: 0.5
+      <!-- dimension_x: 0.5 -->
+      dimension_x: 0.3
       dimension_y: 0.5
       dimension_z: 0.5
       frame_id: base_link
