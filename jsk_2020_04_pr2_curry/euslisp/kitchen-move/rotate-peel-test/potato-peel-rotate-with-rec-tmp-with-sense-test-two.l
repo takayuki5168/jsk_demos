@@ -606,7 +606,7 @@
       (ros::unsubscribe "/right_endeffector/wrench")
       
       (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
-      (return-from peel-test2 t))
+      (return-from peel-test4 t))
     )
 
   ;; 剥き終わり
