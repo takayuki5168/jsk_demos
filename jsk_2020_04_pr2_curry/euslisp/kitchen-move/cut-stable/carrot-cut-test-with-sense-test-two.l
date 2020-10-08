@@ -641,7 +641,7 @@
 
       
   ;; armが接触するか，一定距離動かす関数
-  (send *arrow* :translate (float-vector 0 (+ 50 10) 0) :world)
+  (send *arrow* :translate (float-vector 0 (* (+ 50 10) -1) 0) :world)
   (send *pr2* :rarm :inverse-kinematics
         *arrow*
         :move-target (car (send *knife* :attention))
