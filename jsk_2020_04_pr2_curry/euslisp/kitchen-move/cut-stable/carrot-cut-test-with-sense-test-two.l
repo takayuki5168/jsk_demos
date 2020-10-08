@@ -379,6 +379,55 @@
   )
 
 
+(defun touch-test-4 ()
+  (setq interval 10)
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (setq *topic-name* "/right_endeffector/wrench")
+  (setq *cb-flag* nil)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+
+  (setq avs (list))
+  (setq tms (list))
+  
+  (dotimes (i (+ (round (/ (* height 2) interval)) 1))
+    (send *arrow* :translate (float-vector 0 0 (* interval -1)))
+    (send *pr2* :rarm :inverse-kinematics
+          *arrow*
+          :move-target (car (send *knife* :attention))
+          :rotation-axis t
+          :debug-view t)
+
+    (setq av (send *pr2* :angle-vector))
+
+    (setq avs (append avs (list av)))
+    (setq tms (append tms (list 600)))
+    )
+
+  (send *ri* :angle-vector-sequence avs tms)
+
+  (while (some #'identity (send *ri* :wait-interpolation nil 0.1))
+    (when (progn
+            (ros::spin-once)
+            (if *cb-flag* t)
+            )
+      (send *ri* :cancel-angle-vector)
+      (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+      
+      (ros::unsubscribe "/right_endeffector/wrench")
+
+      (warn "please run (up-knife) ~%")
+      (return-from touch-test-2 t))
+    )
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (warn "fail cancel !! ~%")  
+  (warn "please run (up-knife) ~%")  
+  )
+
+
 (defun up-knife ()
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
