@@ -70,28 +70,29 @@
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
   (when msg
-    (let ((cam-coords nil))
-      (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
-      (setq *dim* (send *bbox* :dimensions))
-      (setq width (* (send *dim* :x) 1000))
-      (setq length (* (send *dim* :y) 1000))
-      (setq height (* (send *dim* :z) 1000))
-      (setq *pose* (send *bbox* :pose))
-      (setq cam->obj-coords (ros::tf-pose->coords *pose*))
-      (when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
-        (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
-                               (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
-      (when cam-coords
-        (setq obj-coord (send cam-coords :transform cam->obj-coords))
-        (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
-        (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
-        (setq height tmp)
+    (when (send *msg* :boxes)
+      (let ((cam-coords nil))
+	(setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
+	(setq *dim* (send *bbox* :dimensions))
+	(setq width (* (send *dim* :x) 1000))
+	(setq length (* (send *dim* :y) 1000))
+	(setq height (* (send *dim* :z) 1000))
+	(setq *pose* (send *bbox* :pose))
+	(setq cam->obj-coords (ros::tf-pose->coords *pose*))
+	(when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
+	  (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
+				 (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
+	(when cam-coords
+	  (setq obj-coord (send cam-coords :transform cam->obj-coords))
+	  (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
+	  (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
+	  (setq height tmp)
         
-        (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
-        (print (list 'found? found-obj obj-pos)))
-      obj-pos)))
-
+	  (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
+	  (setq found-obj t)
+	  (print (list 'found? found-obj obj-pos)))
+	obj-pos))))
+  
 
 ;; subscribeして認識
 ;; (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
@@ -116,8 +117,15 @@
 
 	 (setq msg (one-shot-subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray :timeout 2000))
 	 (when msg
-	   (object-pose-cb msg)	
+	   (object-pose-cb msg)
+	   ;; 中身が空なら抜ける
+	   (unless (send *msg* :boxes) 
+	     (progn
+	       (setq *end-flag* t)
+	       (return-from recognition)
+	       ))
 	   )
+	 ;; メッセージが来ていなかったら抜ける
 	 (unless msg
 	   (progn
 	     (setq *end-flag* t)
