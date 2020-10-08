@@ -288,14 +288,15 @@
 
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
   
-  (send *pr2* :rarm :angle-vector #f(-21.6411 19.3302 -50.7032 -121.525 184.89 -97.5873 497.363))
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000);; 右手だけ実機に送る  
+  (setq *rav1* #f(-16.0652 5.94641 -77.1102 -121.467 184.962 -106.138 -192.692))
+  (send *pr2* :rarm :angle-vector *rav1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
-  
-  (send *pr2* :rarm :angle-vector #f(-76.0419 52.6448 -108.075 -109.744 357.997 -9.46491 370.703))
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000);; 右手だけ実機に送る
+
+  (setq *rav2* #f(-30.0303 1.63624 -169.166 -116.783 100.843 -98.3015 -58.1037))
+  (send *pr2* :rarm :angle-vector *rav2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
- 
   )
 
 (defun now-devel ()
