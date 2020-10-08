@@ -102,7 +102,7 @@
 (send *cube* :locate #f(500 0 1000) :world)
 (objects (list *cube* *pr2*))
 
-(warn "please run (recognition) ~%")
+(warn "please run (recognition) or (transfer-all)~%")
 
 (setq *end-flag* nil)
 (setq *first-flag* t)
@@ -144,10 +144,10 @@
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))
   (send *irtviewer* :draw-objects)
   
-  (warn "please run (grasp-target-1) or (now-devel) ~%")
+  (warn "please run (grasp-target) or (now-devel) ~%")
   )
 
-(defun grasp-target-1 ()
+(defun grasp-target ()
   (if *first-flag*
       (progn 
 	;;少し上に
@@ -384,12 +384,10 @@
 
 
 
-
-
-(defun now-devel ()
+(defun transfer-all ()
   (recognition)
   (until *end-flag*
-	 (grasp-target-1)
+	 (grasp-target)
 	 (put-target)
 	 (avoid-larm)
 	 (recognition)
@@ -397,10 +395,20 @@
   )
 
 
+
+(defun now-devel ()
+  (recognition)
+  (grasp-target)
+  (put-target)
+  (avoid-larm)
+  (recognition)
+  )
+
+
 (defun now-test ()
   (recognition)
   (until *end-flag*
-	 (grasp-target-1)
+	 (grasp-target)
 	 (put-target)
 	 (avoid-larm)
 	 (recognition)
@@ -411,7 +419,7 @@
 (defun exec-all ()
   (recognition)
   (until *end-flag*
-	 (grasp-target-1)
+	 (grasp-target)
 	 (put-target)
 	 (avoid-larm)
 	 (recognition)
