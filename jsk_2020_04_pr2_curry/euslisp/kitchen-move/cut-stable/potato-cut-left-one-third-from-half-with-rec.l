@@ -82,6 +82,7 @@
 ;; define cb
 (defun object-pose-cb (msg)
   (setq *msg* msg)
+  (setq *boxes* (send msg :boxes))
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
   (when msg
@@ -173,10 +174,10 @@
 (load "../../model/potato-half-model.l")
 
 (setq hoge *width*)
-(setq *width* (+ (* height 2) 30))
-(setq height hoge)
+(setq *width* (+ (* *height* 2) 30))
+(setq *height* hoge)
 
-(setq *potato* (potato :w  *width* :l length :h height))
+(setq *potato* (potato :w  *width* :l *length* :h *height*))
 (send *potato* :newcoords (send *obj-coord* :copy-worldcoords))
 
 (send *potato* :rotate (deg2rad 180) :x)
@@ -188,14 +189,9 @@
 (send p8 :translate #f(0 0 -100) :world)  
 
 (send p4 :dissoc p1)
-(send p4 :dissoc p2)
-(send p4 :dissoc p3)
 
 (send p4 :translate #f(0 0 -100) :world)
 (send *viewer* :draw-objects)
-
-(send p1 :assoc p2)
-(send p1 :assoc p3)
 
 (send p1 :rotate (deg2rad 90) :x :world)
 (send p1 :translate (float-vector 0 0 (* -0.25 (- *width* 30))) :world)
@@ -248,7 +244,7 @@
 
 (defun cut-test-4 ()
   (if (not (boundp '*potato*))
-      (set-potato :w *width* :l length :h height))
+      (set-potato :w *width* :l *length* :h *height*))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
@@ -263,7 +259,7 @@
 
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-4* :copy-worldcoords))
-  (send *arrow* :translate (float-vector 0 0 (* height 0.5)))
+  (send *arrow* :translate (float-vector 0 0 (* *height* 0.5)))
 
   ;;調整
   (send *arrow* :translate (float-vector 0 adj 0))
@@ -293,7 +289,7 @@
   (send *ri* :wait-interpolation)
 
   (setq interval 10)
-  (dotimes (i (+ (round (/ (* height 0.5) interval)) 1))
+  (dotimes (i (+ (round (/ (* *height* 0.5) interval)) 1))
     (send *arrow* :translate (float-vector interval 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *arrow*
@@ -323,7 +319,7 @@
 
 (defun cut-test-5 ()
   (if (not (boundp '*potato*))
-      (set-potato :w *width* :l length :h height))
+      (set-potato :w *width* :l *length* :h *height*))
 
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 100) :world)
@@ -338,7 +334,7 @@
 
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-5* :copy-worldcoords))
-  (send *arrow* :translate (float-vector 0 0 (* height 0.5)))
+  (send *arrow* :translate (float-vector 0 0 (* *height* 0.5)))
 
   ;;調整
   (send *arrow* :translate (float-vector 0 adj 0))
@@ -368,7 +364,7 @@
   (send *ri* :wait-interpolation)
 
   (setq interval 10)
-  (dotimes (i (+ (round (/ (* height 0.5) interval)) 1))
+  (dotimes (i (+ (round (/ (* *height* 0.5) interval)) 1))
     (send *arrow* :translate (float-vector interval 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *arrow*
@@ -513,7 +509,7 @@
   )
 
 (defun now-devel ()
-  ;; (set-potato :w *width* :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-knife-hor)
   (cut-test-4)
   (finish-pose-4)
@@ -524,7 +520,7 @@
 
 
 (defun now-test ()
-  ;; (set-potato :w *width* :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (set-knife-hor)
   (cut-test-4)
   (finish-pose-4)
@@ -534,7 +530,7 @@
 
 
 (defun exec-all ()
-  ;; (set-potato :w *width* :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-knife-hor)
   (cut-test-4)
   (finish-pose-4)
