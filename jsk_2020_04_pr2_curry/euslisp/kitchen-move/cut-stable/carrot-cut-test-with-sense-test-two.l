@@ -639,10 +639,9 @@
   (setq *cb-flag* nil)
   (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-z-cb)
 
-  
-    
+      
   ;; armが接触するか，一定距離動かす関数
-  (send *arrow* :translate (float-vector 0 0 (+ 50 0)))
+  (send *arrow* :translate (float-vector 0 (+ 50 10) 0) :world)
   (send *pr2* :rarm :inverse-kinematics
         *arrow*
         :move-target (car (send *knife* :attention))
@@ -698,7 +697,7 @@
   (setq tms (list))
   
   (dotimes (i (+ (round (/ 50 interval)) 1))
-    (send *arrow* :translate (float-vector 0 0 (* interval 1)))
+    (send *arrow* :translate (float-vector 0 (* interval -1) 0) :world)
     (send *pr2* :rarm :inverse-kinematics
           *arrow*
           :move-target (car (send *knife* :attention))
