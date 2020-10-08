@@ -253,14 +253,6 @@
 
   )
 
-;; (defun set-potato-1 ()
-;;   (setq *p-arrow* (arrow))
-;;   (send *p-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-;;   (set-potato)
-;;   (warn "please run  (set-peeler) or (grasp-peeler) ~%")
-;;   )
-
-
 (defun set-peeler ()
   ;; ピーラーをセットする．
   (setq *peeler* (peeler))

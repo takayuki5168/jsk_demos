@@ -732,117 +732,10 @@
     )
 
   (warn "cancel fail! ~%")
-  )
-
-(defun peel-test2 ()
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-  (send *pr2* :head :look-at (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos))
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-
-  ;; 右手を上げる
-  (setq *c* (make-coords))
-  (send *c* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *c* :translate #f(0 0 200) :world)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *c* :copy-worldcoords)
-	:rotation-axis nil
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  ;; 剥く位置
-  (send *c* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *c* :translate #f(0 15 0) :world)
-  (send *c* :rotate (deg2rad -90) :z :world)
-
-  (send *c* :translate (float-vector 0 0 (* 1 height)) :world)
-  (send *c* :rotate (deg2rad 30) :y)
-  (send *c* :translate (float-vector 0 80 80) :world)
-
-  ;;調整
-  (send *c* :translate (float-vector 0 adj 0))
-
-  (send *c* :translate (float-vector adj2 0 0))
-
-  (send *pr2* :rarm :inverse-kinematics
-	*c*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  (send *c* :translate (float-vector 0 -80 -80) :world)
-  (send *pr2* :rarm :inverse-kinematics
-	*c*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  ;; 皮剥き始める所
-  (setq *topic-name* "/right_endeffector/wrench")
-  (setq *cb-flag* nil)
-  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
-
-  ;; arm が接触するか、一定距離動かす
-  (send *c* :translate (float-vector 0 0 (- (* height -1) 10)) :world)
-  (send *pr2* :rarm :inverse-kinematics
-        *c*
-        :move-target (car (send *peeler* :attention))
-        :rotation-axis t
-        :debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
-
-  (while (some #'identity (send *ri* :wait-interpolation nil 0.1))
-    (when (progn
-            (ros::spin-once)
-            (if *cb-flag* t)
-            )
-      (send *ri* :cancel-angle-vector)
-      (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
       
-      ;; 剥き終わり
-      (send *c* :rotate (deg2rad -30) :y)
-      (send *c* :translate (float-vector (* (+ width 20) -1) 0 0) )
-      (send *c* :rotate (deg2rad 30) :y)
-      
-      (send *pr2* :rarm :inverse-kinematics
-	    *c*
-	    :move-target (car (send *peeler* :attention))
-	    :rotation-axis t
-	    :debug-view t)
-      (send *viewer* :draw-objects)
-      (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-      (send *ri* :wait-interpolation)
-      
-      (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
-      (return-from peel-test2 t))
-    )
-
-  ;; 剥き終わり
-  (send *c* :rotate (deg2rad -30) :y)
-  (send *c* :translate (float-vector (* (+ width 20) -1) 0 0) )
-  (send *c* :rotate (deg2rad 30) :y)
-  
-  (send *pr2* :rarm :inverse-kinematics
-	*c*
-	:move-target (car (send *peeler* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  (warn "fail cancel !! ~%")
-  (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
+  (warn "please run (finish-touch) or (exec-peel)~%")
   )
-
 
 (defun finish-touch ()
   ;; 手を少し上に
@@ -888,9 +781,28 @@
   (warn "you can retry (peel-test) or (finish-pose-peel) , (set-carrot-2)~%")
   )
 
+(defun set-carrot-1 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (set-carrot)
+  (warn "please run  (set-carrot-1-2) ~%")  
+  )
+
+(defun set-carrot-1-2 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (set-carrot)
+  (warn "please run  (peel-test-1) ~%")  
+  )
+
+(defun peel-test-1 ()
+  (peel-test)
+  (warn "please run  (set-carrot-1) ~%")  
+  )
+
 (defun set-carrot-2 ()
   (setq *c-arrow* (arrow))
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 45) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-2) ~%")  
@@ -902,7 +814,7 @@
   )
 
 (defun set-carrot-3 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 90) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-3) ~%")  
@@ -914,7 +826,7 @@
   )
 
 (defun set-carrot-4 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 135) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-4) ~%")  
@@ -926,7 +838,7 @@
   )
 
 (defun set-carrot-5 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad -45) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-5) ~%")  
@@ -938,7 +850,7 @@
   )
 
 (defun set-carrot-6 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad -90) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-6) ~%")  
@@ -950,7 +862,7 @@
   )
 
 (defun set-carrot-7 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 550.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad -135) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-7) ~%")  
@@ -962,7 +874,7 @@
   )
 
 (defun set-carrot-8 ()
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 180) :y :world)
   (set-carrot)
   (warn "please run  (peel-test-8) ~%")  
@@ -1002,7 +914,7 @@
   (send *pr2* :larm :end-coords :assoc *carrot*)
 
   ;; 置く
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   
   (send *c-arrow* :translate #f(0 0 80) :world)
   (send *pr2* :larm :inverse-kinematics
@@ -1035,7 +947,7 @@
   (send *pr2* :larm :end-coords :assoc *carrot*)
 
   ;; 置く
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   
   (send *c-arrow* :translate #f(0 0 80) :world)
   (send *pr2* :larm :inverse-kinematics
@@ -1068,7 +980,7 @@
   (send *ri* :start-grasp :larm :wait t :gain 0.1)
 
   ;; set carrot
-  (send *c-arrow* :newcoords (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (set-carrot)
   
   (warn "please run (set-carrot-2)~&")
@@ -1120,6 +1032,101 @@
   (send *ri* :wait-interpolation)  
   )
 
+
+(defun check-carrot-1 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (set-carrot)
+  (warn "please run (set-carrot-1-2) or (check-carrot-2) ~%")  
+  )
+
+(defun check-carrot-2 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 30) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-3) ~%")  
+  )
+
+(defun check-carrot-3 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 60) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-4) ~%")  
+  )
+
+(defun check-carrot-4 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 90) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-5) ~%")  
+  )
+
+(defun check-carrot-5 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 120) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-6) ~%")  
+  )
+
+(defun check-carrot-6 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 150) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-7) ~%")  
+  )
+
+(defun check-carrot-7 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 180) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-8) ~%")  
+  )
+
+(defun check-carrot-8 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 210) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-9) ~%")  
+  )
+
+(defun check-carrot-9 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 240) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-10) ~%")  
+  )
+
+(defun check-carrot-10 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 270) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-11) ~%")  
+  )
+
+(defun check-carrot-11 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 300) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (check-carrot-12) ~%")  
+  )
+
+(defun check-carrot-12 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :rotate (deg2rad 330) :y :world)
+  (set-carrot)
+  (warn "please run (peel-test) or (put-carrot) ~%")  
+  )
 
 
 
