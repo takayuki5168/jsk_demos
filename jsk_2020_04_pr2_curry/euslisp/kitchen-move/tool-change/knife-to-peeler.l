@@ -24,8 +24,8 @@
   (send *cutting-board* :transform (make-coords :pos (float-vector 500.0 2000.0 840.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 
   ;; set objects
-  ;; (load "../../model/peeler.l")
-  (load "../../model/potato-peeler.l")
+  (load "../../model/peeler.l")
+  ;; (load "../../model/potato-peeler.l")
   ;; (load "../../model/my-knife.l")
   (load "../../model/knife-new-attention.l")
   (load "models/arrow-object.l")
@@ -139,16 +139,16 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (warn "please run (grasp-potato-peeler) ~%")
+  (warn "please run (grasp-peeler) ~%")
   )
 
 
-(defun grasp-potato-peeler ()
+(defun grasp-peeler ()
   
   (setq *peeler* (peeler))
-  (send *peeler* :transform (make-coords :pos (float-vector 600.0 2200.0 920.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+  (send *peeler* :transform (make-coords :pos (float-vector 600.0 2300.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
   (send *peeler* :rotate (deg2rad 180) :z :world)
-  (send *peeler* :rotate (deg2rad -90) :y :world)
+  (send *peeler* :rotate (deg2rad -90) :x :world)
 
   (send *ri* :stop-grasp :rarm :wait t)
 
