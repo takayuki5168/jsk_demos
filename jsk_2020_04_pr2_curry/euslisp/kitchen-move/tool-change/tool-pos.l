@@ -65,19 +65,19 @@
 
 
 (setq *knife* (knife))
-(send *knife* :transform (make-coords :pos (float-vector 600.0 2400.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+(send *knife* :transform (make-coords :pos (float-vector 600.0 2400.0 870.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 (send *knife* :rotate (deg2rad 180) :z :world)
 (send *knife* :rotate (deg2rad -90) :x :world)
 
 (load "../../model/peeler.l")
 (setq *peeler* (peeler))
-(send *peeler* :transform (make-coords :pos (float-vector 600.0 2300.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+(send *peeler* :transform (make-coords :pos (float-vector 600.0 2300.0 920.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 (send *peeler* :rotate (deg2rad 180) :z :world)
 (send *peeler* :rotate (deg2rad -90) :x :world)
 
 (load "../../model/potato-peeler.l")
 (setq *potato-peeler* (peeler))
-(send *potato-peeler* :transform (make-coords :pos (float-vector 600.0 2200.0 920.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+(send *potato-peeler* :transform (make-coords :pos (float-vector 600.0 2200.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 (send *potato-peeler* :rotate (deg2rad 180) :z :world)
 (send *potato-peeler* :rotate (deg2rad -90) :x :world)
 
