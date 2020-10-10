@@ -1,5 +1,7 @@
 (load "tool-pos.l")
 
+(set-pose)
+
 (warn "please run (grasp-potato-peeler) ~%")
 
 (defun grasp-potato-peeler ()

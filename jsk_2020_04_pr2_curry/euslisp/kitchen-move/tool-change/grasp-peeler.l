@@ -1,5 +1,7 @@
 (load "tool-pos.l")
 
+(set-pose)
+
 (warn "please run (grasp-peeler) ~%")
 
 (defun grasp-peeler ()
