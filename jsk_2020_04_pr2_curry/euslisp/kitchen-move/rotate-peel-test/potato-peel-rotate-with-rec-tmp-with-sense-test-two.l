@@ -257,6 +257,7 @@
   ;; ピーラーをセットする．
   (setq *peeler* (peeler))
   (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *peeler* :translate #f(15 0 0))
   (send *peeler* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *peeler*)
 
@@ -559,8 +560,8 @@
   
   (dotimes (i (+ (round (/ (* height 2) interval)) 1))
     (send *c* :translate (float-vector 0 0 (* interval -1)) :world)
-    (send *c* :rarm :inverse-kinematics
-          *arrow*
+    (send *pr2* :rarm :inverse-kinematics
+          *c*
           :move-target (car (send *peeler* :attention))
           :rotation-axis t
           :debug-view t)

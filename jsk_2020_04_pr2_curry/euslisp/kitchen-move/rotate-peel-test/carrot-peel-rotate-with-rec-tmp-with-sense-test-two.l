@@ -38,13 +38,15 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
   (objects (list *pr2* *cutting-board*))
 
   ;; def global values
   (setq s-time 3)
 
-  (setq adj 10)
-  ;; (setq adj 0)
+  ;; (setq adj 10)
+  (setq adj 0)
 
   (setq adj2 0)
 
@@ -164,6 +166,35 @@
             )
         (format t "y: ~A ~%" y))
       )))
+
+
+;; (defun set-carrot-peel (&rest args &key (w 150) (l 40) (h 40) &allow-other-keys)
+
+;;   (setq width w)
+;;   (setq length l)
+;;   (setq height h)
+  
+;;   (setq *carrot* (carrot :w w :l l :h h))
+;;   (send *carrot* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+;;   ;; (send *carrot* :cut)
+
+;;   ;; (send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
+
+;;   (send *carrot* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+;;   (send *carrot* :translate #f(30 0 0))
+;;   (send *carrot* :rotate (deg2rad -45) :y)
+
+;;   (send *carrot* :translate #f(10 15 5) :world)
+  
+;;   (objects (list *kitchen* *pr2* *cutting-board* *carrot*))
+;;   (send *irtviewer* :look-all
+;;         (geo::make-bounding-box 
+;;          (flatten (send-all (send *pr2* :bodies) :vertices))))
+
+;;   (setq interval height)
+
+;;   (warn "please run (grasp-carrot-peel) ~%")
+;;   )
 
 
 (warn "please run (grasp-carrot-peel) or (now-devel)~%")
@@ -558,8 +589,8 @@
   
   (dotimes (i (+ (round (/ (* height 2) interval)) 1))
     (send *c* :translate (float-vector 0 0 (* interval -1)) :world)
-    (send *c* :rarm :inverse-kinematics
-          *arrow*
+    (send *pr2* :rarm :inverse-kinematics
+          *c*
           :move-target (car (send *peeler* :attention))
           :rotation-axis t
           :debug-view t)
@@ -874,6 +905,7 @@
   )
 
 (defun set-carrot-8 ()
+  (setq *c-arrow* (arrow))
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 180) :y :world)
   (set-carrot)

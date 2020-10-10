@@ -1,3 +1,9 @@
+;; ros init
+(ros::roseus "carrot_rec_test" :anonymous t)
+(ros::load-ros-manifest "jsk_recognition_msgs")
+(setq *l* (instance ros::transform-listener :init))
+
+
 (load "carrot-cut-test-with-sense-test-two.l")
 
 
@@ -32,12 +38,8 @@
 
 (defun recognition ()
   ;; トピックなどを定義
-  (defvar *topic-name* "/segmentation_decomposer/boxes")
+  (setq *topic-name* "/segmentation_decomposer/boxes")
 
-  ;; ros init
-  (ros::roseus "carrot_rec_test" :anonymous t)
-  (ros::load-ros-manifest "jsk_recognition_msgs")
-  (setq *l* (instance ros::transform-listener :init))
   (setq found-obj nil)
   (setq obj-pos #f(0 0 0))
   (setq obj-coord (make-coords :pos #f(0 0 0)))
@@ -91,6 +93,8 @@
   )
 
 (recognition)
+
+(setq *topic-name* "/right_endeffector/wrench")
 
 
 

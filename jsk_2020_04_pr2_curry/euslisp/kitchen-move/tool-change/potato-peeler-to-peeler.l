@@ -92,6 +92,7 @@
 
   ;;掴む位置
   (send *arrow* :newcoords (make-coords :pos (float-vector 564.458 2260.139 888.406) :rpy (float-vector 3.14 0.00 1.485)))
+  (send *arrow* :rotate (deg2rad 90) :x)
 
   (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
