@@ -25,10 +25,24 @@
   )
 
 (defun move-to-kitchen-ri ()
-  (send *ri* :speak-jp "台所まで移動します")
+  ;; (send *ri* :speak-jp "台所まで移動します")
   (send *ri* :clear-costmap)
-  (send *ri* :move-to (make-coords :pos #f(1100 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map") ;; need change value 
-  (send *ri* :wait-interpolation))
+  (send *ri* :move-to (make-coords :pos #f(1200 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  )
+
+(defun move-to-stove-ri ()
+  ;; コンロまで移動する
+  (send *ri* :clear-costmap)
+  (send *ri* :move-to (make-coords :pos #f(1400 8100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  )
+
+(defun move-to-microwave-ri ()
+  ;; 電子レンジまで移動する
+  (send *ri* :clear-costmap)
+  (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
+  )
+
+
 
 (defun move-to-kitchenboard-ri ()
   (go-to-spot "/eng2/7f/room73B2-front-of-kitchenboard")
@@ -51,4 +65,3 @@
 
 
 (warn "please run (move-to-kitchen-ri) or (move-to-kitchenboard-ri) and (set-pose)~%")
-;; (move-to-kitchen-ri)
