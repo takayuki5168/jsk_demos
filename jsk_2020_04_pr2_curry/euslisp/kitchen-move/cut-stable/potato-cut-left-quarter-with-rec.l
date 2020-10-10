@@ -41,11 +41,9 @@
     (send *pr2* :move-to *kitchen-spot* :world)
     )
   (move-to-kitchen-irt)
-  (send *pr2* :reset-manip-pose)
-  (send *pr2* :torso_lift_joint :joint-angle 325)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
 
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  
   (objects (list *pr2* *cutting-board*))
 
   ;; def global values
@@ -61,6 +59,13 @@
   (setq width 90)
   (setq length 60)
   (setq height 60)
+  )
+
+(defun set-pose ()
+  (send *pr2* :reset-manip-pose)
+  (send *pr2* :torso_lift_joint :joint-angle 325)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
   )
 
 (init)
@@ -404,6 +409,63 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
   )
+
+(defun finish-pose ()
+  (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
+  
+  ;; 包丁を上に上げる
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 100) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector -30 30 50) :world)
+  (send *pr2* :rarm :inverse-kinematics
+        *arrow*
+        :move-target (car (send *knife* :attention))
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 50) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 50) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
+  (send *pr2* :rarm :angle-vector *rav0*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  )
+
 
 (defun now-devel ()
   ;; (set-potato :w *width* :l *length* :h *height*)

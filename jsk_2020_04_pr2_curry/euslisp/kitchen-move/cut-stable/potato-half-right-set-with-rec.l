@@ -41,11 +41,9 @@
     (send *pr2* :move-to *kitchen-spot* :world)
     )
   (move-to-kitchen-irt)
-  (send *pr2* :reset-manip-pose)
-  (send *pr2* :torso_lift_joint :joint-angle 325)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
 
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  
   (objects (list *pr2* *cutting-board*))
 
   ;; def global values
@@ -62,6 +60,14 @@
   (setq length 60)
   (setq height 60)
   )
+
+(defun set-pose ()
+  (send *pr2* :reset-manip-pose)
+  (send *pr2* :torso_lift_joint :joint-angle 325)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  )
+
 
 (init)
 
