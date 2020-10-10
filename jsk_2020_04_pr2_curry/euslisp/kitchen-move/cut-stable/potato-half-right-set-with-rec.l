@@ -83,6 +83,7 @@
 ;; define cb
 (defun object-pose-cb (msg)
   (setq *msg* msg)
+  (setq *boxes* (send msg :boxes))
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
   (when msg
@@ -107,6 +108,40 @@
         (setq found-obj t)
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
+
+(defun check-y-coords (bbox)
+  (let ((cam-coords nil))
+    (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
+    (setq *dim* (send bbox :dimensions))
+    (setq width (* (send *dim* :x) 1000))
+    (setq length (* (send *dim* :y) 1000))
+    (setq height (* (send *dim* :z) 1000))
+    (setq *pose* (send bbox :pose))
+    (setq cam->obj-coords (ros::tf-pose->coords *pose*))
+    (when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
+      (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
+                             (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
+    (when cam-coords
+      (setq obj-coord (send cam-coords :transform cam->obj-coords))
+      (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
+      (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
+      (setq height tmp)
+      
+      (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
+      (setq found-obj t)
+
+      (if (> (elt obj-pos 1) *tmp*)
+          (progn
+            (setq *tmp* (elt obj-pos 1))
+            (setq *width* width)
+            (setq *length* length)
+            (setq *height* height)
+            (setq *obj-coord* obj-coord)
+            ))
+      
+      (print (list 'found? found-obj obj-pos)))
+    obj-pos))
+
 
 ;; subscribeして認識
 (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
@@ -137,11 +172,16 @@
 ;; (load "../../model/potato-new-type.l")
 (load "../../model/potato-half-model.l")
 
-(setq hoge width)
-(setq width (+ (* height 2) 30))
-(setq height hoge)
+;; yが最大のboxを使ってモデルを作る．
+(setq *tmp* 0)
+(dolist (i *boxes*)
+  (check-y-coords i))
 
-(setq *potato* (potato :w  width :l length :h height))
+(setq hoge *width*)
+(setq *width* (+ (* *height* 2) 30))
+(setq *height* hoge)
+
+(setq *potato* (potato :w  *width* :l *length* :h *height*))
 (send *potato* :newcoords (send obj-coord :copy-worldcoords))
 
 (send *potato* :rotate (deg2rad 180) :x)
@@ -158,7 +198,7 @@
 (send *viewer* :draw-objects)
 
 ;; test
-(send p1 :translate (float-vector (/ (- width 30) -4) 0 0))
+(send p1 :translate (float-vector (/ (- *width* 30) -4) 0 0))
 
 
 (objects (list *potato* *pr2* *cutting-board* *kitchen*))
@@ -196,7 +236,7 @@
 
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send p1 :copy-worldcoords))
-  (send *arrow* :translate (float-vector (/ (- width 30) 4) 0 0))
+  (send *arrow* :translate (float-vector (/ (- *width* 30) 4) 0 0))
   (send *arrow* :rotate (deg2rad 120) :y)
 
   ;; (send *arrow* :translate #f(-10 -10 -5) :world)
@@ -337,7 +377,7 @@
 
 
 (defun now-devel ()
-  ;; (set-potato :w width :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-potato-peel)
   (put-potato)
   (reset-larm)
@@ -346,7 +386,7 @@
 
 
 (defun now-test ()
-  ;; (set-potato :w width :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-potato-peel)
   (put-potato)
   (reset-larm)
@@ -354,7 +394,7 @@
 
 
 (defun exec-all ()
-  ;; (set-potato :w width :l length :h height)
+  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-potato-peel)
   (put-potato)
   (reset-larm)

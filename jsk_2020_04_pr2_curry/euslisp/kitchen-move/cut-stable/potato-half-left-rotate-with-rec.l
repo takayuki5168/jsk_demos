@@ -108,7 +108,7 @@
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
-(defun check-y-coords (bbox)
+(defun check-y-coords-min (bbox)
   (let ((cam-coords nil))
     (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
     (setq *dim* (send bbox :dimensions))
@@ -129,7 +129,7 @@
       (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
       (setq found-obj t)
 
-      (if (> (elt obj-pos 1) *tmp*)
+      (if (< (elt obj-pos 1) *tmp*)
           (progn
             (setq *tmp* (elt obj-pos 1))
             (setq *width* width)
@@ -170,11 +170,9 @@
 ;; (load "../../model/potato-new-type.l")
 (load "../../model/potato-half-model.l")
 
-;; yが最大のboxを使ってモデルを作る．
-(setq *tmp* 0)
+(setq *tmp* 1000000)
 (dolist (i *boxes*)
-  (check-y-coords i))
-
+  (check-y-coords-min i))
 
 (setq hoge *width*)
 (setq *width* (+ (* *height* 2) 30))
