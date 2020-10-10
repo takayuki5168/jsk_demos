@@ -86,12 +86,9 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-
+  
   ;話す位置
-  (send *arrow* :newcoords (send (make-coords :pos (float-vector 600.0 2400.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :z :world)
-  (send *arrow* :rotate (deg2rad -90) :x :world)
-  (send *arrow* :rotate (deg2rad -10) :y :world)
+  (send *arrow* :newcoords (make-coords :pos (float-vector 576.229 2428.516 848.067) :rpy (float-vector -3.14 0.18 1.485)))
   
   (send *arrow* :translate #f(-12 0 0))
   (send *arrow* :rotate (deg2rad -90) :x)
@@ -146,9 +143,7 @@
 (defun grasp-potato-peeler ()
   
   (setq *peeler* (peeler))
-  (send *peeler* :transform (make-coords :pos (float-vector 600.0 2200.0 920.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
-  (send *peeler* :rotate (deg2rad 180) :z :world)
-  (send *peeler* :rotate (deg2rad -90) :y :world)
+  (send *peeler* :newcoords (make-coords :pos (float-vector 564.458 2260.139 888.406) :rpy (float-vector 3.14 0.00 1.485)))
 
   (send *ri* :stop-grasp :rarm :wait t)
 

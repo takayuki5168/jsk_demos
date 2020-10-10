@@ -85,9 +85,7 @@
   (send *ri* :wait-interpolation)
 
   ;;掴む位置
-  (send *arrow* :newcoords (send (make-coords :pos (float-vector 600.0 2300.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :z :world)
-  (send *arrow* :rotate (deg2rad -90) :x)
+  (send *arrow* :newcoords (make-coords :pos (float-vector 490.198 2334.32 890.726) :rpy (float-vector 3.14 0.073 1.485)))
 
   (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -140,10 +138,8 @@
   (load "../../model/potato-peeler.l")
 
   (setq *peeler* (peeler))
-  (send *peeler* :transform (make-coords :pos (float-vector 600.0 2200.0 920.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
-  (send *peeler* :rotate (deg2rad 180) :z :world)
-  (send *peeler* :rotate (deg2rad -90) :x :world)
-
+  (send *peeler* :newcoords (make-coords :pos (float-vector 564.458 2260.139 888.406) :rpy (float-vector 3.14 0.00 1.485)))
+  
   (send *ri* :stop-grasp :rarm :wait t)
 
   ;;掴む位置

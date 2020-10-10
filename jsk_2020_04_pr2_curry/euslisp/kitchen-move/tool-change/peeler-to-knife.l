@@ -85,9 +85,7 @@
   (send *ri* :wait-interpolation)
 
   ;;掴む位置
-  (send *arrow* :newcoords (send (make-coords :pos (float-vector 600.0 2300.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 180) :z :world)
-  (send *arrow* :rotate (deg2rad -90) :x)
+  (send *arrow* :newcoords (make-coords :pos (float-vector 490.198 2334.32 890.726) :rpy (float-vector 3.14 0.073 1.485)))
 
   (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -137,10 +135,7 @@
 (defun grasp-knife ()
 
   (setq *knife* (knife))
-  (send *knife* :transform (make-coords :pos (float-vector 600.0 2400.0 900.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
-  (send *knife* :rotate (deg2rad 180) :z :world)
-  (send *knife* :rotate (deg2rad -90) :x :world)
-  (send *knife* :rotate (deg2rad -10) :y :world)
+  (send *knife* :newcoords (make-coords :pos (float-vector 576.229 2428.516 848.067) :rpy (float-vector -3.14 0.18 1.485)))
 
   (send *ri* :stop-grasp :rarm :wait t)
 
