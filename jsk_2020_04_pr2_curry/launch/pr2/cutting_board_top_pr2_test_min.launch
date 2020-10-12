@@ -90,6 +90,7 @@
         machine="$(arg machine)">
     <remap from="~input" to="input_relay/output" />
     <rosparam>
+      ransac_refine_outlier_distance_threshold: 1
       max_curvature: 0.01
       estimate_normal: true
     </rosparam>
