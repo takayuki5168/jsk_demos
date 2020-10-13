@@ -100,7 +100,7 @@
 
   (send *ri* :start-grasp :rarm :wait t)
   (send *ri* :start-grasp :rarm :wait t :gain 100)
-  (send *pr2* :rarm :end-coords :aissoc *peeler*)
+  (send *pr2* :rarm :end-coords :assoc *peeler*)
 
   (objects (list *pr2* *cutting-board* *peeler*))
 
