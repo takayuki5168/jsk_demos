@@ -79,7 +79,7 @@
 
   (set-pose-ri)
 
-  (setq *target* (make-coords :pos (float-vector 597.535 2098.392 922.693) :rpy (float-vector -3.097 0.222 -1.404)))
+  (setq *target* (make-coords :pos (float-vector 597.535 2098.392 1000) :rpy (float-vector -3.097 0.222 -1.404)))
   (set-pose)
   (send *pr2* :rarm :inverse-kinematics
 	*target*
@@ -89,7 +89,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (setq *target* (make-coords :pos (float-vector 497.544 2098.394 922.691) :rpy (float-vector -3.097 0.222 -1.404)))
+  (setq *target* (make-coords :pos (float-vector 497.544 2098.394 1000) :rpy (float-vector -3.097 0.222 -1.404)))
   (set-pose)
   (send *pr2* :rarm :inverse-kinematics
 	*target*
@@ -118,6 +118,8 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+
+  (send *ri* :start-grasp :rarm)
 
   (warn "please run (pick-up-cup) ~%")
   )
@@ -154,16 +156,18 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
 
-  (warn "please run (move-to-microwave-unsafe) ~%")
+  (warn "please run (move-to-microwave) ~%")
   )
 
-(defun move-to-microwave-unsafe ()
+(defun move-to-microwave ()
   ;; 電子レンジまで移動する
   (send *ri* :clear-costmap)
-  (send *ri* :go-pos-unsafe -0.1 0 0)
+  (send *ri* :go-pos-unsafe -0.2 0 0)
   (send *ri* :go-pos-unsafe 0 0 -90)
 
   (send *pr2* :torso_lift_joint :joint-angle 100)
-  
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
   (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
   )
