@@ -24,7 +24,7 @@
 
   (send *ri* :stop-grasp :rarm :wait t)
 
-  (send *arrow* :translate #f(60 -60 100) :world)
+  (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -34,7 +34,7 @@
   (send *ri* :wait-interpolation)
 
   
-  (send *arrow* :translate #f(-60 60 -100) :world)  
+  (send *arrow* :translate #f(-60 0 -100) :world)  
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -70,9 +70,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-
-
-
+  
   (objects (list *pr2* *cutting-board* *knife*))
   )
 

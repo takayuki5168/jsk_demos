@@ -72,6 +72,7 @@
 
 (setq *peeler* (peeler))
 (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+(send *peeler* :rotate (deg2rad 90) :x)
 (send *pr2* :rarm :end-coords :assoc *peeler*)
 
 
@@ -91,6 +92,7 @@
 
   ;;掴む位置
   (send *arrow* :newcoords (make-coords :pos (float-vector 564.458 2260.139 888.406) :rpy (float-vector 3.14 0.00 1.485)))
+  (send *arrow* :rotate (deg2rad -90) :x)
   
   (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -149,7 +151,7 @@
   (send *arrow* :translate #f(-12 0 0))
   (send *arrow* :rotate (deg2rad -90) :x)
 
-  (send *arrow* :translate #f(60 -60 100) :world)
+  (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -158,7 +160,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *arrow* :translate #f(-60 60 -100) :world)
+  (send *arrow* :translate #f(-60 0 -100) :world)
   
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)

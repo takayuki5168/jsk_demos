@@ -23,7 +23,7 @@
 
   (send *ri* :stop-grasp :rarm :wait t)
 
-  (send *arrow* :translate #f(50 -30 100) :world)
+  (send *arrow* :translate #f(50 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -33,7 +33,7 @@
   (send *ri* :wait-interpolation)
 
   
-  (send *arrow* :translate #f(-50 30 -100) :world)  
+  (send *arrow* :translate #f(-50 0 -100) :world)  
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t

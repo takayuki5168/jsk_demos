@@ -28,6 +28,7 @@
   ;; (send *ri* :speak-jp "台所まで移動します")
   (send *ri* :clear-costmap)
   (send *ri* :move-to (make-coords :pos #f(1200 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  (send *ri* :go-pos-unsafe 0 0 2.5)
   )
 
 (defun move-to-stove-ri ()
@@ -42,6 +43,13 @@
   (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
   )
 
+(defun move-to-microwave-unsafe ()
+  ;; 電子レンジまで移動する
+  (send *ri* :clear-costmap)
+  (send *ri* :go-pos-unsafe -0.1 0 0)
+  (send *ri* :go-pos-unsafe 0 0 -90)
+  (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
+  )
 
 
 (defun move-to-kitchenboard-ri ()

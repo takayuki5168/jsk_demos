@@ -98,7 +98,7 @@
   (send *arrow* :translate #f(-12 0 0))
   (send *arrow* :rotate (deg2rad -90) :x)
   
-  (send *arrow* :translate #f(60 -60 100) :world)
+  (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -107,7 +107,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-  (send *arrow* :translate #f(-60 60 -100) :world)
+  (send *arrow* :translate #f(-60 0 -100) :world)
   
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
