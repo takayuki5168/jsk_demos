@@ -70,14 +70,17 @@
 
 
 (setq *knife* (knife))
-(send *knife* :newcoords (make-coords :pos (float-vector 576.229 2428.516 848.067) :rpy (float-vector -3.14 0.18 1.485)))
+(setq *knife-coords* (make-coords :pos (float-vector 580.098 2226.215 857.185) :rpy (float-vector 3.14 0.073 1.498)))
+(send *knife* :newcoords (send *knife-coords* :copy-worldcoords))
 
 (load "../../model/peeler.l")
 (setq *peeler* (peeler))
-(send *peeler* :newcoords (make-coords :pos (float-vector 490.198 2334.32 890.726) :rpy (float-vector 3.14 0.073 1.485)))
+(setq *peeler-coords* (make-coords :pos (float-vector 492.877 2300.143 900.499) :rpy (float-vector 3.14 0.049 1.51)))
+(send *peeler* :newcoords (send *peeler-coords* :copy-worldcoords))
 
 (load "../../model/potato-peeler.l")
 (setq *potato-peeler* (peeler))
-(send *potato-peeler* :newcoords (make-coords :pos (float-vector 564.458 2260.139 888.406) :rpy (float-vector 3.14 0.00 1.485)))
+(setq *potato-peeler-coords* (make-coords :pos (float-vector 542.121 2414.771 895.736) :rpy (float-vector 3.14 0.013 1.545)))
+(send *potato-peeler* :newcoords (send *potato-peeler-coords* :copy-worldcoords))
 
 (objects (list *pr2* *cutting-board* *peeler* *knife* *potato-peeler* *kitchen*))
