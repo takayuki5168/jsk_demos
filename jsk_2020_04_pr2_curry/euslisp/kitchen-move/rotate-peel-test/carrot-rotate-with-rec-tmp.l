@@ -350,3 +350,10 @@
   (rotate-carrot)
   (reset-larm)
   )
+
+
+(defun now-rotate ()
+  (grasp-carrot)
+  (rotate-carrot)
+  (reset-larm)
+  )
