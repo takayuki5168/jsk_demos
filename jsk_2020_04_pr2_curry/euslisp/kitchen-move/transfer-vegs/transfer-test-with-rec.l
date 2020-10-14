@@ -404,6 +404,16 @@
   )
 
 
+(defun now-transfer ()
+  (recognition)
+  (until *end-flag*
+	 (grasp-target)
+	 (put-target)
+	 (avoid-larm)
+	 (recognition)
+	 )
+  )
+
 
 (defun now-devel ()
   (recognition)

@@ -635,3 +635,14 @@
   (put-potato)
   (reset-larm)
   )
+
+(defun now-cut ()
+  (grasp-potato)
+  (set-knife-hor)
+  (cut-test)
+  (finish-pose)
+  (avoid-pose)
+
+  (put-potato)
+  (reset-larm)
+  )
