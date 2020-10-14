@@ -253,6 +253,19 @@
 
   )
 
+(defun before-set ()
+  ;; 左手を上げる
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 50) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  )
+
 (defun set-peeler ()
   ;; ピーラーをセットする．
   (setq *peeler* (peeler))
@@ -747,16 +760,28 @@
 (defun set-potato-1 ()
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
-  (set-potato)
-  (setq *pav1* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav1* #f(21.8662 -20.2347 104.555 -67.1948 27.259 -58.1598 -118.836))
+  (send *pr2* :larm :angle-vector *pav1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (warn "please run  (set-potato-1-2) ~%")  
   )
 
 (defun set-potato-1-2 ()
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
-  (set-potato)
-  (setq *pav1-2* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+  
+  (before-set)
+  (setq *pav1-2* #f(14.7437 5.84814 101.3 -45.7347 41.7277 -59.5476 -104.019))
+  (send *pr2* :larm :angle-vector *pav1-2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (warn "please run  (peel-test-1) ~%")  
   )
 
@@ -769,8 +794,14 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 45) :y :world)
-  (set-potato)
-  (setq *pav2* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav2* #f(29.3712 -13.1062 93.1349 -89.4342 85.5752 -27.4285 -135.344))
+  (send *pr2* :larm :angle-vector *pav2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (warn "please run  (peel-test-2) ~%")  
   )
 
@@ -783,8 +814,13 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 90) :y :world)
-  (set-potato)
-  (setq *pav3* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav3* #f(28.2884 -16.5343 112.289 -98.9554 214.712 -30.3283 -233.037))
+  (send *pr2* :larm :angle-vector *pav3*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
   (warn "please run  (peel-test-3) ~%")  
   )
 
@@ -797,8 +833,14 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 135) :y :world)
-  (set-potato)
-  (setq *pav4* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav4* #f(28.498 4.8861 102.801 -88.3915 266.768 -43.3077 -225.862))
+  (send *pr2* :larm :angle-vector *pav4*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (warn "please run  (peel-test-4) ~%")  
   )
 
@@ -811,8 +853,13 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad -45) :y :world)
-  (set-potato)
-  (setq *pav5* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav5* #f(12.5442 -3.77784 81.0746 -39.5933 393.521 -101.403 -148.152))
+  (send *pr2* :larm :angle-vector *pav5*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
   (warn "please run  (peel-test-5) ~%")  
   )
 
@@ -825,8 +872,14 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad -90) :y :world)
-  (set-potato)
-  (setq *pav6* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav6* #f(8.25878 1.00486 91.3279 -28.0434 360.012 -114.592 -178.33))
+  (send *pr2* :larm :angle-vector *pav6*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (warn "please run  (peel-test-6) ~%")  
   )
 
@@ -839,8 +892,13 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad -135) :y :world)
-  (set-potato)
-  (setq *pav7* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav7* #f(7.81475 -3.27512 135.609 -38.5965 295.801 -113.625 -200.663))
+  (send *pr2* :larm :angle-vector *pav7*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
   (warn "please run  (peel-test-7) ~%")  
   )
 
@@ -853,8 +911,14 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 180) :y :world)
-  (set-potato)
-  (setq *pav8* (send *pr2* :larm :angle-vector))
+  ;; (set-potato)
+
+  (before-set)
+  (setq *pav8* #f(17.7551 -2.60738 124.713 -66.1764 283.114 -86.6007 -219.59))
+  (send *pr2* :larm :angle-vector *pav8*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (warn "please run  (peel-test-8) ~%")  
   )
 
