@@ -748,6 +748,7 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (set-potato)
+  (setq *pav1* (send *pr2* :larm :angle-vector))
   (warn "please run  (set-potato-1-2) ~%")  
   )
 
@@ -755,6 +756,7 @@
   (setq *p-arrow* (arrow))
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (set-potato)
+  (setq *pav1-2* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-1) ~%")  
   )
 
@@ -768,6 +770,7 @@
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 45) :y :world)
   (set-potato)
+  (setq *pav2* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-2) ~%")  
   )
 
@@ -781,6 +784,7 @@
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 90) :y :world)
   (set-potato)
+  (setq *pav3* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-3) ~%")  
   )
 
@@ -794,6 +798,7 @@
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 135) :y :world)
   (set-potato)
+  (setq *pav4* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-4) ~%")  
   )
 
@@ -807,6 +812,7 @@
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad -45) :y :world)
   (set-potato)
+  (setq *pav5* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-5) ~%")  
   )
 
@@ -820,6 +826,7 @@
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad -90) :y :world)
   (set-potato)
+  (setq *pav6* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-6) ~%")  
   )
 
@@ -833,6 +840,7 @@
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad -135) :y :world)
   (set-potato)
+  (setq *pav7* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-7) ~%")  
   )
 
@@ -846,6 +854,7 @@
   (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *p-arrow* :rotate (deg2rad 180) :y :world)
   (set-potato)
+  (setq *pav8* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-8) ~%")  
   )
 
