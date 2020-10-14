@@ -54,7 +54,8 @@
 
   ;; set potato
   ;; (load "../../model/potato-new-type.l")
-  (load "../../model/potato-half-model.l")
+  ;; (load "../../model/potato-half-model.l")
+  (load "../../model/potato-box-model.l")
 
   (setq width 90)
   (setq length 60)
@@ -178,7 +179,8 @@
 (send *arrow* :newcoords (send *obj-coord* :copy-worldcoords))
 
 ;; (load "../../model/potato-new-type.l")
-(load "../../model/potato-half-model.l")
+;; (load "../../model/potato-half-model.l")
+(load "../../model/potato-box-model.l")
 
 (setq hoge *width*)
 (setq *width* (+ (* *height* 2) 30))
@@ -189,20 +191,6 @@
 
 (send *potato* :rotate (deg2rad 180) :x)
 (send *potato* :cut)
-
-(send p4 :dissoc p7)
-(send p7 :translate #f(0 0 -100) :world)
-(send p4 :dissoc p8)
-(send p8 :translate #f(0 0 -100) :world)  
-
-(send p4 :dissoc p1)
-
-(send p4 :translate #f(0 0 -100) :world)
-(send *viewer* :draw-objects)
-
-(send p1 :rotate (deg2rad 90) :x :world)
-(send p1 :translate (float-vector 0 0 (* -0.25 (- *width* 30))) :world)
-
 
 (objects (list *potato* *pr2* *cutting-board* *kitchen*))
 (send *irtviewer* :look-all
@@ -265,7 +253,7 @@
 
 
   ;; 少し上に包丁を
-  (send *arrow* :newcoords (send *cut-point-4* :copy-worldcoords))
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 (* *height* 0.5)))
 
   ;;調整
