@@ -62,142 +62,29 @@
 (init)
 
 
-;; トピックなどを定義
-(defvar *topic-name* "/segmentation_decomposer/boxes")
 
-;; ros init
-(ros::roseus "carrot_rec_test" :anonymous t)
-(ros::load-ros-manifest "jsk_recognition_msgs")
-(setq *l* (instance ros::transform-listener :init))
-(setq found-obj nil)
-(setq obj-pos #f(0 0 0))
-(setq obj-coord (make-coords :pos #f(0 0 0)))
-(print 0)
+(warn "please run (set-carrot-peel) or (now-devel)~%")
 
 
-;; define cb
-(defun object-pose-cb (msg)
-  (setq *msg* msg)
-  (setq *bbox* (car (send msg :boxes)))
-  ;; (print 1)
-  (when msg
-    (let ((cam-coords nil))
-      (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
-      (setq *dim* (send *bbox* :dimensions))
-      (setq width (* (send *dim* :x) 1000))
-      (setq length (* (send *dim* :y) 1000))
-      (setq height (* (send *dim* :z) 1000))
-      (setq *pose* (send *bbox* :pose))
-      (setq cam->obj-coords (ros::tf-pose->coords *pose*))
-      (when (send *l* :wait-for-transform  "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2 10)
-        (setq cam-coords (send (send *pr2* :copy-worldcoords) :transform 
-                               (send *l* :lookup-transform "base_footprint" "head_mount_kinect_rgb_optical_frame" tm2))))
-      (when cam-coords
-        (setq obj-coord (send cam-coords :transform cam->obj-coords))
-        (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
-        (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
-        (setq height tmp)
-        
-        (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
-        (print (list 'found? found-obj obj-pos)))
-      obj-pos)))
+(defun set-carrot-peel (&rest args &key (w 150) (l 40) (h 40) &allow-other-keys)
 
-
-;; subscribeして認識
-;; (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
-(setq *b* (instance ros::transform-broadcaster :init))
-
-(print 3)
-(setq *cube* (make-cube 10 50 50))
-(send *cube* :set-color :red)
-(send *cube* :locate #f(500 0 1000) :world)
-(objects (list *cube* *pr2*))
-
-(setq found-obj nil)
-(until found-obj
-  (print 4)
-
-  (x::window-main-one) ;; IRT viewerの視点を変えられる。見にくければ変えよう
-
-  (setq msg (one-shot-subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray))
-  (object-pose-cb msg)
+  (setq width w)
+  (setq length l)
+  (setq height h)
   
-  ;; (ros::spin-once)
-  ;; (ros::sleep)
+  (setq *carrot* (carrot :w w :l l :h h))
+  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  
+  (objects (list *kitchen* *pr2* *cutting-board* *carrot*))
+  (send *irtviewer* :look-all
+        (geo::make-bounding-box 
+         (flatten (send-all (send *pr2* :bodies) :vertices))))
+
+  (setq interval height)
+
+  (warn "please run (grasp-carrot-peel) ~%")
   )
 
-
-;; ikを解く
-(load "models/arrow-object.l")
-(setq *arrow* (arrow))
-(send *arrow* :newcoords (send obj-coord :copy-worldcoords))
-
-(load "../../model/carrot-ellipsoid-model.l")
-(setq *carrot* (carrot :w  width :l length :h height))
-(send *carrot* :newcoords (send obj-coord :copy-worldcoords))
-;; (send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
-(send *carrot* :rotate (deg2rad 180) :x)
-;; (send *carrot* :cut)
-(objects (list *carrot* *pr2* *cutting-board* *kitchen*))
-(send *irtviewer* :look-all
-      (geo::make-bounding-box 
-       (flatten (send-all (send *pr2* :bodies) :vertices))))
-(send *irtviewer* :draw-objects)
-
-
-(setq interval height)
-
-
-(setq *y-thre* -12)
-
-;; add for sense
-(setq *topic-name* "/right_endeffector/wrench")
-(ros::load-ros-manifest "geometry_msgs")
-(setq *cb-flag* nil)
-(defun wrench-y-cb (msg)
-  (when msg
-    (let ((y nil))
-      (setq y (send msg :wrench :force :y))
-      (if (< y *y-thre*)
-          (progn 
-            (setq *cb-flag* t)
-            (format t "OK!! y: ~A ~%" y)
-            )
-        (format t "y: ~A ~%" y))
-      )))
-
-
-;; (defun set-carrot-peel (&rest args &key (w 150) (l 40) (h 40) &allow-other-keys)
-
-;;   (setq width w)
-;;   (setq length l)
-;;   (setq height h)
-  
-;;   (setq *carrot* (carrot :w w :l l :h h))
-;;   (send *carrot* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-;;   ;; (send *carrot* :cut)
-
-;;   ;; (send *carrot* :translate (float-vector (- (/ width 2) 20) 0 0))
-
-;;   (send *carrot* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-;;   (send *carrot* :translate #f(30 0 0))
-;;   (send *carrot* :rotate (deg2rad -45) :y)
-
-;;   (send *carrot* :translate #f(10 15 5) :world)
-  
-;;   (objects (list *kitchen* *pr2* *cutting-board* *carrot*))
-;;   (send *irtviewer* :look-all
-;;         (geo::make-bounding-box 
-;;          (flatten (send-all (send *pr2* :bodies) :vertices))))
-
-;;   (setq interval height)
-
-;;   (warn "please run (grasp-carrot-peel) ~%")
-;;   )
-
-
-(warn "please run (grasp-carrot-peel) or (now-devel)~%")
 
 (defun grasp-carrot-peel ()
   ;;少し上に
@@ -225,12 +112,10 @@
   
   ;; 人参の掴む所に
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
-  ;; (send *arrow* :translate (float-vector (+ (/ width -2) 20) 0 0))
-  ;; (send *arrow* :translate #f(-20 0 0))
   (send *arrow* :translate #f(-30 0 0))
   (send *arrow* :rotate (deg2rad 45) :y)
 
-  (send *arrow* :translate #f(-10 -15 -5) :world)
+  ;; (send *arrow* :translate #f(-10 -15 -5) :world)
   
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
@@ -285,19 +170,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  )
-
-(defun before-set ()
-  ;; 左手を上げる
-  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(0 0 50) :world)
-  (send *pr2* :larm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
   )
 
 (defun set-peeler ()
@@ -828,27 +700,18 @@
 (defun set-carrot-1 ()
   (setq *c-arrow* (arrow))
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
-  ;; (set-carrot)
+  (set-carrot)
 
-  (before-set)
-  (setq *cav1* #f(22.3152 -20.2206 104.497 -67.2575 27.1601 -58.4014 241.489))
-  (send *pr2* :larm :angle-vector *cav1*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
+  (setq *cav1* (send *pr2* :larm :angle-vector))
   (warn "please run  (set-carrot-1-2) ~%")  
   )
 
 (defun set-carrot-1-2 ()
   (setq *c-arrow* (arrow))
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
-  ;; (set-carrot)
+  (set-carrot)
 
-  (before-set)
-  (setq *cav1-2* #f(14.9432 6.73849 101.458 -45.16 41.7268 -59.5005 257.077))
-  (send *pr2* :larm :angle-vector *cav1-2*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
+  (setq *cav1-2* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-1) ~%")  
   )
 
@@ -861,14 +724,8 @@
   (setq *c-arrow* (arrow))
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 45) :y :world)
-  ;; (set-carrot)
-
-  (before-set)
-  (setq *cav2* #f(29.8664 -13.2655 93.323 -89.495 84.5614 -27.1668 225.645))
-  (send *pr2* :larm :angle-vector *cav2*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
+  (set-carrot)
+  (setq *cav2* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-2) ~%")  
   )
 
@@ -880,14 +737,8 @@
 (defun set-carrot-3 ()
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 90) :y :world)
-  ;; (set-carrot)
-
-  (before-set)
-  (setq *cav3* #f(28.6469 21.8904 67.0654 -99.0555 145.509 -29.3133 238.125))
-  (send *pr2* :larm :angle-vector *cav3*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
+  (set-carrot)
+  (setq *cav3* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-3) ~%")  
   )
 
@@ -899,14 +750,8 @@
 (defun set-carrot-4 ()
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 135) :y :world)
-  ;; (set-carrot)
-
-  (before-set)
-  (setq *cav4* #f(26.0117 33.9343 63.1475 -89.1481 -16.6711 -10.7218 446.063))
-  (send *pr2* :larm :angle-vector *cav4*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
+  (set-carrot)
+  (setq *cav4* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-4) ~%")  
   )
 
@@ -918,13 +763,8 @@
 (defun set-carrot-5 ()
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad -45) :y :world)
-  ;; (set-carrot)
-
-  (before-set)
-  (setq *cav5* #f(11.4967 -14.8606 117.229 -40.0273 0.832231 -97.5426 585.576))
-  (send *pr2* :larm :angle-vector *cav5*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
+  (set-carrot)
+  (setq *cav5* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-5) ~%")  
   )
 
@@ -936,14 +776,8 @@
 (defun set-carrot-6 ()
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad -90) :y :world)
-  ;; (set-carrot)
-
-  (before-set)
-  (setq *cav6* #f(8.78136 0.997566 91.3453 -28.5004 0.010485 -114.592 541.679))
-  (send *pr2* :larm :angle-vector *cav6*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
+  (set-carrot)
+  (setq *cav6* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-6) ~%")  
   )
 
@@ -955,14 +789,8 @@
 (defun set-carrot-7 ()
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad -135) :y :world)
-  ;; (set-carrot)
-
-  (before-set)
-  (setq *cav7* #f(8.34967 -3.13322 134.846 -38.6712 -63.4229 -113.639 519.101))
-  (send *pr2* :larm :angle-vector *cav7*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
+  (set-carrot)
+  (setq *cav7* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-7) ~%")  
   )
 
@@ -975,14 +803,8 @@
   (setq *c-arrow* (arrow))
   (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 570.0 2000.0 1100) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (send *c-arrow* :rotate (deg2rad 180) :y :world)
-  ;; (set-carrot)
-
-  (before-set)
-  (setq *cav8* #f(18.3182 -2.39234 124.222 -66.2168 -76.2232 -86.4503 500.063))
-  (send *pr2* :larm :angle-vector *cav8*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
+  (set-carrot)
+  (setq *cav8* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-8) ~%")  
   )
 
@@ -1265,52 +1087,18 @@
 
 
 (defun now-test ()
-  ;; (set-carrot-peel :w width :l length :h height)
+  (set-carrot-peel :w width :l length :h height)
   (grasp-carrot-peel)
   (set-carrot-1)
+  (set-carrot-1-2)  
   (set-peeler)
-  (peel-test)
   (set-carrot-2)
-  (peel-test-2)
   (set-carrot-3)
-  (peel-test-3)
   (set-carrot-4)
-  (peel-test-4)
   (set-carrot-5)
-  (peel-test-5)
   (set-carrot-6)
-  (peel-test-6)
   (set-carrot-7)
-  (peel-test-7)
   (set-carrot-8)
-  (peel-test-8)
-
-  (finish-pose-peel)
-  (put-carrot)
-  (reset-larm)
-  )
-
-(defun now-peel ()
-  (grasp-carrot-peel)
-  (set-carrot-1)
-  (set-carrot-1-2)
-  (set-peeler)
-  (peel-test4)
-  (set-carrot-1-2)
-  (set-carrot-2)
-  (peel-test4)
-  (set-carrot-3)
-  (peel-test4)
-  (set-carrot-4)
-  (peel-test4)
-  (set-carrot-5)
-  (peel-test4)
-  (set-carrot-6)
-  (peel-test4)
-  (set-carrot-7)
-  (peel-test4)
-  (set-carrot-8)
-  (peel-test4)
 
   (finish-pose-peel)
   (put-carrot)
