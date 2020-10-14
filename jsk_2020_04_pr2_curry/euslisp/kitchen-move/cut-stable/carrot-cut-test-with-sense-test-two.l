@@ -752,7 +752,8 @@
   (setq l-y (+ (elt (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos) 1) 20))
   (setq length (- acc-y l-y))
 
-  (dotimes (i (- (round (/ length tmp)) 1))
+  ;; (dotimes (i (- (round (/ length tmp)) 1))
+  (dotimes (i (round (/ length tmp)) )
     (setq adj (+ adj tmp))
     (cut-test)
     )
