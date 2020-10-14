@@ -1002,16 +1002,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
 
-  ;; ;; set pose
-  ;; (send *arrow* :newcoords (make-coords :pos #f(800.191 2189.104 866.677) :rpy #f(-2.341 -0.222 -0.482)))
-  ;; (send *pr2* :rarm :inverse-kinematics
-  ;; 	*arrow*
-  ;; 	:rotation-axis t
-  ;; 	:debug-view t)
-  ;; (send *viewer* :draw-objects)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
-  ;; (send *ri* :wait-interpolation)  
-
   (warn "please run (reset-larm)~%")  
   )
 
@@ -1063,6 +1053,11 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
 
+  (setq *rav1* #f(-16.0652 5.94641 -77.1102 -121.467 184.962 -106.138 -192.692))
+  (send *pr2* :rarm :angle-vector *rav1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
   (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
   (send *pr2* :rarm :angle-vector *rav0*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
@@ -1089,21 +1084,21 @@
   (send *ri* :wait-interpolation)
 
   ;; 少し上にして水平に
-  (setq *angle-vector-1* #f(325.0 16.6222 -20.2483 123.957 -51.9842 -42.7912 -65.3348 -437.304 -76.0364 52.6306 -108.086 -109.745 358.118 -9.46428 -349.411 0.0 50.0))
-  (send *pr2* :angle-vector *angle-vector-1*)
+  (setq *lav1* #f(16.6222 -20.2483 123.957 -51.9842 -42.7912 -65.3348 -437.304))
+  (send *pr2* :larm :angle-vector *lav1*)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
   ;; 手前にする
-  (setq *angle-vector-2* #f(325.0 41.8129 -20.2467 85.9536 -82.3235 -13.8272 -47.9804 -458.658 -76.0364 52.6306 -108.086 -109.745 358.118 -9.46428 -349.411 0.0 50.0))
-  (send *pr2* :angle-vector *angle-vector-2*)
+  (setq *lav2* #f(41.8129 -20.2467 85.9536 -82.3235 -13.8272 -47.9804 -458.658))
+  (send *pr2* :larm :angle-vector *lav2*)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (setq *angle-vector-3* #f(325.0 75.8217 52.0712 108.49 -109.796 -2.86542 -9.47056 -401.362 -76.0364 52.6306 -108.086 -109.745 358.118 -9.46428 -349.411 0.0 50.0))
-  (send *pr2* :angle-vector *angle-vector-3*)
+  (setq *lav3* #f(75.8217 52.0712 108.49 -109.796 -2.86542 -9.47056 -401.362))
+  (send *pr2* :larm :angle-vector *lav3*)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
   (send *ri* :wait-interpolation)  
