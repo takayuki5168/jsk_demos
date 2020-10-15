@@ -247,15 +247,20 @@
   (warn "please run (move-to-microwave) ~%")
   )
 
-(defun move-to-microwave ()
-  ;; 電子レンジまで移動する
-  (send *ri* :clear-costmap)
-  (send *ri* :go-pos-unsafe -0.2 0 0)
-  (send *ri* :go-pos-unsafe 0 0 -90)
-
-  (send *pr2* :torso_lift_joint :joint-angle 100)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+(defun reset-rarm ()
+  (setq *rav-r1* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
+  (send *pr2* :rarm :angle-vector *rav-r1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
 
-  (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
+  (setq *rav-r2* #f(-30.0303 1.63624 -169.166 -116.783 100.843 -98.3015 -58.1037))
+  (send *pr2* :rarm :angle-vector *rav-r2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  )
+
+(defun now-put ()
+  (before-cup)
+  (put-cup)
+  (reset-rarm)
   )
