@@ -78,36 +78,62 @@
 (defun grasp-cup ()
 
   (set-pose-ri)
-
-  (setq *target* (make-coords :pos (float-vector 497.544 2098.394 1000) :rpy (float-vector -3.097 0.222 -1.404)))
-  (set-pose)
-  (send *pr2* :rarm :inverse-kinematics
-	*target*
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
+  
+  (send *ri* :stop-grasp :rarm)
+  
+  (setq *av1* #f(325.0 75.0 50.0 110.0 -110.0 -20.0 -10.0 -10.0 -10.3967 50.5475 -34.7743 -114.61 170.572 -76.4279 -233.834 0.0 50.0))
+  (send *pr2* :angle-vector *av1*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
+
+  (send *pr2* :rarm :move-end-pos #f(-100 0 0) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :rarm :move-end-pos #f(0 0 -100) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :rarm :move-end-pos #f(-100 0 0) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :rarm :move-end-pos #f(-100 0 0) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
   
-  (setq *target* (make-coords :pos (float-vector 397.545 2098.393 922.693) :rpy (float-vector -3.097 0.222 -1.404)))
-  (set-pose)
-  (send *pr2* :rarm :inverse-kinematics
-	*target*
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
-  (send *ri* :wait-interpolation)
+  ;; (setq *target* (make-coords :pos (float-vector 497.544 2098.394 1000) :rpy (float-vector -3.097 0.222 -1.404)))
+  ;; (set-pose)
+  ;; (send *pr2* :rarm :inverse-kinematics
+  ;; 	*target*
+  ;; 	:rotation-axis t
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
+  ;; (send *ri* :wait-interpolation)
+  
+  ;; (setq *target* (make-coords :pos (float-vector 397.545 2098.393 922.693) :rpy (float-vector -3.097 0.222 -1.404)))
+  ;; (set-pose)
+  ;; (send *pr2* :rarm :inverse-kinematics
+  ;; 	*target*
+  ;; 	:rotation-axis t
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+  ;; (send *ri* :wait-interpolation)
 
-  (setq *target* (make-coords :pos (float-vector 297.544 2098.392 922.696) :rpy (float-vector -3.097 0.222 -1.404)))
-  (set-pose)
-  (send *pr2* :rarm :inverse-kinematics
-	*target*
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
+  ;; (setq *target* (make-coords :pos (float-vector 297.544 2098.392 922.696) :rpy (float-vector -3.097 0.222 -1.404)))
+  ;; (set-pose)
+  ;; (send *pr2* :rarm :inverse-kinematics
+  ;; 	*target*
+  ;; 	:rotation-axis t
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  ;; (send *ri* :wait-interpolation)
 
   (send *ri* :start-grasp :rarm)
 
@@ -160,4 +186,15 @@
   (send *ri* :wait-interpolation)
 
   (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
+  )
+
+(defun now-grasp ()
+  (grasp-cup)
+  (pick-up-cup)
+  )
+
+(defun now-micro ()
+  (grasp-cup)
+  (pick-up-cup)
+  (move-to-microwave)
   )
