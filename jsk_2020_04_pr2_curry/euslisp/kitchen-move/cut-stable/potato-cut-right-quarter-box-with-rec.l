@@ -182,10 +182,6 @@
 ;; (load "../../model/potato-half-model.l")
 (load "../../model/potato-box-model.l")
 
-(setq hoge *width*)
-(setq *width* (+ (* *height* 2) 30))
-(setq *height* hoge)
-
 (setq *potato* (potato :w  *width* :l *length* :h *height*))
 (send *potato* :newcoords (send *obj-coord* :copy-worldcoords))
 
