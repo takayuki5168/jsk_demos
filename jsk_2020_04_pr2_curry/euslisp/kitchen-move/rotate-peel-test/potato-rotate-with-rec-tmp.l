@@ -91,7 +91,8 @@
         (setq height tmp)
         
         (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
+	(if (> width 0) 
+	    (setq found-obj t))
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
@@ -315,6 +316,12 @@
 
 (defun exec-all ()
   ;; (set-potato :w width :l length :h height)
+  (grasp-potato)
+  (rotate-potato)
+  (reset-larm)
+  )
+
+(defun now-rotate ()
   (grasp-potato)
   (rotate-potato)
   (reset-larm)

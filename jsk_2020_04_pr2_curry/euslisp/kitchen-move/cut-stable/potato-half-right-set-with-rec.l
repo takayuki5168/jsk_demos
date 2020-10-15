@@ -111,7 +111,8 @@
         (setq height tmp)
         
         (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
+	(if (> width 0)
+	    (setq found-obj t))
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
@@ -247,7 +248,7 @@
   (send *arrow* :translate (float-vector (/ (- *width* 30) 4) 0 0))
   (send *arrow* :rotate (deg2rad 120) :y)
 
-  ;; (send *arrow* :translate #f(-10 -10 -5) :world)
+  (send *arrow* :translate #f(-10 -10 -5) :world)
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
@@ -395,15 +396,20 @@
 
 (defun now-test ()
   ;; (set-potato :w *width* :l *length* :h *height*)
-  (grasp-potato-peel)
+  (grasp-potato-half)
   (put-potato)
   (reset-larm)
   )
 
 
 (defun exec-all ()
-  ;; (set-potato :w *width* :l *length* :h *height*)
-  (grasp-potato-peel)
+  (grasp-potato-half)
+  (put-potato)
+  (reset-larm)
+  )
+
+(defun now-set ()
+  (grasp-potato-half)
   (put-potato)
   (reset-larm)
   )

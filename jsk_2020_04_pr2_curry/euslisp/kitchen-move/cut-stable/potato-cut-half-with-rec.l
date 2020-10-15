@@ -108,7 +108,8 @@
         (setq height tmp)
         
         (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
+	(if (> width 0)
+	    (setq found-obj t))
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
@@ -424,18 +425,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
   
-  ;; set pose
-  ;; (send *arrow* :newcoords (make-coords :pos #f(800.191 2189.104 866.677) :rpy #f(-2.341 -0.222 -0.482)))
-  ;; (send *pr2* :rarm :inverse-kinematics
-  ;; 	*arrow*
-  ;; 	:rotation-axis t
-  ;; 	:debug-view t)
-  ;; (send *viewer* :draw-objects)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
-  ;; (send *ri* :wait-interpolation)
-
   (warn "please run (put-potato)~%")  
-  ;; (warn "please run (reset-larm)~%")  
   )
 
 (defun avoid-pose ()
@@ -511,7 +501,6 @@
   (send *ri* :wait-interpolation)
 
   ;; 置く
-  ;; (send *arrow* :move-to (make-coords :pos (float-vector 500.0 2000.0 850.0) :rot #2f((1.0 0.0 0.0) (0.0 0.0 -1.0) (0.0 1.0 0.0))) :world)
   (send *arrow* :move-to (make-coords :pos (float-vector 500.0 1900.0 850.0) :rot #2f((1.0 0.0 0.0) (0.0 0.0 -1.0) (0.0 1.0 0.0))) :world)
 
   (send *arrow* :translate #f(0 0 80) :world)
@@ -640,7 +629,6 @@
   (grasp-potato)
   (set-knife-hor)
   (cut-test)
-  (finish-pose)
   (avoid-pose)
 
   (put-potato)

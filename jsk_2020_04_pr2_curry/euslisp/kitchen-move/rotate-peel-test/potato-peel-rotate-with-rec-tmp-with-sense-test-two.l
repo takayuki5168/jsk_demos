@@ -98,7 +98,8 @@
         (setq height tmp)
         
         (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
+	(if (> width 0)
+	    (setq found-obj t))
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
@@ -192,8 +193,8 @@
 
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  ;; (send *arrow* :translate #f(-20 0 0))
-  (send *arrow* :translate #f(-25 0 0))
+  (send *arrow* :translate #f(-20 0 0))
+  ;; (send *arrow* :translate #f(-25 0 0))
   (send *arrow* :rotate (deg2rad 45) :y)
 
   ;; (send *arrow* :translate #f(-10 -15 0) :world)

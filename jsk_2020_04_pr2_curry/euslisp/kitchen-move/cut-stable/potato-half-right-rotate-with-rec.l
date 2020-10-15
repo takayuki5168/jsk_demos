@@ -107,10 +107,10 @@
         (setq obj-coord (send cam-coords :transform cam->obj-coords))
         (setq tmp (- (+ (elt (send obj-coord :pos) 2) (/ height 2)) (+ (elt (send *cutting-board* :worldpos) 2) 10)))
         (send obj-coord :translate (float-vector 0 0 (- (/ height 2) (/ tmp 2))) :world)
-        (setq height tmp)
-        
+        (setq height tmp)        
         (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
+	(if (> width 0)
+	    (setq found-obj t))
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
@@ -187,7 +187,7 @@
 (setq *height* hoge)
 
 (setq *potato* (potato :w  *width* :l *length* :h *height*))
-(send *potato* :newcoords (send obj-coord :copy-worldcoords))
+(send *potato* :newcoords (send *obj-coord* :copy-worldcoords))
 
 (send *potato* :rotate (deg2rad 180) :x)
 (send *potato* :cut)
@@ -203,7 +203,7 @@
 (send p4 :translate #f(0 0 -100) :world)
 (send *viewer* :draw-objects)
 
-(send p1 :rotate (deg2rad 90) :x :world)
+(send p1 :rotate (deg2rad -90) :y)
 (send p1 :translate (float-vector 0 0 (* -0.25 (- *width* 30))) :world)
 
 
@@ -244,7 +244,7 @@
   (send *arrow* :translate (float-vector (/ (- *width* 30) 4) 0 0))
   (send *arrow* :rotate (deg2rad 180) :y)
 
-  ;; (send *arrow* :translate #f(-10 -10 -5) :world)
+  (send *arrow* :translate #f(-10 -10 -5) :world)
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
@@ -391,7 +391,6 @@
 
 
 (defun now-test ()
-  ;; (set-potato :w *width* :l *length* :h *height*)
   (grasp-potato-half)
   (put-potato)
   (reset-larm)
@@ -400,6 +399,12 @@
 
 (defun exec-all ()
   ;; (set-potato :w *width* :l *length* :h *height*)
+  (grasp-potato-half)
+  (put-potato)
+  (reset-larm)
+  )
+
+(defun now-rotate ()
   (grasp-potato-half)
   (put-potato)
   (reset-larm)

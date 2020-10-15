@@ -29,9 +29,18 @@
   (:cut
    ()
    (let (b1 b2 b3 b4 b5 b6 b7 r)
+     (setq p1 (make-cube width length height))
+     (send p1 :set-color :saddlebrown)
+
      (setq *cut-point-1* (make-cascoords :pos (float-vector 0 0 (/ height -2))))
      (send *cut-point-1* :rotate (deg2rad 90) :z)
-     (send self :assoc *cut-point-1*))
+     (send p1 :assoc *cut-point-1*)
+     
+     (send p1 :newcoords (send self :copy-worldcoords))
+     (send self :assoc p1)
+     
+     (push p1 r)
+     (setq geo::bodies r))
    )
   )
 
