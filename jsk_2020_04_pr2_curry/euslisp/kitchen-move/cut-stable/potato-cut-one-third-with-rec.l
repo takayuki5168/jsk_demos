@@ -102,7 +102,8 @@
         (setq height tmp)
         
         (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
-        (setq found-obj t)
+	(if (> width 0)
+	    (setq found-obj t))
         (print (list 'found? found-obj obj-pos)))
       obj-pos)))
 
