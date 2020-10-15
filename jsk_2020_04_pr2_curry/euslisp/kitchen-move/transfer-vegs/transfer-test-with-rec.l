@@ -107,7 +107,7 @@
 
 (setq *end-flag* nil)
 (setq *first-flag* t)
-
+(setq *fail-flag* nil)
 
 (defun recognition ()
   (setq found-obj nil)
@@ -214,6 +214,11 @@
   (send *ri* :start-grasp :larm :wait t)
   (send (send *pr2* :larm :end-coords) :assoc *tar*)
   ;; (send *ri* :start-grasp :larm :wait t :gain 0.05)
+
+  ;; 掴めなかったらflagをtに
+  (setq gripper-len (send *ri* :state :gripper :larm :position))
+  (if (< gripper-len 10)
+      (setq *fail-flag* t))
      
   (warn "please run  (put-target) ~%")
   )
@@ -407,10 +412,13 @@
 (defun now-transfer ()
   (recognition)
   (until *end-flag*
+	 (setq *fail-flag* nil)
 	 (grasp-target)
-	 (put-target)
-	 (avoid-larm)
-	 (recognition)
+	 (if (*fail-flag* nil)
+	     (progn
+	       (put-target)
+	       (avoid-larm)
+	       (recognition)))
 	 )
   )
 
