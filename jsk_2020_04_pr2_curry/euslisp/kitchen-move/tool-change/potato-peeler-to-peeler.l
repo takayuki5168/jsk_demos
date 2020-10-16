@@ -5,9 +5,9 @@
 (send *pr2* :rarm :end-coords :assoc *potato-peeler*)
 
 
-(warn "please run (put-potato-potato-peeler) ~%")
+(warn "please run (put-potato-peeler) ~%")
 
-(defun put-potato-potato-peeler ()
+(defun put-potato-peeler ()
   ;; 手を上げる
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 50) :world)
