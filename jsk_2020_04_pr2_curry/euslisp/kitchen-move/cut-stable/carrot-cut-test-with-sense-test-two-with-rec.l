@@ -133,11 +133,14 @@
   )
 
 (defun now-cut ()
-  (grasp-potato)
+  (grasp-carrot)
   (set-knife-hor)
-  (cut-test)
-  (finish-pose)
-  (put-potato)
+  (touch-test-set)
+  (touch-test-4) ;; angel-vector-sequenceを使ったバージョン．
+  (up-knife)
+  (slide-knife)
+  (cut-all)
+  (avoid-pose)
   (reset-larm)
   )
 
