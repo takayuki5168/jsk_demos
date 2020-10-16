@@ -73,8 +73,7 @@
 
 
 ;; トピックなどを定義
-(defvar *topic-name* "/segmentation_decomposer/boxes")
-;; (defvar *topic-name* "/cutting_board_right/segmentation_decomposer/boxes")
+(setq *topic-name* "/segmentation_decomposer/boxes")
 
 ;; ros init
 (ros::roseus "potato_rec_test" :anonymous t)
