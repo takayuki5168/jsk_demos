@@ -78,10 +78,14 @@
 (warn "please run (before-cup) ~%")
 
 (defun before-cup ()
+  (set-pose-ri)
+
   (setq *av0* #f(325.0 75.0 50.0 110.0 -110.0 -20.0 -10.0 -10.0 5.97738 55.8128 -6.2944 -116.003 172.052 -73.5272 -252.787 0.0 50.0))
   (send *pr2* :angle-vector *av0*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
+  (send *ri* :wait-interpolation)
 
+  (unix:sleep 1)
   (send *ri* :stop-grasp :rarm)
   (send *ri* :speak-jp "コップを握らせて下さい")
   
@@ -93,6 +97,7 @@
 
 
 (defun put-cup ()
+  
   (send *pr2* :rarm :move-end-pos #f(-100 0 0) :world)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
