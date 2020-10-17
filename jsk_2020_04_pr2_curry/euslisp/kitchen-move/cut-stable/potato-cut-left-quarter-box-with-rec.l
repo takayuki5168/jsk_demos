@@ -184,9 +184,9 @@
 (load "../../model/potato-box-model.l")
 
 (setq *potato* (potato :w  *width* :l *length* :h *height*))
-(send *potato* :newcoords (send *obj-coord* :copy-worldcoords))
-
-(send *potato* :rotate (deg2rad 180) :x)
+(send *potato* :newcoords (make-coords :pos (send *obj-coord* :worldpos)))
+(send *potato* :rotate (deg2rad 90) :z :world)
+;; (send *potato* :rotate (deg2rad 180) :x)
 (send *potato* :cut)
 
 (objects (list *potato* *pr2* *cutting-board* *kitchen*))
