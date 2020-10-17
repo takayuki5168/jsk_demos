@@ -135,7 +135,8 @@
   <node name="segmentation_decomposer" pkg="nodelet" type="nodelet"
         args="load jsk_pcl/ClusterPointIndicesDecomposer $(arg manager)"
         output="screen"
-        machine="$(arg machine)">
+        machine="$(arg machine)"
+	clear_params="true">
     <remap from="~input" to="plane_extraction/output" />
     <remap from="~target" to="euclidean_clustering/output_throttle" />
     <remap from="~align_planes" to="multi_plane_estimate/output_refined_polygon" />
@@ -146,6 +147,7 @@
       use_pca: true
       publish_clouds: false
       publish_tf: $(arg publish_tf)
+      sort_by: -cloud_size
     </rosparam>
   </node>
 
