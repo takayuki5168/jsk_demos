@@ -85,6 +85,8 @@
       (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
       (setq *dim* (send *bbox* :dimensions))
       (setq width (* (send *dim* :x) 1000))
+      (if (= width 0)
+	  (return-from object-pose-cb))
       (setq length (* (send *dim* :y) 1000))
       (setq height (* (send *dim* :z) 1000))
       (setq *pose* (send *bbox* :pose))
@@ -150,7 +152,8 @@
 (setq interval height)
 
 
-(setq *y-thre* -12)
+;; (setq *y-thre* -12)
+(setq *y-thre* -10)
 
 ;; add for sense
 (setq *topic-name* "/right_endeffector/wrench")
