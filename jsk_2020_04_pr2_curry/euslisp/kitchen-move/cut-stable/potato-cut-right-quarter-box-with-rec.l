@@ -270,7 +270,17 @@
   (send *ri* :wait-interpolation)
   
 
-  (send *arrow* :translate (float-vector 0 0 (* offset -1)))  
+  (send *arrow* :translate (float-vector 0 0 (* offset -0.5)))  
+  (send *pr2* :rarm :inverse-kinematics
+	*arrow*
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate (float-vector 0 0 (* offset -0.5)))  
   (send *pr2* :rarm :inverse-kinematics
 	*arrow*
 	:move-target (car (send *knife* :attention))
