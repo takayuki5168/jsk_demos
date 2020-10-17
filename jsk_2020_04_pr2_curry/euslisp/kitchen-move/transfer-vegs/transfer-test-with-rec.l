@@ -112,6 +112,7 @@
 
 (defun recognition ()
   (setq found-obj nil)
+  (setq cnt 0)
   (until found-obj
 	 (print 4)
 	 (x::window-main-one) ;; IRT viewerの視点を変えられる。見にくければ変えよう
@@ -119,9 +120,21 @@
 	 (setq msg (one-shot-subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray :timeout 2000))
 	 (when msg
 	   (object-pose-cb msg)
+
 	   ;; 中身が空なら抜ける
 	   (unless (send *msg* :boxes) 
 	     (progn
+	       (setq *end-flag* t)
+	       (return-from recognition)
+	       ))
+	   ;; 中身が0だったらカウントする
+	   (if (= width 0)
+	       (progn
+		 (setq cnt (+ cnt 1))
+		 ))
+	   ;; カウントが５以上になったら抜ける
+	   (if (>= cnt 5)
+	       (progn
 	       (setq *end-flag* t)
 	       (return-from recognition)
 	       ))
