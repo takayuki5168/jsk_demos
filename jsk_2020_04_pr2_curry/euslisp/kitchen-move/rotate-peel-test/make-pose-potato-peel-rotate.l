@@ -671,7 +671,7 @@
 
 (defun set-potato-1-2 ()
   (setq *p-arrow* (arrow))
-  (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 1900.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (set-potato)
   (setq *pav1-2* (send *pr2* :larm :angle-vector))
   (warn "please run  (peel-test-1) ~%")  

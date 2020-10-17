@@ -708,7 +708,8 @@
 
 (defun set-carrot-1-2 ()
   (setq *c-arrow* (arrow))
-  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  ;; (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 1900.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   (set-carrot)
 
   (setq *cav1-2* (send *pr2* :larm :angle-vector))

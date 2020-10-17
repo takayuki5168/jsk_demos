@@ -778,7 +778,8 @@
   ;; (set-potato)
   
   (before-set)
-  (setq *pav1-2* #f(14.7437 5.84814 101.3 -45.7347 41.7277 -59.5476 -104.019))
+  ;; (setq *pav1-2* #f(14.7437 5.84814 101.3 -45.7347 41.7277 -59.5476 -104.019))
+  (setq *pav1-2* #f(22.1415 6.1184 100.613 -45.0089 41.1581 -65.3866 -98.0152))  
   (send *pr2* :larm :angle-vector *pav1-2*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)

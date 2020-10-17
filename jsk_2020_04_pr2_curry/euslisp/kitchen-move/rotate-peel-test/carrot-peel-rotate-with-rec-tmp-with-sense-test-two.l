@@ -846,7 +846,8 @@
   ;; (set-carrot)
 
   (before-set)
-  (setq *cav1-2* #f(14.9432 6.73849 101.458 -45.16 41.7268 -59.5005 257.077))
+  ;; (setq *cav1-2* #f(14.9432 6.73849 101.458 -45.16 41.7268 -59.5005 257.077))
+  (setq *cav1-2* #f(22.2375 6.99489 100.811 -44.1724 41.1502 -65.4659 263.167))
   (send *pr2* :larm :angle-vector *cav1-2*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
