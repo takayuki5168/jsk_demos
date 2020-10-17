@@ -308,6 +308,7 @@
   ;; ピーラーをセットする．
   (setq *peeler* (peeler))
   (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *peeler* :translate #f(15 0 0))
   (send *peeler* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *peeler*)
 
@@ -328,6 +329,7 @@
 
   (setq *peeler* (peeler))
   (send *peeler* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *peeler* :translate #f(15 0 0))
   (send *peeler* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *peeler*)
 
