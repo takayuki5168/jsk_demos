@@ -176,6 +176,14 @@
   (warn "please run  (set-peeler) or (grasp-peeler) ~%")
   )
 
+(defun set-carrot-1-2 ()
+  (setq *c-arrow* (arrow))
+  (send *c-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 1900.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+
+  (set-carrot)
+  (warn "please run  (set-peeler) or (grasp-peeler) ~%")
+  )
+
 (defun set-peeler ()
   ;; ピーラーをセットする．
   (setq *peeler* (peeler))
