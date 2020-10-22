@@ -114,11 +114,12 @@
 (defun now-test ()
   (grasp-carrot)
   (set-knife-hor)
-  (cut-test)
-  (finish-pose)
-  (put-carrot)
-  (reset-larm)
-  ;; (change-peeler)
+  (send *ri* :start-grasp :rarm :gain 100)
+  (touch-test-set)
+  (touch-test)
+  ;; (touch-test-4) ;; angel-vector-sequenceを使ったバージョン．
+  (up-knife)
+  (slide-knife)
   )
 
 
@@ -135,8 +136,10 @@
 (defun now-cut ()
   (grasp-carrot)
   (set-knife-hor)
+  (send *ri* :start-grasp :rarm :gain 100)
   (touch-test-set)
-  (touch-test-4) ;; angel-vector-sequenceを使ったバージョン．
+  (touch-test)
+  ;; (touch-test-4) ;; angel-vector-sequenceを使ったバージョン．
   (up-knife)
   (slide-knife)
   (cut-all)

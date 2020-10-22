@@ -96,7 +96,7 @@
   (when msg
     (let ((y nil))
       (setq y (send msg :wrench :force :y))
-      (if (> y 0)
+      (if (> y 2)
 	  (progn 
 	    (setq *cb-flag* t)
 	    (format t "OK!! ~A ~%" y)
@@ -538,7 +538,7 @@
   (setq avs (list))
   (setq tms (list))
   
-  (dotimes (i (+ (round (/ height interval)) 1))
+  (dotimes (i (+ (* (round (/ height interval)) 2) 1))
     (send *arrow* :translate (float-vector 0 0 (* interval 1)) :world)
     (send *pr2* :rarm :inverse-kinematics
           *arrow*
@@ -613,7 +613,7 @@
     (send *ri* :wait-interpolation)
     
     (setq msg (one-shot-subscribe *topic-name* geometry_msgs::WrenchStamped))
-    (wrench-y-cb-2 msg)
+    (wrench-z-cb msg)
 
     ;; (ros::spin-once)
     ;; (ros::sleep)
