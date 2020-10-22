@@ -195,6 +195,49 @@
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 (send *irtviewer* :draw-objects)
 
+;; ros init
+(setq *topic-name* "/right_endeffector/wrench")
+(ros::load-ros-manifest "geometry_msgs")
+(setq *cb-flag* nil)
+
+
+(defun wrench-y-cb (msg)
+  (when msg
+    (let ((y nil))
+      (setq y (send msg :wrench :force :y))
+      (if (< y -10)
+          (progn 
+            (setq *cb-flag* t)
+            (format t "OK!! ~A ~%" y)
+            )
+        (format t "~A ~%" y))
+      )))
+
+(defun wrench-y-cb-2 (msg)
+  (when msg
+    (let ((y nil))
+      (setq y (send msg :wrench :force :y))
+      (if (> y 0)
+          (progn 
+            (setq *cb-flag* t)
+            (format t "OK!! ~A ~%" y)
+            )
+        (format t "~A ~%" y))
+      )))
+
+(defun wrench-z-cb (msg)
+  (when msg
+    (let ((z nil))
+      (setq z (send msg :wrench :force :z))
+      (if (< z -5)
+          (progn 
+            (setq *cb-flag* t)
+            (format t "OK!! z: ~A ~%" z)
+            )
+        (format t "z: ~A ~%" z))
+      )))
+
+
 (warn "please run  (set-knife-hor) or (grasp-knife-hor) ~%")
 
 
@@ -294,6 +337,167 @@
 
   (warn "please run (cut-test) ~%")
   )
+
+
+(defun touch-test-set ()
+  
+  (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 100) :world)
+  (send *pr2* :rarm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis nil
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+
+  ;; 少し上に包丁を
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+  ;; (send *arrow* :translate (float-vector 0 0 (* height 1)))
+  (send *arrow* :translate (float-vector 0 -50 (* height 1)))
+
+  ;;調整
+  (send *arrow* :translate (float-vector 0 adj 0))
+
+  ;; 少し上にするために
+  (setq offset 10)
+ 
+  (send *arrow* :translate (float-vector 0 0 offset))  
+  (send *pr2* :rarm :inverse-kinematics
+        *arrow*
+        :move-target (car (send *knife* :attention))
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+
+  (send *arrow* :translate (float-vector 0 0 (* offset -1)))  
+  (send *pr2* :rarm :inverse-kinematics
+        *arrow*
+        :move-target (car (send *knife* :attention))
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (warn "please run (touch-test) , (touch-test-2) or (touch-test-3) ~%")
+  )
+
+(defun touch-test-4 ()
+  (setq interval 10)
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (setq *topic-name* "/right_endeffector/wrench")
+  (setq *cb-flag* nil)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+
+  (setq avs (list))
+  (setq tms (list))
+  
+  (dotimes (i (+ (round (/ (* height 2) interval)) 1))
+    (send *arrow* :translate (float-vector 0 0 (* interval -1)))
+    (send *pr2* :rarm :inverse-kinematics
+          *arrow*
+          :move-target (car (send *knife* :attention))
+          :rotation-axis t
+          :debug-view nil)
+
+    (setq av (send *pr2* :angle-vector))
+
+    (setq avs (append avs (list av)))
+    (setq tms (append tms (list 600)))
+    )
+
+  (send *ri* :angle-vector-sequence avs tms)
+
+  (while (some #'identity (send *ri* :wait-interpolation nil 0.1))
+    (when (progn
+            (ros::spin-once)
+            (if *cb-flag* t)
+            )
+      (send *ri* :cancel-angle-vector)
+      (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+      
+      (ros::unsubscribe "/right_endeffector/wrench")
+
+      (warn "please run (up-knife) ~%")
+      (return-from touch-test-4 t))
+    )
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (warn "fail cancel !! ~%")  
+  (warn "please run (up-knife) ~%")  
+  )
+
+
+(defun slide-knife-4 ()
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  ;; 少し上げる
+  (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 adj2) :world)
+  (send *pr2* :rarm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :move-target (car (send *knife* :attention))
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (setq *topic-name* "/right_endeffector/wrench")
+  (setq *cb-flag* nil)
+  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-z-cb)
+
+  (setq interval 5)
+  
+  (setq avs (list))
+  (setq tms (list))
+  
+  (dotimes (i (+ (round (/ 50 interval)) 1))
+    (send *arrow* :translate (float-vector 0 (* interval -1) 0) :world)
+    (send *pr2* :rarm :inverse-kinematics
+          *arrow*
+          :move-target (car (send *knife* :attention))
+          :rotation-axis t
+          :debug-view t)
+
+    (setq av (send *pr2* :angle-vector))
+
+    (setq avs (append avs (list av)))
+    (setq tms (append tms (list 600)))
+    )
+
+  (send *ri* :angle-vector-sequence avs tms)
+
+  (while (some #'identity (send *ri* :wait-interpolation nil 0.1))
+    (when (progn
+            (ros::spin-once)
+            (if *cb-flag* t)
+            )
+      (send *ri* :cancel-angle-vector)
+      (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+      
+      (ros::unsubscribe "/right_endeffector/wrench")
+
+      (warn "please run (set-cut-1) or (cut-all)~%")  
+      (return-from slide-knife-4 t))
+    )
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (warn "fail cancel !! ~%")  
+  (warn "please run (set-cut-1) or (cut-all)~%")  
+  )
+
 
 (defun cut-test ()
   (if (not (boundp '*potato*))
@@ -520,6 +724,45 @@
   (send *pr2* :rarm :angle-vector *rav0*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
+  )
+
+(defun reset-larm ()
+  ;; release carrot
+  (send *pr2* :larm :end-coords :dissoc *potato*)
+  (send *ri* :stop-grasp :larm :wait t)
+
+  ;; 左手を少し上に
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 少し上にして水平に
+  (setq *lav1* #f(16.6222 -20.2483 123.957 -51.9842 -42.7912 -65.3348 -437.304))
+  (send *pr2* :larm :angle-vector *lav1*)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 手前にする
+  (setq *lav2* #f(41.8129 -20.2467 85.9536 -82.3235 -13.8272 -47.9804 -458.658))
+  (send *pr2* :larm :angle-vector *lav2*)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (setq *lav3* #f(75.8217 52.0712 108.49 -109.796 -2.86542 -9.47056 -401.362))
+  (send *pr2* :larm :angle-vector *lav3*)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
+  (send *ri* :wait-interpolation)  
+
+  (warn "please run (change-peeler)~&")
   )
 
 
