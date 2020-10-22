@@ -498,6 +498,12 @@
   (warn "please run (set-cut-1) or (cut-all)~%")  
   )
 
+(defun set-cut-1 ()
+  (setq acc-y (elt (send (send (car (send *knife* :attention)) :copy-worldcoords) :worldpos) 1))
+  (setq now-y (elt (send (send *cut-point-1* :copy-worldcoords) :worldpos) 1))
+  (setq adj (+ (- now-y acc-y) (/ width 2)))
+  (warn "please run (cut-test) ~%")  
+  )
 
 (defun cut-test ()
   (if (not (boundp '*potato*))
