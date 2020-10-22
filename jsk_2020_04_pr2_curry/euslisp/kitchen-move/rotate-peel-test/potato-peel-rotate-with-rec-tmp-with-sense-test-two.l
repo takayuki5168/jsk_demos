@@ -577,7 +577,7 @@
           *c*
           :move-target (car (send *peeler* :attention))
           :rotation-axis t
-          :debug-view t)
+          :debug-view nil)
 
     (setq av (send *pr2* :angle-vector))
 

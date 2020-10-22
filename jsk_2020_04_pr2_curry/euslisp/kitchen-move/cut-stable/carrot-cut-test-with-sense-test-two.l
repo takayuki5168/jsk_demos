@@ -339,7 +339,7 @@
 	*arrow*
 	:move-target (car (send *knife* :attention))
 	:rotation-axis t
-	:debug-view t)
+	:debug-view nil)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
 
@@ -400,7 +400,7 @@
           *arrow*
           :move-target (car (send *knife* :attention))
           :rotation-axis t
-          :debug-view t)
+          :debug-view nil)
 
     (setq av (send *pr2* :angle-vector))
 
