@@ -197,6 +197,67 @@
 
 (warn "please run  (set-knife-hor) or (grasp-knife-hor) ~%")
 
+
+(defun grasp-potato ()
+  ;;少し上に
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 250) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis nil
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 左手を少し前に
+  (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
+  (send *arrow* :translate #f(-200 50 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; じゃがいもの掴む所に
+  (send *arrow* :newcoords (send *potato* :copy-worldcoords))
+  (send *arrow* :translate #f(0 -20 0) :world)
+  (send *arrow* :rotate (deg2rad 70) :y)
+
+  (send *arrow* :translate #f(-10 -10 -5) :world)
+
+  ;;gripperを開く
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *arrow* :translate #f(0 -100 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate #f(0 100 -100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;;gripperを閉じる
+  (send *ri* :start-grasp :larm :wait t)
+     
+  (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
+  (warn "please run  (grasp-knife-hor) ~%")
+  )
+
+
+
 (defun set-knife-hor ()
   (setq *knife* (knife))
   (send *knife* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))

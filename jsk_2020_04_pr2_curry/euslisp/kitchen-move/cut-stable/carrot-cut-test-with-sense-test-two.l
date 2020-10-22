@@ -435,7 +435,7 @@
 (defun up-knife ()
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
-  (setq interval 5)
+  (setq interval 10)
 
   (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
