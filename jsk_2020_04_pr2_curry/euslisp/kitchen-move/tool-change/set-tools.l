@@ -5,7 +5,7 @@
 (set-pose)
 
 
-(warn "please run (before-knife) or (now-devel) ~%")
+(warn "please run (before-knife) or (now-set) ~%")
 
 (defun before-knife ()
   ;; 手を上げる
@@ -268,7 +268,7 @@
   )
 
 
-(defun now-devel ()
+(defun now-set ()
   (before-knife)
   (receive-knife)
   (put-knife)
