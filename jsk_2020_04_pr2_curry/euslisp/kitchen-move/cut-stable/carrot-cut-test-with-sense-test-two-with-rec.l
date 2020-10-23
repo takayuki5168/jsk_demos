@@ -139,7 +139,6 @@
   (send *ri* :start-grasp :rarm :gain 100)
   (touch-test-set)
   (touch-test)
-  ;; (touch-test-4) ;; angel-vector-sequenceを使ったバージョン．
   (up-knife)
   (slide-knife)
   (cut-all)

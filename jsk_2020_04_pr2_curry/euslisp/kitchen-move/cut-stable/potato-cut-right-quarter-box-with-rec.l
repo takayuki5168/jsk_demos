@@ -217,7 +217,7 @@
   (when msg
     (let ((y nil))
       (setq y (send msg :wrench :force :y))
-      (if (> y 0)
+      (if (> y 2)
           (progn 
             (setq *cb-flag* t)
             (format t "OK!! ~A ~%" y)
@@ -387,66 +387,85 @@
   (warn "please run (touch-test) , (touch-test-2) or (touch-test-3) ~%")
   )
 
-(defun touch-test-4 ()
+(defun touch-test ()
   (setq interval 10)
 
   (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
-  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
-
-  (setq avs (list))
-  (setq tms (list))
-  
-  (dotimes (i (+ (round (/ (* height 2) interval)) 1))
+  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb)
+    
+  (until *cb-flag*
+    (print 4)
     (send *arrow* :translate (float-vector 0 0 (* interval -1)))
     (send *pr2* :rarm :inverse-kinematics
-          *arrow*
-          :move-target (car (send *knife* :attention))
-          :rotation-axis t
-          :debug-view nil)
+  	  *arrow*
+  	  :move-target (car (send *knife* :attention))
+  	  :rotation-axis t
+  	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
 
-    (setq av (send *pr2* :angle-vector))
-
-    (setq avs (append avs (list av)))
-    (setq tms (append tms (list 600)))
+    (setq msg (one-shot-subscribe *topic-name* geometry_msgs::WrenchStamped))
+    (wrench-y-cb msg)
+    
+    ;; (ros::spin-once)
+    ;; (ros::sleep)
     )
 
-  (send *ri* :angle-vector-sequence avs tms)
-
-  (while (some #'identity (send *ri* :wait-interpolation nil 0.1))
-    (when (progn
-            (ros::spin-once)
-            (if *cb-flag* t)
-            )
-      (send *ri* :cancel-angle-vector)
-      (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-      
-      (ros::unsubscribe "/right_endeffector/wrench")
-
-      (warn "please run (up-knife) ~%")
-      (return-from touch-test-4 t))
-    )
-
-  (ros::unsubscribe "/right_endeffector/wrench")
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
-  (warn "fail cancel !! ~%")  
-  (warn "please run (up-knife) ~%")  
+  
+  (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
+  ;; (warn "please run (slide-knife) ~%")
+  (warn "please run (up-knife) ~%")
   )
 
+(defun up-knife ()
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
-(defun slide-knife-4 ()
+  (setq interval 10)
+
+  (ros::unsubscribe "/right_endeffector/wrench")
+  (setq *topic-name* "/right_endeffector/wrench")
+  (setq *cb-flag* nil)
+  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-y-cb-2)
+    
+  (until *cb-flag*
+    (print 4)
+    (send *arrow* :translate (float-vector 0 0 (* interval 1)))
+    (send *pr2* :rarm :inverse-kinematics
+  	  *arrow*
+  	  :move-target (car (send *knife* :attention))
+  	  :rotation-axis t
+  	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+
+    (setq msg (one-shot-subscribe *topic-name* geometry_msgs::WrenchStamped))
+    (wrench-y-cb-2 msg)
+    
+    ;; (ros::spin-once)
+    ;; (ros::sleep)
+    )
+
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+  (warn "please run (slide-knife) ~%")  
+  )
+
+(defun slide-knife ()
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
   ;; 少し上げる
   (send *arrow* :newcoords (send (car (send *knife* :attention)) :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 adj2) :world)
   (send *pr2* :rarm :inverse-kinematics
-        (send *arrow* :copy-worldcoords)
-        :move-target (car (send *knife* :attention))
-        :rotation-axis t
-        :debug-view t)
+	(send *arrow* :copy-worldcoords)
+	:move-target (car (send *knife* :attention))
+	:rotation-axis t
+	:debug-view t)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
@@ -454,49 +473,32 @@
   (ros::unsubscribe "/right_endeffector/wrench")
   (setq *topic-name* "/right_endeffector/wrench")
   (setq *cb-flag* nil)
-  (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-z-cb)
-
-  (setq interval 5)
+  ;; (ros::subscribe "/right_endeffector/wrench" geometry_msgs::WrenchStamped #'wrench-z-cb)
   
-  (setq avs (list))
-  (setq tms (list))
-  
-  (dotimes (i (+ (round (/ 50 interval)) 1))
-    (send *arrow* :translate (float-vector 0 (* interval -1) 0) :world)
+  (until *cb-flag*
+    (print 4)
+    (send *arrow* :translate #f(0 -5 0) :world)
     (send *pr2* :rarm :inverse-kinematics
-          *arrow*
-          :move-target (car (send *knife* :attention))
-          :rotation-axis t
-          :debug-view t)
+  	  *arrow*
+  	  :move-target (car (send *knife* :attention))
+  	  :rotation-axis t
+  	  :debug-view t)
+    (send *viewer* :draw-objects)
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+    (send *ri* :wait-interpolation)
+    
+    (setq msg (one-shot-subscribe *topic-name* geometry_msgs::WrenchStamped))
+    (wrench-z-cb msg)
 
-    (setq av (send *pr2* :angle-vector))
-
-    (setq avs (append avs (list av)))
-    (setq tms (append tms (list 600)))
+    ;; (ros::spin-once)
+    ;; (ros::sleep)
     )
 
-  (send *ri* :angle-vector-sequence avs tms)
-
-  (while (some #'identity (send *ri* :wait-interpolation nil 0.1))
-    (when (progn
-            (ros::spin-once)
-            (if *cb-flag* t)
-            )
-      (send *ri* :cancel-angle-vector)
-      (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-      
-      (ros::unsubscribe "/right_endeffector/wrench")
-
-      (warn "please run (set-cut-1) or (cut-all)~%")  
-      (return-from slide-knife-4 t))
-    )
-
-  (ros::unsubscribe "/right_endeffector/wrench")
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
-  (warn "fail cancel !! ~%")  
-  (warn "please run (set-cut-1) or (cut-all)~%")  
+  (warn "please run (set-cut-1) ~%")  
   )
+
 
 (defun set-cut-1 ()
   (setq acc-y (elt (send (send (car (send *knife* :attention)) :copy-worldcoords) :worldpos) 1))
@@ -801,6 +803,19 @@
 
 (defun now-cut ()
   (set-knife-hor)
+  (cut-test)
+  (avoid-pose)
+  )
+
+(defun now-cut-with-sense ()
+  (grasp-potato)
+  (set-knife-hor)
+  (touch-test-set)
+  (touch-test)
+  (up-knife)
+  (slide-knife)
+  (reset-larm)
+  (set-cut-1)
   (cut-test)
   (avoid-pose)
   )
