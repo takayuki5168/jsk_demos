@@ -50,6 +50,9 @@
 
   (setq adj2 0)
 
+  ;; 掴む力
+  (setq gf 0.1)
+
   ;; set carrot
   (load "../../model/carrot-ellipsoid-model.l")
   ;; (load "../../model/carrot-test-new-type.l")
@@ -229,9 +232,11 @@
   
   ;; 人参の掴む所に
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
-  ;; (send *arrow* :translate (float-vector (+ (/ width -2) 20) 0 0))
-  ;; (send *arrow* :translate #f(-20 0 0))
   (send *arrow* :translate #f(-30 0 0))
+
+  ;; tmp
+  (send *arrow* :translate #f(20 0 0))
+
   (send *arrow* :rotate (deg2rad 45) :y)
 
   (send *arrow* :translate #f(-10 -15 -5) :world)
@@ -261,10 +266,19 @@
   (send (send *pr2* :larm :end-coords) :assoc *carrot*)
   ;; (send *ri* :start-grasp :larm :wait t :gain 0.05)
 
-  (send *ri* :start-grasp :larm :wait t :gain 0.1)
+  (send *ri* :start-grasp :larm :wait t :gain gf)
      
   ;; (warn "please run  (set-carrot-1) ~%")
   (warn "please run  (set-peeler) or (grasp-peeler) ~%")
+
+  ;; 掴めなかったらflagをtに
+  (setq gripper-len (send *ri* :state :gripper :larm :position))
+  (if (< gripper-len 10)
+      (progn 
+	(setq *fail-flag* t)
+	(reset-larm)
+	))
+
   )
 
 (defun set-carrot ()
@@ -1272,25 +1286,23 @@
 
 
 (defun now-test ()
-  ;; (set-carrot-peel :w width :l length :h height)
   (grasp-carrot-peel)
-  (set-carrot-1)
   (set-peeler)
-  (peel-test)
+  (set-carrot-1)
   (set-carrot-2)
-  (peel-test-2)
+  (peel-test4)
   (set-carrot-3)
-  (peel-test-3)
+  (peel-test4)
   (set-carrot-4)
-  (peel-test-4)
+  (peel-test4)
   (set-carrot-5)
-  (peel-test-5)
+  (peel-test4)
   (set-carrot-6)
-  (peel-test-6)
+  (peel-test4)
   (set-carrot-7)
-  (peel-test-7)
+  (peel-test4)
   (set-carrot-8)
-  (peel-test-8)
+  (peel-test4)
 
   (finish-pose-peel)
   (put-carrot)
@@ -1302,7 +1314,9 @@
   (set-carrot-1)
   (set-carrot-1-2)
   (set-peeler)
+  (setq adj (+ adj 10))
   (peel-test4)
+  (setq adj (- adj 10))
   (set-carrot-1)
   (set-carrot-2)
   (peel-test4)

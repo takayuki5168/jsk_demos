@@ -252,7 +252,7 @@
 
   ;; 位置に．
   ;; (send *arrow* :newcoords (make-coords :pos (float-vector 350.0 2000.0 900) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
-  (send *arrow* :newcoords (make-coords :pos (float-vector 280.0 2030.0 960) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0)))) ;; 300も良さげではあった．
+  (send *arrow* :newcoords (make-coords :pos (float-vector 300.0 2050.0 970) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0)))) ;; 300も良さげではあった．
 
   (send *arrow* :translate #f(0 0 90) :world)
   (send *pr2* :larm :inverse-kinematics
@@ -439,6 +439,7 @@
 
 
 (defun now-transfer ()
+  (setq *end-flag* nil)
   (recognition)
   (until *end-flag*
 	 (setq *fail-flag* nil)

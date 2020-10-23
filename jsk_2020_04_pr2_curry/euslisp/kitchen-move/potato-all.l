@@ -1,0 +1,151 @@
+;; 初期化
+(if (not (boundp '*pr2*))
+    (progn
+      (load "package://pr2eus/pr2-interface.l")
+      (pr2-init)
+      ))
+
+(objects (list *pr2*))
+
+(warn "please run (potato-peel-all) ~%")
+(warn "please run (potato-cut-all) ~%")
+(warn "please run (potato-all) ~%")
+
+(defun potato-peel-all ()
+  ;; じゃがいもピーラーをつかむ
+  (load "tool-change/grasp-potato-peeler.l")
+  (grasp-potato-peeler)
+
+  ;; じゃがいもの皮を剥く．
+  (load "rotate-peel-test/potato-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  (now-peel)
+
+  ;; じゃがいもを回転させる．
+  (load "rotate-peel-test/potato-rotate-with-rec-tmp.l")
+  (now-rotate)
+
+  ;; じゃがいもの皮を剥く．
+  (load "rotate-peel-test/potato-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  (now-peel)
+
+  ;; じゃがいもピーラーから包丁に持ち替える．
+  (load "tool-change/put-potato-peeler.l")
+  (put-potato-peeler)
+
+  (warn "please run (potato-cut-all) ~%")
+  )
+
+(defun potato-cut-all ()
+  ;; 包丁を持つ．
+  (load "tool-change/grasp-knife.l")
+  (grasp-knife)
+
+  ;; じゃがいもを半分に切る．
+  (load "cut-stable/potato-cut-half-with-rec.l")
+  (now-cut)
+
+  ;; 右半分を立てる．
+  (load "cut-stable/potato-half-right-set-with-rec.l")
+  (now-set)
+
+  ;; 右半分を回転させる．
+  (load "cut-stable/potato-half-right-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 右半分を切る．
+  (load "cut-stable/potato-cut-right-quarter-box-with-rec.l")
+  (now-cut)
+
+  ;; 左半分を回転させる．
+  (load "cut-stable/potato-half-left-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 左半分を切る．
+  (load "cut-stable/potato-cut-left-quarter-box-with-rec.l")
+  (now-cut)
+  
+  ;; 包丁を置く
+  (load "tool-change/put-knife.l")
+  (put-knife)
+
+  (warn "please run (potato-transfer) ~%")
+  )
+
+(defun potato-transfer ()
+  ;; 容器に移す．
+  (load "transfer-vegs/transfer-test-with-rec.l")
+  (now-transfer)
+  )
+
+(defun potato-all ()
+  (potato-peel-all)
+  (potato-cut-all)
+  (potato-transfer)
+  )
+
+
+(defun sense-cut-test ()
+  ;; 包丁を持つ．
+  (load "tool-change/grasp-knife.l")
+  (grasp-knife)
+
+  ;; じゃがいもを半分に切る．
+  (load "cut-stable/potato-cut-half-with-rec.l")
+  (now-cut-with-sense)
+
+  ;; 右半分を立てる．
+  (load "cut-stable/potato-half-right-set-with-rec.l")
+  (now-set)
+
+  ;; 右半分を回転させる．
+  (load "cut-stable/potato-half-right-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 右半分を切る．
+  (load "cut-stable/potato-cut-right-quarter-box-with-rec.l")
+  (now-cut-with-sense)
+
+  ;; 左半分を回転させる．
+  (load "cut-stable/potato-half-left-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 左半分を切る．
+  (load "cut-stable/potato-cut-left-quarter-box-with-rec.l")
+  (now-cut-with-sense)
+  
+  ;; 包丁を置く
+  (load "tool-change/put-knife.l")
+  (put-knife)
+
+  )
+
+(defun tmp-test ()
+  ;; じゃがいもを半分に切る．
+  (load "cut-stable/potato-cut-half-with-rec.l")
+  (now-cut-with-sense)
+
+  ;; 右半分を立てる．
+  (load "cut-stable/potato-half-right-set-with-rec.l")
+  (now-set)
+
+  ;; 右半分を回転させる．
+  (load "cut-stable/potato-half-right-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 右半分を切る．
+  (load "cut-stable/potato-cut-right-quarter-box-with-rec.l")
+  (now-cut-with-sense)
+
+  ;; 左半分を回転させる．
+  (load "cut-stable/potato-half-left-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 左半分を切る．
+  (load "cut-stable/potato-cut-left-quarter-box-with-rec.l")
+  (now-cut-with-sense)
+  
+  ;; 包丁を置く
+  (load "tool-change/put-knife.l")
+  (put-knife)
+
+  )

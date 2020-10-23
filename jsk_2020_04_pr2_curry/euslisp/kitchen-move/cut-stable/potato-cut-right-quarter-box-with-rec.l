@@ -52,6 +52,8 @@
   ;; 調整用
   (setq adj 0)
 
+  (setq adj2 5)
+
   ;; set potato
   ;; (load "../../model/potato-new-type.l")
   ;; (load "../../model/potato-half-model.l")
@@ -91,9 +93,9 @@
   (setq *boxes* (send msg :boxes))
   (setq *bbox* (car (send msg :boxes)))
   ;; (print 1)
-  (when msg
+  (when *bbox*
     (let ((cam-coords nil))
-      (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))    
+      (setq tm2 (send *l* :get-latest-common-time "base_footprint" "head_mount_kinect_rgb_optical_frame"))
       (setq *dim* (send *bbox* :dimensions))
       (setq width (* (send *dim* :x) 1000))
       (setq length (* (send *dim* :y) 1000))
@@ -150,6 +152,7 @@
 
 
 ;; subscribeして認識
+(ros::unsubscribe *topic-name*)
 (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
 (setq *b* (instance ros::transform-broadcaster :init))
 
@@ -168,6 +171,7 @@
   (ros::spin-once)
   (ros::sleep)
   )
+(ros::unsubscribe *topic-name*)
 
 ;; yが最大のboxを使ってモデルを作る．
 (setq *tmp* 0)
@@ -503,11 +507,11 @@
 (defun set-cut-1 ()
   (setq acc-y (elt (send (send (car (send *knife* :attention)) :copy-worldcoords) :worldpos) 1))
   (setq now-y (elt (send (send *cut-point-1* :copy-worldcoords) :worldpos) 1))
-  (setq adj (+ (- now-y acc-y) (/ width 2)))
+  (setq adj (+ (- now-y acc-y) (/ *width* 2)))
   (warn "please run (cut-test) ~%")  
   )
 
-(defun cut-test ()
+(defun before-cut ()
   (if (not (boundp '*potato*))
       (set-potato :w *width* :l *length* :h *height*))
 
@@ -562,7 +566,9 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+  )
 
+(defun cut-cut ()
   (setq interval 10)
   (dotimes (i (+ (round (/ (* *height* 0.5) interval)) 1))
     (send *arrow* :translate (float-vector (* interval 2) 0 (/ interval -2)))
@@ -592,6 +598,11 @@
   (warn "you can retry (cut-test-4), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
   )
 
+(defun cut-test ()
+  (before-cut)
+  (cut-cut)
+  )
+
 (defun continue-cut (num)
   (setq interval 10)
   (dotimes (i num)
@@ -615,6 +626,20 @@
     (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
     (send *ri* :wait-interpolation))
   (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
+  )
+
+(defun after-cut ()
+  (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
+
+  (send *pr2* :larm :move-end-pos #f(0 0 80) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 0 -80) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
   )
 
 (defun finish-pose ()
@@ -818,4 +843,23 @@
   (set-cut-1)
   (cut-test)
   (avoid-pose)
+  )
+
+(defun now-cut-with-sense-2 ()
+  (grasp-potato)
+  (set-knife-hor)
+  (touch-test-set)
+  (touch-test)
+  (up-knife)
+  (slide-knife)
+  (reset-larm)
+
+  (set-cut-1)
+  (before-cut)
+  (grasp-potato)
+  (cut-cut)
+  
+  (after-cut)
+  (avoid-pose)
+  (reset-larm)
   )

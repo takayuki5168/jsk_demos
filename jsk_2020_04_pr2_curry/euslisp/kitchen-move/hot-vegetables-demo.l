@@ -1,4 +1,4 @@
-%;; 初期化
+;; 初期化
 (if (not (boundp '*pr2*))
     (progn
       (load "package://pr2eus/pr2-interface.l")

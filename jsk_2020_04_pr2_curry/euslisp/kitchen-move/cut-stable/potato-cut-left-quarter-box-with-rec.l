@@ -52,6 +52,8 @@
   ;; 調整用
   (setq adj 0)
 
+  (setq adj2 5)
+
   ;; set potato
   ;; (load "../../model/potato-new-type.l")
   ;; (load "../../model/potato-half-model.l")
@@ -150,6 +152,7 @@
 
 
 ;; subscribeして認識
+(ros::unsubscribe *topic-name*)
 (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
 (setq *b* (instance ros::transform-broadcaster :init))
 
@@ -503,7 +506,7 @@
 (defun set-cut-1 ()
   (setq acc-y (elt (send (send (car (send *knife* :attention)) :copy-worldcoords) :worldpos) 1))
   (setq now-y (elt (send (send *cut-point-1* :copy-worldcoords) :worldpos) 1))
-  (setq adj (+ (- now-y acc-y) (/ width 2)))
+  (setq adj (+ (- now-y acc-y) (/ *width* 2)))
   (warn "please run (cut-test) ~%")  
   )
 
