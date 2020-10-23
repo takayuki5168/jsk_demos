@@ -234,9 +234,6 @@
   (send *arrow* :newcoords (send *carrot* :copy-worldcoords))
   (send *arrow* :translate #f(-30 0 0))
 
-  ;; tmp
-  (send *arrow* :translate #f(20 0 0))
-
   (send *arrow* :rotate (deg2rad 45) :y)
 
   (send *arrow* :translate #f(-10 -15 -5) :world)
