@@ -45,7 +45,7 @@
   (setq s-time 3)
 
   ;; (setq adj 10)
-  (setq adj 5)
+  (setq adj 0)
 
   (setq adj2 0)
 
@@ -1234,7 +1234,9 @@
   (set-peeler)
   (set-potato-1)
   (set-potato-1-2)
+  (setq adj (+ adj 10))
   (peel-test4)
+  (setq adj (- adj 10))
   (set-potato-1)
   (set-potato-2)
   (peel-test4)
