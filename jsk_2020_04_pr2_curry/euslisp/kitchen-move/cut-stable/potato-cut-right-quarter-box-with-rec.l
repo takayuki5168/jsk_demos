@@ -636,10 +636,52 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
 
-  (send *pr2* :larm :move-end-pos #f(0 0 -80) :world)
+  (send *pr2* :larm :move-end-pos #f(0 -10 -80) :world)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
+
+  ;; 右側も
+
+  ;; じゃがいもの掴む所に
+  (send *arrow* :newcoords (send *potato* :copy-worldcoords))
+  (send *arrow* :rotate (deg2rad 90) :y)
+
+  (send *arrow* :translate #f(-10 -10 -5) :world)
+
+  ;;gripperを開く
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *arrow* :translate #f(0 100 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate #f(0 -100 -100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;;gripperを閉じる
+  (send *ri* :start-grasp :larm :wait t)
+
+  (send *pr2* :larm :move-end-pos #f(0 0 80) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 10 -80) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+  
   )
 
 (defun finish-pose ()
