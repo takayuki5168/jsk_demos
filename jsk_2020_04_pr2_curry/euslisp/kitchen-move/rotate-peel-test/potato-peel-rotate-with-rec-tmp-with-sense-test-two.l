@@ -10,7 +10,6 @@
   (pr2-init)
   ;; (pr2)
 
-
   ;; set まな板
   (load "../../model/cutting-board.l")
   (setq *cutting-board* (cutting-board))
