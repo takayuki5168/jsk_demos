@@ -420,7 +420,7 @@
   ;; 少し上に包丁を
   (setq *kp* (arrow))
   (send *kp* :newcoords (send *cut-point-1* :copy-worldcoords))
-  (send *kp* :translate (float-vector 0 0 (* *height* 0.5)))
+  (send *kp* :translate (float-vector 0 0 (* *height* 1)))
 
   ;;調整
   (send *kp* :translate (float-vector 0 adj 0))
@@ -462,7 +462,7 @@
 
 (defun cut-cut ()
   (setq interval 10)
-  (dotimes (i (+ (round (/ (* *height* 0.5) interval)) 1))
+  (dotimes (i (+ (round (/ (* *height* 1) interval)) 1))
     (send *kp* :translate (float-vector (* interval 2) 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *kp*
@@ -550,7 +550,7 @@
 
   ;;gripperを開く
   (send *ri* :stop-grasp :larm :wait t)
-  (send *arrow* :translate #f(0 100 100) :world)
+  (send *arrow* :translate #f(0 60 80) :world)
   (send *pr2* :larm :inverse-kinematics
         (send *arrow* :copy-worldcoords)
         :rotation-axis t
@@ -559,7 +559,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *arrow* :translate #f(0 -100 -100) :world)
+  (send *arrow* :translate #f(0 -60 -80) :world)
   (send *pr2* :larm :inverse-kinematics
         (send *arrow* :copy-worldcoords)
         :rotation-axis t
@@ -569,7 +569,7 @@
   (send *ri* :wait-interpolation)
 
   ;;gripperを閉じる
-  (send *ri* :start-grasp :larm :wait t)
+  ;; (send *ri* :start-grasp :larm :wait t)
 
   (send *pr2* :larm :move-end-pos #f(0 0 80) :world)
   (send *viewer* :draw-objects)
@@ -740,20 +740,37 @@
 
 
 (defun now-devel ()
+  (set-pose)
   (set-potato-cut)
-  (grasp-knife-hor)
-  (cut-test)
-  (finish-pose)
+  (grasp-potato)
+  (set-knife-hor)
+  (reset-larm)
+
+  (before-cut)
+  (grasp-potato)
+  (cut-cut)
+  
+  (after-cut)
+  (reset-larm)
+  (avoid-pose)
   )
 
 
 
 (defun now-test ()
-  ;; (set-potato :w *width* :l *length* :h *height*)
-  ;; (grasp-potato)
+  (set-pose)
+  (set-potato-cut)
+  (grasp-potato)
   (set-knife-hor)
-  (cut-test)
-  (finish-pose)
+  (reset-larm)
+
+  (before-cut)
+  (grasp-potato)
+  (cut-cut)
+  
+  (after-cut)
+  (reset-larm)
+  (avoid-pose)
   )
 
 
