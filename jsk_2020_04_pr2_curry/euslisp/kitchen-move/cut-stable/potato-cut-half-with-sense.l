@@ -391,7 +391,7 @@
 
 (defun set-cut-1 ()
   (setq acc-y (elt (send (send (car (send *knife* :attention)) :copy-worldcoords) :worldpos) 1))
-  (setq now-y (elt (send (send *cut-point-1* :copy-worldcoords) :worldpos) 1))
+  (setq now-y (elt (send (send *cut-point-3* :copy-worldcoords) :worldpos) 1))
   (setq adj (+ (- now-y acc-y) (/ (- width 30) 2)))
   (warn "please run (cut-test) ~%")  
   )
@@ -414,7 +414,7 @@
   ;; 少し上に包丁を
   (setq *kp* (arrow))
   (send *kp* :newcoords (send *cut-point-3* :copy-worldcoords))
-  (send *kp* :translate (float-vector 0 0 (* height 1)))
+  (send *kp* :translate (float-vector 0 0 (* height 0.6)))
 
   ;;調整
   (send *kp* :translate (float-vector 0 adj 0))
@@ -456,7 +456,7 @@
 
 (defun cut-cut ()
   (setq interval 10)
-  (dotimes (i (+ (round (/ height interval)) 1))
+  (dotimes (i (+ (round (/ (* height 0.6) interval)) 1))
     (send *kp* :translate (float-vector (* interval 2) 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *kp*
@@ -575,7 +575,66 @@
   
   )
 
-(defun after-cut ()
+(defun set-larm ()
+  ;;少し上に
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 250) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis nil
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 左手を少し前に
+  (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
+  (send *arrow* :translate #f(-200 50 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; じゃがいもの掴む所に
+  (send *arrow* :newcoords (send *potato* :copy-worldcoords))
+  (send *arrow* :translate #f(0 -20 0) :world)
+  (send *arrow* :rotate (deg2rad 70) :y)
+
+  (send *arrow* :translate #f(0 -15 0) :world)
+
+  (send *arrow* :translate #f(-10 -10 -5) :world)
+
+  ;;gripperを開く
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *arrow* :translate #f(0 -100 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate #f(0 100 -100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;;gripperを閉じる
+  (send *ri* :start-grasp :larm :wait t)
+     
+  )
+
+
+(defun after-cut-2 ()
   (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
   (move-potato-3)
   (send *pr2* :larm :end-coords :dissoc *potato*)
@@ -594,7 +653,7 @@
   
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send p1 :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 120) :y)
+  (send *arrow* :rotate (deg2rad 100) :y)
 
   (send *arrow* :translate #f(-10 -10 -5) :world)
 
@@ -653,6 +712,18 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+  )
+
+(defun after-cut-2 ()
+  (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
+  (move-potato-3)
+  (send *pr2* :larm :end-coords :dissoc *potato*)
+  (send *pr2* :larm :end-coords :assoc p4)  
+
+  (put-potato)
+
+  ;; 右側も
+  (send *pr2* :larm :end-coords :dissoc p4)
   )
 
 
@@ -916,6 +987,24 @@
   )
 
 (defun now-cut-with-sense ()
+  (grasp-potato)
+  (set-knife-hor)
+  (touch-test-set)
+  (touch-test)
+  (up-knife)
+  (slide-knife)
+  (set-cut-1)
+  (reset-larm)
+  
+  (cut-test)
+  (grasp-potato)
+  (put-potato)
+  (reset-larm)
+
+  (avoid-pose)
+  )
+
+(defun now-cut-with-sense-2 ()
   (grasp-potato)
   (set-knife-hor)
   (touch-test-set)

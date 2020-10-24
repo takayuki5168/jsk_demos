@@ -181,10 +181,29 @@
 
   (set-cut-1)
   (before-cut)
-  (grasp-potato)
+  (set-larm)
   (cut-cut)
   
   (after-cut)
+  (reset-larm)
+  (avoid-pose)
+  )
+
+(defun now-cut-with-sense-2 ()
+  (grasp-potato)
+  (set-knife-hor)
+  (touch-test-set)
+  (touch-test)
+  (up-knife)
+  (slide-knife)
+  (reset-larm)
+
+  (set-cut-1)
+  (before-cut)
+  (grasp-potato)
+  (cut-cut)
+  
+  (after-cut-2)
   (reset-larm)
   (avoid-pose)
   )

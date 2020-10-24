@@ -250,7 +250,7 @@
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   ;; (send *arrow* :translate (float-vector 0 0 (* height 1)))
-  (send *arrow* :translate (float-vector 0 -50 (* height 1)))
+  (send *arrow* :translate (float-vector 0 -30 (* height 1)))
 
   ;;調整
   (send *arrow* :translate (float-vector 0 adj 0))
@@ -420,7 +420,7 @@
   ;; 少し上に包丁を
   (setq *kp* (arrow))
   (send *kp* :newcoords (send *cut-point-1* :copy-worldcoords))
-  (send *kp* :translate (float-vector 0 0 (* *height* 1)))
+  (send *kp* :translate (float-vector 0 0 (* *height* 0.5)))
 
   ;;調整
   (send *kp* :translate (float-vector 0 adj 0))
@@ -462,7 +462,7 @@
 
 (defun cut-cut ()
   (setq interval 10)
-  (dotimes (i (+ (round (/ (* *height* 1) interval)) 1))
+  (dotimes (i (+ (round (/ (* *height* 0.5) interval)) 1))
     (send *kp* :translate (float-vector (* interval 2) 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
 	  *kp*
@@ -520,7 +520,65 @@
   (warn "you can retry (cut-test), (continue-cut 4) or you want to finish please run (finish-pose)  ~%")
   )
 
-(defun after-cut ()
+(defun set-larm ()
+  ;;少し上に
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 250) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis nil
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 左手を少し前に
+  (send *arrow* :newcoords (make-coords :pos (send (send *pr2* :larm :end-coords) :worldpos)))
+  (send *arrow* :translate #f(-200 50 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; じゃがいもの掴む所に
+  (send *arrow* :newcoords (send *potato* :copy-worldcoords))
+  (send *arrow* :translate #f(0 -20 0) :world)
+  (send *arrow* :rotate (deg2rad 70) :y)
+
+  (send *arrow* :translate #f(0 -15 0) :world)
+
+  (send *arrow* :translate #f(-10 -10 -5) :world)
+
+  ;;gripperを開く
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *arrow* :translate #f(0 -100 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :translate #f(0 100 -100) :world)
+  (send *pr2* :larm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;;gripperを閉じる
+  (send *ri* :start-grasp :larm :wait t)
+     
+  )
+
+(defun after-cut-2 ()
   (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
 
   (send *pr2* :larm :move-end-pos #f(0 0 80) :world)
@@ -544,7 +602,7 @@
   
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 120) :y)
+  (send *arrow* :rotate (deg2rad 100) :y)
 
   (send *arrow* :translate #f(-10 -10 -5) :world)
 
@@ -581,6 +639,21 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
   )
+
+(defun after-cut ()
+  (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
+  
+  (send *pr2* :larm :move-end-pos #f(0 0 80) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 -10 -80) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+  )
+
 
 (defun finish-pose ()
   (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
@@ -800,10 +873,30 @@
 
   (set-cut-1)
   (before-cut)
-  (grasp-potato)
+  (set-larm)
   (cut-cut)
   
   (after-cut)
+  (reset-larm)
+  (avoid-pose)
+  )
+
+(defun now-cut-with-sense-2 ()
+  (set-potato-cut)
+  (grasp-potato)
+  (set-knife-hor)
+  (touch-test-set)
+  (touch-test)
+  (up-knife)
+  (slide-knife)
+  (reset-larm)
+
+  (set-cut-1)
+  (before-cut)
+  (grasp-potato)
+  (cut-cut)
+  
+  (after-cut-2)
   (reset-larm)
   (avoid-pose)
   )
