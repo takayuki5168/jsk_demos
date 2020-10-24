@@ -138,7 +138,7 @@
       (setq obj-pos (scale 0.001 (send obj-coord :worldpos)))
       (setq found-obj t)
 
-      (if (> (elt obj-pos 1) *tmp*)
+      (if (< (elt obj-pos 1) *tmp*)
           (progn
             (setq *tmp* (elt obj-pos 1))
             (setq *width* width)
