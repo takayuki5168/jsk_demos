@@ -642,10 +642,17 @@
   (send *ri* :wait-interpolation)
 
   ;; 右側も
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *pr2* :larm :end-coords :dissoc *potato*)
 
+  (send *pr2* :larm :move-end-pos #f(0 0 100) :world)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+  
   ;; じゃがいもの掴む所に
   (send *arrow* :newcoords (send *potato* :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 90) :y)
+  (send *arrow* :rotate (deg2rad 120) :y)
 
   (send *arrow* :translate #f(-10 -10 -5) :world)
 
@@ -681,7 +688,6 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
-  
   )
 
 (defun finish-pose ()
@@ -882,19 +888,6 @@
   (up-knife)
   (slide-knife)
   (reset-larm)
-  (set-cut-1)
-  (cut-test)
-  (avoid-pose)
-  )
-
-(defun now-cut-with-sense-2 ()
-  (grasp-potato)
-  (set-knife-hor)
-  (touch-test-set)
-  (touch-test)
-  (up-knife)
-  (slide-knife)
-  (reset-larm)
 
   (set-cut-1)
   (before-cut)
@@ -902,6 +895,6 @@
   (cut-cut)
   
   (after-cut)
-  (avoid-pose)
   (reset-larm)
+  (avoid-pose)
   )

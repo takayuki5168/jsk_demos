@@ -168,7 +168,7 @@
   (ros::sleep)
   )
 
-;; yが最大のboxを使ってモデルを作る．
+;; yが最小のboxを使ってモデルを作る．
 (setq *tmp* 1000000)
 (dolist (i *boxes*)
   (check-y-coords-min i))
