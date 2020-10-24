@@ -10,6 +10,7 @@
 (warn "please run (potato-peel-all) ~%")
 (warn "please run (potato-cut-all) ~%")
 (warn "please run (potato-all) ~%")
+(warn "or you can run (potato-cut-with-sense) ~%")
 
 (defun potato-peel-all ()
   ;; じゃがいもピーラーをつかむ
