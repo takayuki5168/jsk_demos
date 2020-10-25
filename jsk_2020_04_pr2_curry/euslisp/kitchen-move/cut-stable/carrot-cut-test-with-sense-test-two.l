@@ -231,7 +231,8 @@
 
   (send *knife* :rotate (deg2rad 90) :x)
   (send *pr2* :rarm :end-coords :assoc *knife*)
-
+  (send *ri* :start-grasp :rarm :wait t :gain 100)
+  
   (objects (list *kitchen* *pr2* *cutting-board* *carrot* *knife*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box 
@@ -256,8 +257,8 @@
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   ;; (send *arrow* :translate (float-vector 0 0 (* height 1)))
-  (send *arrow* :translate (float-vector 0 -50 (* height 1)))
-
+  (send *arrow* :translate (float-vector 0 -30 (* height 1)))
+  
   ;;調整
   (send *arrow* :translate (float-vector 0 adj 0))
 
