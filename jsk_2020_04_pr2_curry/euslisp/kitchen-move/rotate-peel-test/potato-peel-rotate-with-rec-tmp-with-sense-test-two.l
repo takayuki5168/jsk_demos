@@ -1237,6 +1237,7 @@
 
 (defun now-peel ()
   (grasp-potato-peel)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1246,6 +1247,7 @@
   (set-peeler)
   (set-potato-1)
   (set-potato-1-2)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1257,6 +1259,7 @@
   (setq adj (- adj 10))
   (set-potato-1)
   (set-potato-2)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1266,6 +1269,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-potato-3)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1275,6 +1279,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-potato-4)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1284,6 +1289,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-potato-5)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1293,6 +1299,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-potato-6)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1302,6 +1309,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-potato-7)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1311,6 +1319,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-potato-8)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)

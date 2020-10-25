@@ -68,3 +68,18 @@
   (carrot-peel-all)
   (carrot-cut-all)
   )
+
+(defun tmp-test ()
+  ;; 包丁を持つ．
+  (load "tool-change/grasp-knife.l")
+  (grasp-knife)
+
+  ;; 人参を半分に切る．
+  (load "cut-stable/carrot-cut-test-with-sense-test-two-with-rec.l")
+  (now-cut)
+  
+  ;; 包丁を置く
+  (load "tool-change/put-knife.l")
+  (put-knife)
+
+  )

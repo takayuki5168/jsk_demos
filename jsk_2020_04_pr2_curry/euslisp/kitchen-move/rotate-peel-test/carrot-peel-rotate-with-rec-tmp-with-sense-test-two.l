@@ -111,6 +111,7 @@
 
 
 ;; subscribeして認識
+(ros::unsubscribe *topic-name*)
 ;; (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
 (setq *b* (instance ros::transform-broadcaster :init))
 
@@ -1296,6 +1297,7 @@
 	(return-from now-peel)))
   (set-carrot-1)
   (set-carrot-1-2)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1308,6 +1310,7 @@
   (setq adj (- adj 10))
   (set-carrot-1)
   (set-carrot-2)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1317,6 +1320,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-carrot-3)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1326,6 +1330,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-carrot-4)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1335,6 +1340,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-carrot-5)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1344,6 +1350,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-carrot-6)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1353,6 +1360,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-carrot-7)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
@@ -1362,6 +1370,7 @@
 	(return-from now-peel)))
   (peel-test4)
   (set-carrot-8)
+  (fail-check)
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
