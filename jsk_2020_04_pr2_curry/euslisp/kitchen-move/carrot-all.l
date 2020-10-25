@@ -10,6 +10,7 @@
 (warn "please run (carrot-peel-all) ~%")
 (warn "please run (carrot-cut-all) ~%")
 (warn "please run (carrot-all) ~%")
+(warn "please run (carrot-peel-and-cut) ~%")
 
 (defun carrot-peel-all ()
   ;; ピーラーをつかむ
@@ -63,3 +64,7 @@
   (carrot-transfer)
   )
 
+(defun carrot-peel-and-cut ()
+  (carrot-peel-all)
+  (carrot-cut-all)
+  )

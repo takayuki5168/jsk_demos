@@ -153,32 +153,8 @@
   )
 
 
-(defun tmp-test ()
-  ;; じゃがいもを半分に切る．
-  (load "cut-stable/potato-cut-half-with-sense-with-rec.l")
-  (now-cut-with-sense)
 
-  ;; 右半分を立てる．
-  (load "cut-stable/potato-half-right-set-with-rec.l")
-  (now-set)
-  
-  ;; 右半分を回転させる．
-  (load "cut-stable/potato-half-right-rotate-with-rec.l")
-  (now-rotate)
-
-  ;; 右半分を切る．
-  (load "cut-stable/potato-cut-quarter-box-right-with-rec.l")
-  (now-cut-with-sense)
-
-  ;; 左半分を回転させる．
-  (load "cut-stable/potato-half-left-rotate-with-rec.l")
-  (now-rotate)
-
-  ;; 左半分を切る．
-  (load "cut-stable/potato-cut-quarter-box-left-with-rec.l")
-  (now-cut-with-sense)
-  
-  ;; 包丁を置く
-  (load "tool-change/put-knife.l")
-  (put-knife)
+(defun potato-peel-and-cut-with-sense ()
+  (potato-peel-all)
+  (potato-cut-with-sense)
   )
