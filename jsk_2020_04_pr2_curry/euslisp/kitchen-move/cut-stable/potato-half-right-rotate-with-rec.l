@@ -149,6 +149,7 @@
 
 
 ;; subscribeして認識
+(ros::unsubscribe *topic-name*)
 (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
 (setq *b* (instance ros::transform-broadcaster :init))
 
@@ -167,6 +168,8 @@
   (ros::spin-once)
   (ros::sleep)
   )
+
+(ros::unsubscribe *topic-name*)
 
 ;; ikを解く
 (load "models/arrow-object.l")

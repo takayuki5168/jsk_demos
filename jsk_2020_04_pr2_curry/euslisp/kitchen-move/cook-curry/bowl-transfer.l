@@ -74,7 +74,7 @@
 (warn "please run (transfer-pot) or (transfer-pan) ~%")
 
 (defun transfer-pot ()
-    ;;少し上に
+  ;;少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 250) :world)
   (send *pr2* :larm :inverse-kinematics
@@ -147,6 +147,31 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
   (send *ri* :wait-interpolation)
 
+  (setq *larm4* #f(24.5059 6.56122 69.338 -61.5372 171.913 -105.192 7.04689))
+  (send *pr2* :larm :angle-vector *larm4*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :l_forearm_roll_joint :joint-angle 180)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :l_forearm_roll_joint :joint-angle 190)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :l_forearm_roll_joint :joint-angle 200)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 0 -60) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 0 60) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+
   (warn "please run (after-pot) ~%")
   
   )
@@ -199,7 +224,53 @@
   (set-pose)
   )
 
+(defun grasp-bowl ()
+  ;;少し上に
+  (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 250) :world)
+  (send *pr2* :larm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis nil
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;;少し前に
+  (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
+  (send *arrow* :translate #f(-200 50 50) :world)
+  (send *arrow* :rotate (deg2rad 90) :z :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (setq *larm2* #f(35.0371 5.51912 50.9811 -60.5584 159.61 -110.561 -25.9414))
+  (send *pr2* :larm :angle-vector *larm2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+  (send *ri* :wait-interpolation)
+
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *ri* :speak-jp "ボウルを握らせて下さい")
+  (unix:sleep 3)
+  (send *ri* :start-grasp :larm :wait t)
+
+  (warn "please run (after-pot) ~%")
+  )
 
 
 (defun transfer-pan ()
+  )
+
+(defun now-set ()
+  (grasp-bowl)
+  (after-pot)
+  )
+
+(defun now-test ()
+  (transfer-pot)
+  (after-pot)
   )

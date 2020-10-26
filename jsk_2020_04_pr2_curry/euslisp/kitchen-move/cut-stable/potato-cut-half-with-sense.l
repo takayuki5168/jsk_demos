@@ -714,7 +714,7 @@
   (send *ri* :wait-interpolation)
   )
 
-(defun after-cut-2 ()
+(defun after-cut ()
   (send *pr2* :angle-vector (send *ri* :state :potantio-vector))
   (move-potato-3)
   (send *pr2* :larm :end-coords :dissoc *potato*)
