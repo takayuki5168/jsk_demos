@@ -293,7 +293,7 @@
   (send *ri* :wait-interpolation)
 
   ;; 置く
-  (send *arrow* :move-to (make-coords :pos (float-vector 500.0 2100.0 850.0) :rot #2f((1.0 0.0 0.0) (0.0 0.0 -1.0) (0.0 1.0 0.0))) :world)
+  (send *arrow* :move-to (make-coords :pos (float-vector 500.0 2050.0 850.0) :rot #2f((1.0 0.0 0.0) (0.0 0.0 -1.0) (0.0 1.0 0.0))) :world)
   (send *arrow* :rotate (deg2rad -90) :y :world)
 
   (send *arrow* :translate #f(0 0 80) :world)

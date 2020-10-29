@@ -257,7 +257,7 @@
   ;; 少し上に包丁を
   (send *arrow* :newcoords (send *cut-point-1* :copy-worldcoords))
   ;; (send *arrow* :translate (float-vector 0 0 (* height 1)))
-  (send *arrow* :translate (float-vector 0 -30 (* height 1)))
+  (send *arrow* :translate (float-vector 0 -20 (* height 1)))
   
   ;;調整
   (send *arrow* :translate (float-vector 0 adj 0))

@@ -959,7 +959,7 @@
   (send *pr2* :larm :end-coords :assoc *potato*)
 
   ;; 置く
-  (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
+  (send *p-arrow* :newcoords (send (make-coords :pos (float-vector 500.0 1950.0 (+ 850.0 (/ height 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))) :copy-worldcoords))
   
   (send *p-arrow* :translate #f(0 0 80) :world)
   (send *pr2* :larm :inverse-kinematics
