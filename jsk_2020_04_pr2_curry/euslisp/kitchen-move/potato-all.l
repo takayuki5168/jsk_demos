@@ -159,9 +159,3 @@
   (potato-cut-with-sense)
   )
 
-(defun tmp-test ()
-  ;; じゃがいもを半分に切る．
-  (load "cut-stable/potato-cut-half-with-sense-with-rec.l")
-  (now-cut-with-sense)
-
-  )

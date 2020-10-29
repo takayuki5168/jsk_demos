@@ -80,7 +80,8 @@
 
 (load "../../model/potato-peeler.l")
 (setq *potato-peeler* (peeler))
-(setq *potato-peeler-coords* (make-coords :pos (float-vector 542.121 2414.771 895.736) :rpy (float-vector 3.14 0.013 1.545)))
+;; (setq *potato-peeler-coords* (make-coords :pos (float-vector 542.121 2414.771 895.736) :rpy (float-vector 3.14 0.013 1.545))) ;; old ver.
+(setq *potato-peeler-coords* (make-coords :pos (float-vector 542.121 2414.771 900) :rpy (float-vector 3.14 0.013 1.545))) ;; new ver. tmp
 (send *potato-peeler* :newcoords (send *potato-peeler-coords* :copy-worldcoords))
 
 (objects (list *pr2* *cutting-board* *peeler* *knife* *potato-peeler* *kitchen*))
