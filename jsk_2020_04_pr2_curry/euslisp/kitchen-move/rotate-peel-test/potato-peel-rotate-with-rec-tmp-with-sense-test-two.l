@@ -104,6 +104,7 @@
 
 
 ;; subscribeして認識
+(ros::unsubscribe *topic-name*)
 ;; (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
 (setq *b* (instance ros::transform-broadcaster :init))
 

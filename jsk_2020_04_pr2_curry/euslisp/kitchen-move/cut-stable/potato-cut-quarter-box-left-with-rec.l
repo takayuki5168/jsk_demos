@@ -80,9 +80,10 @@
   (print 0)
 
   ;; subscribeして認識
+  (ros::unsubscribe *topic-name*)
   ;; (ros::subscribe *topic-name* jsk_recognition_msgs::BoundingBoxArray #'object-pose-cb 1)
   (setq *b* (instance ros::transform-broadcaster :init))
-
+  
   (print 3)
   (setq *cube* (make-cube 10 50 50))
   (send *cube* :set-color :red)

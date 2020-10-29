@@ -46,6 +46,7 @@
   (print 0)
 
   ;; subscribeして認識
+  (ros::unsubscribe *topic-name*)
   (setq *b* (instance ros::transform-broadcaster :init))
 
   (print 3)
