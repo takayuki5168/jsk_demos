@@ -161,6 +161,14 @@
 
 
 (defun tmp-test ()
+  ;; じゃがいもを半分に切る．
+  (load "cut-stable/potato-cut-half-with-sense-with-rec.l")
+  (now-cut-with-sense)
+
+  ;; 右半分を立てる．
+  (load "cut-stable/potato-half-right-set-with-rec.l")
+  (now-set)
+  
   ;; 右半分を回転させる．
   (load "cut-stable/potato-half-right-rotate-with-rec.l")
   (now-rotate)

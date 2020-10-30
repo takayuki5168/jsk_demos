@@ -178,7 +178,7 @@
   (fail-check)
   (if (eql *fail-flag* t)
       (progn
-	(reset-larm)
+	;; (reset-larm)
 	(setq adj (- adj 10))
 	))
 
@@ -189,11 +189,11 @@
 
   (set-cut-1)
 
-  (if (eql *fail-flag* nil)
-      (progn
-	(reset-larm)
-	))
-  ;; (reset-larm)
+  ;; (if (eql *fail-flag* nil)
+  ;;     (progn
+  ;; 	(reset-larm)
+  ;; 	))
+  (reset-larm)
   
   (before-cut)
   (grasp-potato)

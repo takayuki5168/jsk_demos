@@ -197,8 +197,8 @@
   (fail-check)
   (if (eql *fail-flag* t)
       (progn
-	(reset-larm)
-	(setq adj (- adj 10))
+	;; (reset-larm)
+	(setq adj (- adj 20))
 	))
   
   (touch-test-set)
@@ -206,11 +206,11 @@
   (up-knife)
   (slide-knife)
 
-  (if (eql *fail-flag* nil)
-      (progn
-	(reset-larm)
-	))
-  ;; (reset-larm)
+  ;; (if (eql *fail-flag* nil)
+  ;;     (progn
+  ;; 	(reset-larm)
+  ;; 	))
+  (reset-larm)
 
   (set-cut-1)
   (before-cut)
