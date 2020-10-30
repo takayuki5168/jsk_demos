@@ -70,9 +70,9 @@
   )
 
 (defun tmp-test ()
-  ;; 包丁を持つ．
-  (load "tool-change/grasp-knife.l")
-  (grasp-knife)
+  ;; ;; 包丁を持つ．
+  ;; (load "tool-change/grasp-knife.l")
+  ;; (grasp-knife)
 
   ;; 人参を半分に切る．
   (load "cut-stable/carrot-cut-test-with-sense-test-two-with-rec.l")
@@ -83,3 +83,5 @@
   (put-knife)
 
   )
+
+

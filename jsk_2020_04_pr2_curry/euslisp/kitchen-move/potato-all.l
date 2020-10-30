@@ -159,3 +159,27 @@
   (potato-cut-with-sense)
   )
 
+
+(defun tmp-test ()
+  ;; 右半分を回転させる．
+  (load "cut-stable/potato-half-right-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 右半分を切る．
+  (load "cut-stable/potato-cut-quarter-box-right-with-rec.l")
+  (now-cut-with-sense)
+
+  ;; 左半分を回転させる．
+  (load "cut-stable/potato-half-left-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 左半分を切る．
+  (load "cut-stable/potato-cut-quarter-box-left-with-rec.l")
+  (now-cut-with-sense)
+  
+  ;; 包丁を置く
+  (load "tool-change/put-knife.l")
+  (put-knife)
+
+  (warn "please run (potato-transfer) ~%")
+  )

@@ -811,6 +811,13 @@
   (warn "please run (change-peeler)~&")
   )
 
+(defun fail-check ()
+  (setq *fail-flag* nil)
+  (setq gripper-len (send *ri* :state :gripper :larm :position))
+  (if (< gripper-len 10)
+      (setq *fail-flag* t))
+  )
+
 
 (defun now-devel ()
   (set-pose)

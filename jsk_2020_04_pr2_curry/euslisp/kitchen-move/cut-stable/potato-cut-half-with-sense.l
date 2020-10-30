@@ -938,6 +938,13 @@
   ;; (warn "please run (change-peeler)~&")
   )
 
+(defun fail-check ()
+  (setq *fail-flag* nil)
+  (setq gripper-len (send *ri* :state :gripper :larm :position))
+  (if (< gripper-len 10)
+      (setq *fail-flag* t))
+  )
+
 (defun now-devel ()
   (set-pose)
   (set-potato-cut)
@@ -988,14 +995,27 @@
 
 (defun now-cut-with-sense ()
   (grasp-potato)
+
+  (fail-check)
+  (if (eql *fail-flag* t)
+      (progn
+	(reset-larm)
+	(setq adj (- adj 10))
+	))
+
   (set-knife-hor)
   (touch-test-set)
   (touch-test)
   (up-knife)
   (slide-knife)
   (set-cut-1)
-  (reset-larm)
-  
+
+  (if (eql *fail-flag* nil)
+      (progn
+	(reset-larm)
+	))
+  ;; (reset-larm)
+
   (cut-test)
   (grasp-potato)
   (put-potato)

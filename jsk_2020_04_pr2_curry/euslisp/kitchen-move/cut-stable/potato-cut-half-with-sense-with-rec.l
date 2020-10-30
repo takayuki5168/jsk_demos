@@ -151,12 +151,25 @@
 (defun now-cut-with-sense ()
   (grasp-potato)
   (set-knife-hor)
+
+  (fail-check)
+  (if (eql *fail-flag* t)
+      (progn
+	(reset-larm)
+	(setq adj (- adj 10))
+	))
+
   (touch-test-set)
   (touch-test)
   (up-knife)
   (slide-knife)
   (set-cut-1)
-  (reset-larm)
+
+  (if (eql *fail-flag* nil)
+      (progn
+	(reset-larm)
+	))
+  ;; (reset-larm)
   
   (before-cut)
   (set-larm)

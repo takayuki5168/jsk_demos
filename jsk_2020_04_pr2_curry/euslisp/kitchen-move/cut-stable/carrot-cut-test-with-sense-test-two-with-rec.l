@@ -137,7 +137,7 @@
 (defun now-cut ()
   (grasp-carrot)
   (set-knife-hor)
-  (send *ri* :start-grasp :rarm :gain 100)
+  ;; (send *ri* :start-grasp :rarm :gain 100)
   (touch-test-set)
   (touch-test)
   (up-knife)
