@@ -75,7 +75,8 @@
 
 (load "../../model/peeler.l")
 (setq *peeler* (peeler))
-(setq *peeler-coords* (make-coords :pos (float-vector 492.877 2300.143 900.499) :rpy (float-vector 3.14 0.049 1.51)))
+;; (setq *peeler-coords* (make-coords :pos (float-vector 492.877 2300.143 900.499) :rpy (float-vector 3.14 0.049 1.51))) ;; old ver
+(setq *peeler-coords* (make-coords :pos (float-vector 492.877 2300.143 895) :rpy (float-vector 3.14 0.049 1.51))) ;; new ver
 (send *peeler* :newcoords (send *peeler-coords* :copy-worldcoords))
 
 (load "../../model/potato-peeler.l")
