@@ -297,21 +297,21 @@
 
 
 (defun set-knife ()
-  (up-arm)
+  (up-larm)
   (before-knife)
   (receive-knife)
   (put-knife)
   )
 
 (defun set-peeler ()
-  (up-arm)
+  (up-larm)
   (before-peeler)
   (receive-peeler)
   (put-peeler)  
   )
 
 (defun set-potato-peeler ()
-  (up-arm)
+  (up-larm)
   (before-potato-peeler)
   (receive-potato-peeler)
   (put-potato-peeler)  

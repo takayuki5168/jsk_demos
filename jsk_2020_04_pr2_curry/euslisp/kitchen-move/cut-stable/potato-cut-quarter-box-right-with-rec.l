@@ -174,6 +174,14 @@
 (defun now-cut-with-sense ()
   (grasp-potato)
   (set-knife-hor)
+
+  (fail-check)
+  (if (eql *fail-flag* t)
+      (progn
+	;; (reset-larm)
+	(setq adj (- adj 20))
+	))
+
   (touch-test-set)
   (touch-test)
   (up-knife)
