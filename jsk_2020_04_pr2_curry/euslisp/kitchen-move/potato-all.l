@@ -190,16 +190,6 @@
 
 
 (defun tmp-test ()
-  ;; 右半分を回転させる．
-  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-half-right-rotate-with-rec.l")
-  ;; (load "cut-stable/potato-half-right-rotate-with-rec.l")
-  (now-rotate)
-
-  ;; 右半分を切る．
-  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-cut-quarter-box-right-with-rec.l")
-  ;; (load "cut-stable/potato-cut-quarter-box-right-with-rec.l")
-  (now-cut-with-sense)
-
   ;; 左半分を回転させる．
   (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-half-left-rotate-with-rec.l")
   ;; (load "cut-stable/potato-half-left-rotate-with-rec.l")
@@ -214,7 +204,4 @@
   (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/tool-change/put-knife.l")
   ;; (load "tool-change/put-knife.l")
   (put-knife)
-
-  (warn "please run (potato-transfer) ~%")
-
   )
