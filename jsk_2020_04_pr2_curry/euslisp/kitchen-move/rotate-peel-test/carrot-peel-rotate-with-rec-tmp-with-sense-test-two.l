@@ -1292,7 +1292,8 @@
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (set-carrot-1)
@@ -1301,7 +1302,8 @@
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (set-peeler)
@@ -1315,7 +1317,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1325,7 +1328,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1335,7 +1339,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1345,7 +1350,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1355,7 +1361,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1365,7 +1372,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1375,7 +1383,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "carrot-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/carrot-fail-set.l")
+	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)

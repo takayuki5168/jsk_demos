@@ -1242,7 +1242,8 @@
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (set-peeler)
@@ -1252,7 +1253,8 @@
   (if (eql *fail-flag* t)
       (progn
 	(reset-larm)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (setq adj (+ adj 10))
@@ -1265,7 +1267,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1275,7 +1278,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1285,7 +1289,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1295,7 +1300,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1305,7 +1311,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1315,7 +1322,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
@@ -1325,7 +1333,8 @@
       (progn
 	(reset-larm)
 	(finish-pose-peel)
-	(load "potato-fail-set.l")
+	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/potato-fail-set.l")
+	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (peel-test4)
