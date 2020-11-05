@@ -179,7 +179,7 @@
   (if (eql *fail-flag* t)
       (progn
 	;; (reset-larm)
-	(setq adj (- adj 10))
+	(setq adj (- adj 20))
 	))
 
   (touch-test-set)

@@ -523,7 +523,7 @@
 (defun set-larm ()
   ;;少し上に
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(0 0 250) :world)
+  (send *arrow* :translate #f(0 -100 250) :world)
   (send *pr2* :larm :inverse-kinematics
         (send *arrow* :copy-worldcoords)
         :rotation-axis nil
@@ -549,7 +549,7 @@
   (send *arrow* :translate #f(0 -20 0) :world)
   (send *arrow* :rotate (deg2rad 70) :y)
 
-  (send *arrow* :translate #f(0 -15 0) :world)
+  (send *arrow* :translate #f(0 -5 0) :world)
 
   (send *arrow* :translate #f(-10 -10 -5) :world)
 

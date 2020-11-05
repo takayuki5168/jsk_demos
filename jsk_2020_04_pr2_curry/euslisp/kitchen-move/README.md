@@ -2,6 +2,14 @@
 
 kitchen move test
 
+
+## codes
+移動：`move-to-kitchen.l`
+セットする：`set-object.l`  
+じゃがいも：`potato-all.l`  
+人参：`carrot-all.l`
+
+
 ## move-to-kitchen
 move to kitchen-spot (infront of kitchenboard).
 

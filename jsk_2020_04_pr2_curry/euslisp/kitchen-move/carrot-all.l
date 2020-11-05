@@ -29,7 +29,7 @@
   (now-rotate)
   
   ;; 人参の皮を剥く．
-  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/")
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-peel-rotate-with-rec-tmp-with-sense-test-two.l")
   ;; (load "rotate-peel-test/carrot-peel-rotate-with-rec-tmp-with-sense-test-two.l")
   (now-peel)
   
@@ -78,3 +78,15 @@
   (carrot-cut-all)
   )
 
+(defun tmp-test ()
+  ;; 人参の皮を剥く．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  ;; (load "rotate-peel-test/carrot-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  (now-peel)
+  
+  ;; ピーラーを置く．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/tool-change/put-peeler.l")
+  ;; (load "tool-change/put-peeler.l")
+  (put-peeler)
+
+  )
