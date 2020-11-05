@@ -31,6 +31,13 @@
   ;; (send *ri* :go-pos-unsafe 0 0 2.5)
   )
 
+(defun move-to-sink-ri ()
+  ;; コンロまで移動する
+  (send *ri* :clear-costmap)
+  ;; (send *ri* :move-to (make-coords :pos #f(1200 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  (send *ri* :move-to (make-coords :pos #f(1110 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  )
+
 (defun move-to-stove-ri ()
   ;; コンロまで移動する
   (send *ri* :clear-costmap)
