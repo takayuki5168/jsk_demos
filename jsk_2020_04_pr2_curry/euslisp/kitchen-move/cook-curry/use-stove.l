@@ -45,8 +45,6 @@
 
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
-  (objects (list *pr2* *cutting-board*))
-
   ;; def global values
   (setq s-time 3)
   
@@ -78,7 +76,7 @@
   (send *ri* :wait-interpolation)  
   )
 
-;; (set-pose)
+(set-pose)
 
 
 ;; point-pose-extractor
@@ -90,8 +88,22 @@
 (warn "please run (set-pose) or (set-pose-2) ~%")
 
 
+(setq local-cds (make-coords :pos (float-vector 710.701 43.756 833.482) :rpy (float-vector 3.085 -0.199 0.083)))
+(setq *s-panel* (make-cube 150 230 10))
+(send *s-panel* :move-to *pr2* :world)
+;; (send *s-panel* :transform (make-coords :pos #f(710.701 43.756 833.482) :rpy #f(3.085 -0.199 0.083)))
+(send *s-panel* :transform (send local-cds :copy-worldcoords))
+(send *s-panel* :rotate (deg2rad 90) :y)
+(send *s-panel* :translate #f(75 115 0))
+
+(objects (list *pr2* *cutting-board* *s-panel*))
+
 (defun recognition ()
   (setq local-cds (check-detection :type "microwave" :speak-name "denshirenji" :timeout 10 :speak nil))
+  (send *s-panel* :move-to *pr2* :world)
+  (send *s-panel* :transform (send local-cds :copy-worldcoords))
+  (send *s-panel* :rotate (deg2rad 90) :y)
+  (send *s-panel* :translate #f(75 115 0))
   )
 
 (defun on-stove ()
