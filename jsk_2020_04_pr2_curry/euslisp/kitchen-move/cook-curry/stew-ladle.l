@@ -50,9 +50,9 @@
   
   (setq adj 0)
 
-  ;; set spatula
-  (load "../../model/spatula.l")
-  (setq *spatula* (spatula))
+  ;; set ladle
+  (load "../../model/ladle.l")
+  (setq *ladle* (ladle))
 
   ;; set pot
   (load "../../model/cooking-pot-73b2.l")
@@ -77,15 +77,15 @@
 (objects (list *pr2* *pot* *kitchen*))
 
 
-(warn "please run (set-spatula) ~%")
+(warn "please run (set-ladle) ~%")
 
-(defun set-spatula ()
+(defun set-ladle ()
   ;; へらをセットする．
-  (send *spatula* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *spatula* :rotate (deg2rad 90) :x)
-  (send *pr2* :rarm :end-coords :assoc *spatula*)
+  (send *ladle* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *ladle* :rotate (deg2rad 90) :x)
+  (send *pr2* :rarm :end-coords :assoc *ladle*)
 
-  (objects (list *kitchen* *pr2* *spatula* *pot*))
+  (objects (list *kitchen* *pr2* *ladle* *pot*))
   (send *irtviewer* :look-all
 	(geo::make-bounding-box
 	 (flatten (send-all (send *pr2* :bodies) :vertices))))  
