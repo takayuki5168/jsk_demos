@@ -27,15 +27,17 @@
 (defun move-to-kitchen-ri ()
   ;; (send *ri* :speak-jp "台所まで移動します")
   (send *ri* :clear-costmap)
-  (send *ri* :move-to (make-coords :pos #f(1200 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
-  ;; (send *ri* :go-pos-unsafe 0 0 2.5)
+  ;; (send *ri* :move-to (make-coords :pos #f(1200 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  (send *ri* :move-to (make-coords :pos #f(1400 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  (send *ri* :go-pos-unsafe 0.2 0 0)
   )
 
 (defun move-to-sink-ri ()
   ;; コンロまで移動する
   (send *ri* :clear-costmap)
-  ;; (send *ri* :move-to (make-coords :pos #f(1200 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
-  (send *ri* :move-to (make-coords :pos #f(1110 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  ;; (send *ri* :move-to (make-coords :pos #f(1110 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  (send *ri* :move-to (make-coords :pos #f(1400 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
+  (send *ri* :go-pos-unsafe 0.29 0 0)
   )
 
 (defun move-to-stove-ri ()
