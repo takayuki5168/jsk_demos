@@ -52,7 +52,13 @@
 
   ;; set spatula
   (load "../../model/spatula.l")
+  (setq *spatula* (spatula))
 
+  ;; set pot
+  (load "../../model/cooking-pot-73b2.l")
+  (setq *pot* (cooking-pot))
+  (send *pot* :newcoords (make-coords :pos (float-vector 420.0 1500.0 840.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+  
   (setq width 90)
   (setq length 60)
   (setq height 60)
@@ -68,14 +74,20 @@
   )
 
 (init)
+(objects (list *pr2* *pot* *kitchen*))
 
-(defun set-pose-2 ()
-  (send *pr2* :reset-pose)
-  (send *pr2* :head_tilt_joint :joint-angle 40)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)  
+
+
+(defun set-spatula ()
+  ;; へらをセットする．
+  (send *spatula* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *spatula* :rotate (deg2rad 90) :x)
+  (send *pr2* :rarm :end-coords :assoc *spatula*)
+
+  (objects (list *kitchen* *pr2* *spatula* *pot*))
+  (send *irtviewer* :look-all
+	(geo::make-bounding-box
+	 (flatten (send-all (send *pr2* :bodies) :vertices))))  
+
+  (warn "please run (peel-test) ~%")
   )
-
-(set-pose)
-
-
