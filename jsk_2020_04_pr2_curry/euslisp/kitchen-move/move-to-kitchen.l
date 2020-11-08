@@ -32,6 +32,7 @@
   (if (eql local-flag t)
       (progn   (send *ri* :go-pos-unsafe 0.2 0 0)
 	       )
+    (send *ri* :speak-jp "移動に失敗しました")
     )
   )
 
@@ -43,8 +44,8 @@
   (if (eql local-flag t)
       (progn   (send *ri* :go-pos-unsafe 0.29 0 0)
 	       )
+    (send *ri* :speak-jp "移動に失敗しました")
     )
-  ;; (send *ri* :go-pos-unsafe 0.29 0 0)
   )
 
 (defun move-to-stove-ri ()
