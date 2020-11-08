@@ -115,8 +115,8 @@
 (warn "please run (set-pose) or (set-pose-2) ~%")
 
 
-;; (setq local-cds (make-coords :pos (float-vector 527.349 424.972 760.996) :rpy (float-vector 3.129 0.857 -0.026)))
-;; (setq *s-panel* (make-cube 150 230 10))
+(setq local-cds (make-coords :pos (float-vector 527.349 424.972 760.996) :rpy (float-vector 3.129 0.857 -0.026)))
+(setq *s-panel* (make-cube 150 230 10))
 ;; (send *s-panel* :move-to *pr2* :world)
 ;; (send *s-panel* :transform (send local-cds :copy-worldcoords))
 ;; (send *s-panel* :newcoords (make-coords :pos (send (send *s-panel* :copy-worldcoords) :worldpos)))

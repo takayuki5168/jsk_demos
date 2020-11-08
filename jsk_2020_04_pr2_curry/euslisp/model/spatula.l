@@ -13,7 +13,7 @@
      (send-super* :init :name name args)
 
      ;; definition of link
-     (setq b1 (make-prism (list #f(90 40 0) #f(60 -40 0) #f(0 -35 0) #f(-45 -12 0) #f(-45 12 0) #f(0 35 0)) 8))
+     (setq b1 (make-prism (list #f(60 40 0) #f(90 -40 0) #f(0 -35 0) #f(-45 -12 0) #f(-45 12 0) #f(0 35 0)) 8))
      (setq b2 (make-cube 180 15 8))
      
      (send b2 :locate #f(45 0 0))
@@ -40,7 +40,7 @@
      ;; definition of :attention
      (setq attention0 (make-cascoords :pos (float-vector 260 0 0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0)) :name "attention0"))
      (send link1 :assoc attention0)
-     (setq attention1 (make-cascoords :pos (float-vector 260 0 0) :rot #2f((0.984808 0.173648 0.0) (-0.173648 0.984808 0.0) (0.0 0.0 1.0)) :name "attention1"))
+     (setq attention1 (make-cascoords :pos (float-vector 260 0 0) :rot #2f((0.965926 -0.258819 0.0) (0.258819 0.965926 0.0) (0.0 0.0 1.0)) :name "attention1"))
      (send link1 :assoc attention1)
 
 

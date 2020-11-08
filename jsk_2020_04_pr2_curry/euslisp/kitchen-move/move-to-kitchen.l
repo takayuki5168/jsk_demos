@@ -28,16 +28,23 @@
   ;; (send *ri* :speak-jp "台所まで移動します")
   (send *ri* :clear-costmap)
   ;; (send *ri* :move-to (make-coords :pos #f(1200 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
-  (send *ri* :move-to (make-coords :pos #f(1400 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
-  (send *ri* :go-pos-unsafe 0.2 0 0)
+  (setq local-flag (send *ri* :move-to (make-coords :pos #f(1400 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map"))
+  (if (eql local-flag t)
+      (progn   (send *ri* :go-pos-unsafe 0.2 0 0)
+	       )
+    )
   )
 
 (defun move-to-sink-ri ()
   ;; コンロまで移動する
   (send *ri* :clear-costmap)
   ;; (send *ri* :move-to (make-coords :pos #f(1110 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
-  (send *ri* :move-to (make-coords :pos #f(1400 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
-  (send *ri* :go-pos-unsafe 0.29 0 0)
+  (setq local-flag (send *ri* :move-to (make-coords :pos #f(1400 9100 351) :rpy (float-vector pi 0 0)) :frame-id "/map"))
+  (if (eql local-flag t)
+      (progn   (send *ri* :go-pos-unsafe 0.29 0 0)
+	       )
+    )
+  ;; (send *ri* :go-pos-unsafe 0.29 0 0)
   )
 
 (defun move-to-stove-ri ()
@@ -81,4 +88,4 @@
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 
 
-(warn "please run (move-to-kitchen-ri) or (move-to-kitchenboard-ri) and (set-pose)~%")
+(warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) (move-to-stove-ri) and (set-pose)~%")

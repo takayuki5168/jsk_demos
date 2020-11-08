@@ -89,9 +89,23 @@
 
 (warn "please run (set-pose) or (set-pose-2) ~%")
 
+(setq local-cds (make-coords :pos (float-vector 709.078 235.518 1524.735) :rpy (float-vector -3.101 0.632 -0.036)))
+(setq *k-panel* (make-cube 70 55 10))
+
+(objects (list *pr2* *cutting-board* *s-panel*))
 
 (defun recognition ()
-  (setq local-cds (check-detection :type "microwave" :speak-name "denshirenji" :timeout 10 :speak nil))
+  (setq k-pos (float-vector 0 0 0))
+  (dotimes (i 10)
+    (setq local-cds (check-detection :type "microwave" :speak-name "denshirenji" :timeout 10 :speak nil))
+    (send *k-panel* :move-to *pr2* :world)
+    (send *k-panel* :transform (send local-cds :copy-worldcoords))
+    (setq k-pos (v+ k-pos (send *k-panel* :pos)))
+    )
+  (send *k-panel* :newcoords (make-coords :pos (scale 0.1 k-pos)))
+  (send *k-panel* :rotate (deg2rad 90) :y)
+  (send *k-panel* :translate #f(75 115 0))
+
   )
 
 (defun on-water ()
