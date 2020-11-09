@@ -469,7 +469,25 @@
   )
 
 (defun transfer-to-pot ()
-  (send *arrow* :newcoords (make-coords :pos (float-vector 550.911 1725.179 1085.843) :rpy (float-vector 2.561 1.128 2.104)))
+  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 550.911 1725.179 1085.843) :rpy (float-vector 2.561 1.128 2.104)))
+  ;; (send *pr2* :larm :inverse-kinematics
+  ;; 	(send *arrow* :copy-worldcoords)
+  ;; 	:rotation-axis t
+  ;; 	:debug-view t)
+  ;; (send *viewer* :draw-objects)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  ;; (send *ri* :wait-interpolation)
+  
+  ;; (send *pr2* :larm :move-end-pos (float-vector 0 -100 0) :world)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  ;; (send *ri* :wait-interpolation)
+
+  ;; (send *pr2* :larm :move-end-pos (float-vector 0 -100 0) :world)
+  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  ;; (send *ri* :wait-interpolation)
+
+  ;; test for tmp
+  (send *arrow* :newcoords (make-coords :pos (float-vector 550.911 1825.179 1085.843) :rpy (float-vector 2.561 1.128 2.104)))
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -486,6 +504,11 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
 
+  (send *pr2* :larm :move-end-pos (float-vector 0 -100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+  ;;
+  
   (setq *larm1* (float-vector 42.6232 6.188 43.7963 -57.5889 111.452 -100.941 -32.9738))
   (send *pr2* :larm :angle-vector *larm1*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
@@ -505,7 +528,10 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *arrow* :newcoords (make-coords :pos (float-vector 465 1505 1130) :rpy (float-vector -1.625 0.441 -1.831)))
+  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 465 1505 1130) :rpy (float-vector -1.625 0.441 -1.831)))
+  ;; tmp test
+  (send *arrow* :newcoords (make-coords :pos (float-vector 465 1505 1130) :rpy (float-vector -1.571 0.436 -1.571))) 
+  ;;
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -513,43 +539,6 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-
-  ;; (send *pr2* :l_forearm_roll_joint :joint-angle 180)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  ;; (send *ri* :wait-interpolation)
-  
-
-  ;; (setq *larm3* (float-vector 31.3842 5.43188 58.4874 -60.5667 165.964 -111.488 -24.9991))
-  ;; (send *pr2* :larm :angle-vector *larm3*)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
-  ;; (send *ri* :wait-interpolation)
-
-  ;; (setq *larm4* (float-vector 24.5059 6.56122 69.338 -61.5372 171.913 -105.192 7.04689))
-  ;; (send *pr2* :larm :angle-vector *larm4*)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
-  ;; (send *ri* :wait-interpolation)
-
-  ;; (send *pr2* :l_forearm_roll_joint :joint-angle 180)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  ;; (send *ri* :wait-interpolation)
-
-  ;; (send *pr2* :l_forearm_roll_joint :joint-angle 190)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-  ;; (send *ri* :wait-interpolation)
-
-  ;; (send *pr2* :l_forearm_roll_joint :joint-angle 200)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  ;; (send *ri* :wait-interpolation)
-
-  ;; (send *pr2* :larm :move-end-pos (float-vector 0 0 -60) :world)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  ;; (send *ri* :wait-interpolation)
-
-  ;; (send *pr2* :larm :move-end-pos (float-vector 0 0 60) :world)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
-  ;; (send *ri* :wait-interpolation)
-
-  ;; (warn "please run (after-pot) ~%")
   
   (warn "please run (after-transfer) ~%")  
   )
@@ -573,6 +562,12 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
   (send *ri* :wait-interpolation)
 
+  ;; test for tmp
+  (send *pr2* :larm :move-end-pos (float-vector 0 100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+  ;;
+  
   (warn "please run (put-bowl-1) or (put-bowl-2-set) ~%")  
   )
 
@@ -707,10 +702,12 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-  
+
+  (send *arrow* :newcoords ()) 
   )
 
 
+;; old codes
 (defun transfer-pot ()
   (send *ri* :stop-grasp :larm :wait t)
   
