@@ -117,11 +117,11 @@
 
 (setq local-cds (make-coords :pos (float-vector 527.349 424.972 760.996) :rpy (float-vector 3.129 0.857 -0.026)))
 (setq *s-panel* (make-cube 150 230 10))
-;; (send *s-panel* :move-to *pr2* :world)
-;; (send *s-panel* :transform (send local-cds :copy-worldcoords))
-;; (send *s-panel* :newcoords (make-coords :pos (send (send *s-panel* :copy-worldcoords) :worldpos)))
-;; (send *s-panel* :rotate (deg2rad 90) :y)
-;; (send *s-panel* :translate #f(75 115 0))
+(send *s-panel* :move-to *pr2* :world)
+(send *s-panel* :transform (send local-cds :copy-worldcoords))
+(send *s-panel* :newcoords (make-coords :pos (send (send *s-panel* :copy-worldcoords) :worldpos)))
+(send *s-panel* :rotate (deg2rad 90) :y)
+(send *s-panel* :translate #f(75 115 0))
 
 (objects (list *pr2* *cutting-board* *s-panel*))
 
@@ -315,7 +315,7 @@
   
   )
 
-(defun rotate-knob ()
+(defun grasp-knob ()
   (send *ri* :stop-grasp :larm :wait t)
   
   ;; (send *arrow* :newcoords (make-coords :pos (float-vector (elt s-pos 0) (+ (elt s-pos 1) 30) 715) :rpy (float-vector -3.047 -0.011 1.512)))
@@ -370,41 +370,16 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
   
-  ;; (send *arrow* :translate #f(-100 0 0) :world)
-  ;; (send *pr2* :larm :inverse-kinematics
-  ;; 	(send *arrow* :copy-worldcoords)
-  ;; 	:rotation-axis t
-  ;; 	:debug-view t)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
-  ;; (send *ri* :wait-interpolation t)
-
-  ;; (send *arrow* :translate #f(-30 0 0) :world)
-  ;; (send *pr2* :larm :inverse-kinematics
-  ;; 	(send *arrow* :copy-worldcoords)
-  ;; 	:rotation-axis t
-  ;; 	:debug-view t)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
-  ;; (send *ri* :wait-interpolation)
-
   (send *ri* :start-grasp :larm :wait t :gain 100)
+  )
 
-  ;; (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-  ;; (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  ;; (send *arrow* :translate #f(10 0 0) :world)
-  ;; (send *pr2* :larm :inverse-kinematics
-  ;; 	(send *arrow* :copy-worldcoords)
-  ;; 	:rotation-axis t
-  ;; 	:debug-view t)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
-  ;; (send *ri* :wait-interpolation)
-
-
+(defun rotate-knob (&rest args &key (deg 30) &allow-other-keys)
   ;; rotate
   (setq avs (list))
   (setq tms (list))
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
   (send *arrow* :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
-  (send *arrow* :rotate (deg2rad 30) :x)
+  (send *arrow* :rotate (deg2rad deg) :x)
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -418,8 +393,11 @@
   ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
   ;; (send *ri* :wait-interpolation)
 
-  (send *ri* :stop-grasp :larm :wait t)
+  )
 
+(defun release-knob ()
+  (send *ri* :stop-grasp :larm :wait t)
+  
   (send *arrow* :translate #f(30 0 0) :world)
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
@@ -487,7 +465,9 @@
   (set-pose-3)
   (on-stove)
   (push-knob)
-  (rotate-knob)
+  (grasp-knob)
+  (rotate-knob :deg 30)
+  (release-knob)
   (push-knob)
   (off-stove)
   )
