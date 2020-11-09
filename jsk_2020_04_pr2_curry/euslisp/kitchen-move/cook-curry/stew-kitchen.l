@@ -1,4 +1,4 @@
-(defun init ()
+1;5202;0c(defun init ()
   (if (not (boundp '*room*))
       (progn
         (load "../../model/my-room73b2-scene.l")
@@ -35,14 +35,14 @@
   (setq *sink-spot* (make-coords :pos #f(1055 2600 0) :rpy #f(3.14 0 0))) 
   (setq *kitchen-spot* (send *room73b2* :spot "kitchen-spot"))
   (setq *stove-spot* (make-coords :pos #f(1400 1600 0) :rpy #f(3.14 0 0)))
-
+  
 
   ;; キッチンの場所まで移動 (初期値)
   (defun move-to-kitchen-irt ()
     (send *pr2* :move-to *kitchen-spot* :world)
     )
   (move-to-kitchen-irt)
-
+  
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
 
   ;; def global values
@@ -50,9 +50,9 @@
   
   (setq adj 0)
 
-  ;; set spatula
-  (load "../../model/spatula.l")
-  (setq *spatula* (spatula))
+  ;; set ladle
+  (load "../../model/ladle.l")
+  (setq *ladle* (ladle))
 
   ;; set pot
   (load "../../model/cooking-pot-73b2.l")
@@ -64,6 +64,7 @@
   (setq height 60)
   )
 
+
 (defun set-pose ()
   (send *pr2* :reset-manip-pose)
   (send *pr2* :torso_lift_joint :joint-angle 325)
@@ -74,32 +75,55 @@
   )
 
 (init)
+
 (objects (list *pr2* *pot* *kitchen*))
 
 
-(warn "please run (set-spatula) ~%")
+(warn "please run (set-ladle) ~%")
 
+(defun set-ladle ()
+  ;; おたまをセットする．
+  (send *ladle* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *ladle* :rotate (deg2rad 90) :x)
+  (send *pr2* :rarm :end-coords :assoc *ladle*)
 
-(defun recieve-spatula ()
+  (objects (list *kitchen* *pr2* *ladle* *pot*))
+  (send *irtviewer* :look-all
+	(geo::make-bounding-box
+	 (flatten (send-all (send *pr2* :bodies) :vertices))))  
+
+  (warn "please run (peel-test) ~%")
+  )
+
+(defun recieve-ladle ()
   (setq *rav1* (float-vector -20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
   (send *pr2* :rarm :angle-vector *rav1*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (send *arrow* :newcoords (make-coords :pos (float-vector 540.574 1989.496 1127.996) :rpy (float-vector 3.125 -0.122 -0.004)))
+  (send *pr2* :rarm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (send *ri* :stop-grasp :rarm :wait t)  
-  (send *ri* :speak-jp "ヘラを握らせて下さい")
+  (send *ri* :speak-jp "おたまを握らせて下さい")
   (unix:sleep s-time)
   (send *ri* :start-grasp :rarm :wait t)
   )
 
-(defun put-spatula ()
-  (setq *rav1* (float-vector -20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
+(defun put-ladle ()
+  (setq *rav1* #f(27.356 0.296651 -2.77311 -37.6649 179.549 -113.236 -246.974))
   (send *pr2* :rarm :angle-vector *rav1*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
   ;; 置く位置
-  (send *arrow* :newcoords (make-coords :pos (float-vector 604.067 2135.483 875.13) :rpy (float-vector 3.104 -0.006 -0.088))) 
+  (send *arrow* :newcoords (make-coords :pos (float-vector 399.539 1874.817 1035.216) :rpy (float-vector -2.722 1.036 -1.177)))
   (send *arrow* :translate #f(60 0 100) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
@@ -108,7 +132,6 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-
   
   (send *arrow* :translate #f(-60 0 -100) :world)
   (send *pr2* :rarm :inverse-kinematics
@@ -121,7 +144,7 @@
 
   ;; はなす
   (send *ri* :stop-grasp :rarm :wait t)
-  (send (send *pr2* :rarm :end-coords) :dissoc *spatula*)
+  (send (send *pr2* :rarm :end-coords) :dissoc *ladle*)
 
   ;; 手を上げる
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
@@ -134,20 +157,34 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
+  (setq *rav1* #f(27.356 0.296651 -2.77311 -37.6649 179.549 -113.236 -246.974))
+  (send *pr2* :rarm :angle-vector *rav1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (make-coords :pos (float-vector 540.574 1989.496 1127.996) :rpy (float-vector 3.125 -0.122 -0.004)))
+  (send *pr2* :rarm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
   (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
   (send *pr2* :rarm :angle-vector *rav0*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
   (send *ri* :wait-interpolation)
   )
 
-(defun grasp-spatula ()
-  (setq *rav1* (float-vector -20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
+(defun grasp-ladle ()
+  (setq *rav1* #f(27.356 0.296651 -2.77311 -37.6649 179.549 -113.236 -246.974))
   (send *pr2* :rarm :angle-vector *rav1*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
   ;; 掴む位置
-  (send *arrow* :newcoords (make-coords :pos (float-vector 604.067 2135.483 875.13) :rpy (float-vector 3.104 -0.006 -0.088))) 
+  (send *arrow* :newcoords (make-coords :pos (float-vector 399.539 1874.817 1035.216) :rpy (float-vector -2.722 1.036 -1.177)))
   
   (send *ri* :stop-grasp :rarm :wait t)
   
@@ -172,9 +209,9 @@
   
   ;; つかむ
   (send *ri* :start-grasp :rarm :wait t)
-  (send *spatula* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *spatula* :rotate (deg2rad 90) :x)
-  (send (send *pr2* :rarm :end-coords) :assoc *spatula*)
+  (send *ladle* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *ladle* :rotate (deg2rad 90) :x)
+  (send (send *pr2* :rarm :end-coords) :assoc *ladle*)
   
   ;; 手を上げる
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
@@ -187,86 +224,14 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
-  (send *pr2* :rarm :angle-vector *rav0*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (setq *rav1*   #f(27.356 0.296651 -2.77311 -37.6649 179.549 -113.236 -246.974))
+  (send *pr2* :rarm :angle-vector *rav1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-  
   )
 
 
-
-(defun set-spatula ()
-  ;; へらをセットする．
-  (send *spatula* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *spatula* :rotate (deg2rad 90) :x)
-  (send *pr2* :rarm :end-coords :assoc *spatula*)
-
-  (objects (list *kitchen* *pr2* *spatula* *pot*))
-  (send *irtviewer* :look-all
-	(geo::make-bounding-box
-	 (flatten (send-all (send *pr2* :bodies) :vertices))))  
-
-  (warn "please run (mix-with-spatula-set) ~%")
-  )
-
-
-(defun mix-with-spatula-set ()
-  (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
-  (send *pr2* :rarm :angle-vector *rav0*)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
-  (send *ri* :wait-interpolation)
-  
-  (send *arrow* :newcoords (make-coords :pos (float-vector 470.835 1800 1070.223) :rpy (float-vector -1.603 0.03 -0.018)))
-  (send *pr2* :rarm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:move-target (car (send *spatula* :attention))
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
-  (send *arrow* :newcoords (make-coords :pos (float-vector 470.835 1605.337 1070.223) :rpy (float-vector -1.603 0.03 -0.018)))
-  (send *pr2* :rarm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:move-target (car (send *spatula* :attention))
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
-  (warn "please run (mix-with-spatula) ~%")
-  )
-
-
-(defun mix-with-spatula ()
-  ;; 最初の位置
-  (send *arrow* :newcoords (make-coords :pos (float-vector 484.884 1707.132 848.987) :rpy (float-vector -2.191 1.285 -0.0)))
-  (send *pr2* :rarm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:move-target (car (send *spatula* :attention))
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  (send *arrow* :newcoords (make-coords :pos (float-vector 409.674 1635.221 852.548) :rpy (float-vector -2.319 1.076 -0.253)))
-  (send *pr2* :rarm :inverse-kinematics
-  	(send *arrow* :copy-worldcoords)
-  	:move-target (car (send *spatula* :attention))
-  	:rotation-axis t
-  	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  
-  (warn "please run (mix-with-spatula) ~%")
-  )
-
-(defun now-set-spatula ()
-  (recieve-spatula)
-  (put-spatula)
+(defun now-set-ladle ()
+  (recieve-ladle)
+  (put-ladle)
   )

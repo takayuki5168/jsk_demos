@@ -74,7 +74,7 @@
 ;; (set-pose)
 
 
-(setq *x-thre* -15)
+(setq *x-thre* -10)
 
 ;; add for sense
 (ros::roseus "stove_rec_test" :anonymous t)
@@ -646,7 +646,7 @@
  
   )
 
-(defun put-spatula ()
+(defun recieve-spatula ()
   (setq *rav1* (float-vector -20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
   (send *pr2* :rarm :angle-vector *rav1*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
@@ -656,7 +656,14 @@
   (send *ri* :stop-grasp :rarm :wait t)  
   (send *ri* :speak-jp "ヘラを握らせて下さい")
   (unix:sleep s-time)
-  (send *ri* :start-grasp :rarm :wait t)  
+  (send *ri* :start-grasp :rarm :wait t)
+  )
+
+(defun put-spatula ()
+  (setq *rav1* (float-vector -20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
+  (send *pr2* :rarm :angle-vector *rav1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
 
   ;; 置く位置
   (send *arrow* :newcoords (make-coords :pos (float-vector 604.067 2135.483 875.13) :rpy (float-vector 3.104 -0.006 -0.088))) 
@@ -708,9 +715,21 @@
   )
 
 (defun squeeze-test-set ()
+  (send *ri* :start-grasp :rarm :gain 30 :wait t)
+  
   (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
   (send *pr2* :rarm :angle-vector *rav0*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
+  (send *arrow* :newcoords (make-coords :pos (float-vector 470.835 1800 1070.223) :rpy (float-vector -1.603 0.03 -0.018)))
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (car (send *spatula* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
   ;; (send *arrow* :newcoords (make-coords :pos (float-vector 470.835 1605.337 1070.223) :rpy (float-vector -1.603 0.03 -0.018)))
@@ -724,7 +743,7 @@
   ;; (send *ri* :wait-interpolation)
 
   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(0 30 -50) :world)
+  (send *arrow* :translate #f(0 70 -50) :world)
   (send *arrow* :rotate (deg2rad -90) :z)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
@@ -738,78 +757,81 @@
   (warn "please run (squeeze-test) ~%")
   )
 
+;; (defun squeeze-test ()
+;;   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
+;;   (send *arrow* :translate #f(0 30 -50) :world)
+;;   (send *arrow* :rotate (deg2rad -90) :z)
+;;   (send *pr2* :rarm :inverse-kinematics
+;; 	(send *arrow* :copy-worldcoords)
+;; 	:move-target (car (send *spatula* :attention))
+;; 	:rotation-axis t
+;; 	:debug-view t)
+;;   (send *viewer* :draw-objects)
+;;   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+;;   (send *ri* :wait-interpolation)
+
+;;   (setq avs (list))
+;;   (setq tms (list))
+  
+;;   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
+;;   ;; (send *arrow* :translate #f(0 -30 -50) :world)
+;;   (send *arrow* :translate #f(0 -20 -50) :world)
+;;   (send *arrow* :rotate (deg2rad -90) :z)
+;;   (send *pr2* :rarm :inverse-kinematics
+;; 	(send *arrow* :copy-worldcoords)
+;; 	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
+;; 	:rotation-axis t
+;; 	:debug-view t)
+;;   (setq av (send *pr2* :angle-vector))
+;;   (setq avs (append avs (list av)))
+;;   (setq tms (append tms (list 800)))
+  
+;;   (send *arrow* :translate #f(0 0 -100) :world)
+;;   (send *arrow* :rotate (deg2rad 20) :y)
+;;   (send *pr2* :rarm :inverse-kinematics
+;; 	(send *arrow* :copy-worldcoords)
+;; 	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
+;; 	:rotation-axis t
+;; 	:debug-view t)
+;;   (setq av (send *pr2* :angle-vector))
+;;   (setq avs (append avs (list av)))
+;;   (setq tms (append tms (list 800)))
+  
+;;   (send *arrow* :translate #f(0 50 -50) :world)
+;;   (send *arrow* :rotate (deg2rad 10) :y)
+;;   (send *pr2* :rarm :inverse-kinematics
+;; 	(send *arrow* :copy-worldcoords)
+;; 	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
+;; 	:rotation-axis t
+;; 	:debug-view t)
+;;   (setq av (send *pr2* :angle-vector))
+;;   (setq avs (append avs (list av)))
+;;   (setq tms (append tms (list 800)))
+  
+;;   (send *ri* :angle-vector-sequence avs tms)
+
+;;   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
+;;   (send *arrow* :translate #f(0 30 -50) :world)
+;;   (send *arrow* :rotate (deg2rad -90) :z)
+;;   (send *pr2* :rarm :inverse-kinematics
+;; 	(send *arrow* :copy-worldcoords)
+;; 	:move-target (car (send *spatula* :attention))
+;; 	:rotation-axis t
+;; 	:debug-view t)
+;;   (send *viewer* :draw-objects)
+;;   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+;;   (send *ri* :wait-interpolation)
+;;   )
+
 (defun squeeze-test ()
   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(0 30 -50) :world)
+  ;; (send *arrow* :translate (float-vector 0 30 -50) :world)
+  (send *arrow* :translate (float-vector 0 50 -50) :world)
   (send *arrow* :rotate (deg2rad -90) :z)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
-	:move-target (car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-
-  (setq avs (list))
-  (setq tms (list))
-  
-  (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(0 -30 -50) :world)
-  (send *arrow* :rotate (deg2rad -90) :z)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
+	;; :move-target (car (send *spatula* :attention))
 	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (setq av (send *pr2* :angle-vector))
-  (setq avs (append avs (list av)))
-  (setq tms (append tms (list 800)))
-  
-  (send *arrow* :translate #f(0 0 -100) :world)
-  (send *arrow* :rotate (deg2rad 20) :y)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (setq av (send *pr2* :angle-vector))
-  (setq avs (append avs (list av)))
-  (setq tms (append tms (list 800)))
-  
-  (send *arrow* :translate #f(0 50 -50) :world)
-  (send *arrow* :rotate (deg2rad 10) :y)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (setq av (send *pr2* :angle-vector))
-  (setq avs (append avs (list av)))
-  (setq tms (append tms (list 800)))
-  
-  (send *ri* :angle-vector-sequence avs tms)
-
-  (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(0 30 -50) :world)
-  (send *arrow* :rotate (deg2rad -90) :z)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:move-target (car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
-  (send *viewer* :draw-objects)
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  (send *ri* :wait-interpolation)
-  )
-
-(defun squeeze-test-2 ()
-  (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(0 30 -50) :world)
-  (send *arrow* :rotate (deg2rad -90) :z)
-  (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:move-target (car (send *spatula* :attention))
 	:rotation-axis t
 	:debug-view t)
   (send *viewer* :draw-objects)
@@ -819,13 +841,13 @@
   (setq avs (list))
   (setq tms (list))
 
-  (dolist (i 10)
-    (send *arrow* :translate #f(0 -10 0) :world)
+  (dotimes (i 10)
+    (send *arrow* :translate (float-vector 0 -10 0) :world)
     (send *pr2* :rarm :inverse-kinematics
 	  (send *arrow* :copy-worldcoords)
 	  :move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
 	  :rotation-axis t
-	  :debug-view t)
+	  :debug-view nil)
     (setq av (send *pr2* :angle-vector))
     (setq avs (append avs (list av)))
     (setq tms (append tms (list 600)))
@@ -851,47 +873,92 @@
   (ros::unsubscribe "/right_endeffector/wrench")
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
   (send *arrow* :newcoords (send (elt (send *spatula* :attention) 1) :copy-worldcoords))
+
+  (warn "please run (squeeze) ~%")
+  )
   
+(defun squeeze ()
   (setq avs (list))
   (setq tms (list))
   
-  (send *arrow* :translate #f(0 0 -100) :world)
-  (send *arrow* :rotate (deg2rad 20) :y)
+  (send *arrow* :translate #f(0 0 -60) :world)
+  (send *arrow* :rotate (deg2rad 10) :y)
   (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
+  	:rotation-axis t
+  	:debug-view t)
   (setq av (send *pr2* :angle-vector))
   (setq avs (append avs (list av)))
   (setq tms (append tms (list 800)))
   
-  (send *arrow* :translate #f(0 50 -50) :world)
+  (send *arrow* :translate #f(0 80 -50) :world)
   (send *arrow* :rotate (deg2rad 10) :y)
   (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (elt (send *spatula* :attention) 1) ;;(car (send *spatula* :attention))
+  	:rotation-axis t
+  	:debug-view t)
   (setq av (send *pr2* :angle-vector))
   (setq avs (append avs (list av)))
   (setq tms (append tms (list 800)))
   
   (send *ri* :angle-vector-sequence avs tms)
   (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (send (elt (send *spatula* :attention) 1) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 30 30) :world)
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (elt (send *spatula* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+  (send *ri* :wait-interpolation)  
   
   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(0 30 -50) :world)
+  (send *arrow* :translate #f(0 60 -50) :world)
   (send *arrow* :rotate (deg2rad -90) :z)
   (send *pr2* :rarm :inverse-kinematics
-	(send *arrow* :copy-worldcoords)
-	:move-target (car (send *spatula* :attention))
-	:rotation-axis t
-	:debug-view t)
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (car (send *spatula* :attention))
+  	:rotation-axis t
+  	:debug-view t)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   )
+
+(defun avoid-rarm ()
+  (send *arrow* :newcoords (make-coords :pos (float-vector 470.835 1605.337 1070.223) :rpy (float-vector -1.603 0.03 -0.018)))
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (car (send *spatula* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (make-coords :pos (float-vector 470.835 2000 1070.223) :rpy (float-vector -1.603 0.03 -0.018)))
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (car (send *spatula* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
+  (send *pr2* :rarm :angle-vector *rav0*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
+  (warn "please run (after-transfer) ~%")
+  )
+
 
 
 ;; old codes
@@ -1196,7 +1263,6 @@
   (after-pot)
   )
 
-
 ;; ボウル２をまな板上に置いて使う
 (defun now-devel ()
   (grasp-bowl-2)
@@ -1208,6 +1274,24 @@
   )
 
 (defun tmp-test ()
-  (recieve-bowl-2)
-  (put-bowl-2)
+  ;; ボウル１を掴んで移してヘラでかく．
+  (grasp-bowl-1)
+  (transfer-to-pot)
+  
+  (grasp-spatula)
+  (squeeze-test-set)
+  (squeeze-test)
+  
+  (squeeze)
+  
+  (avoid-rarm)
+  (after-transfer)
+  (put-bowl-1)
+  (put-spatula)
+  )
+
+(defun tmp ()
+  (after-transfer)
+  (put-bowl-1)
+  (put-spatula)
   )
