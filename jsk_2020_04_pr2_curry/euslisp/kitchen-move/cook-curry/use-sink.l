@@ -92,7 +92,7 @@
 (setq local-cds (make-coords :pos (float-vector 709.078 235.518 1524.735) :rpy (float-vector -3.101 0.632 -0.036)))
 (setq *k-panel* (make-cube 70 55 10))
 
-(objects (list *pr2* *cutting-board* *s-panel*))
+(objects (list *pr2* *cutting-board* *k-panel*))
 
 (defun recognition ()
   (setq k-pos (float-vector 0 0 0))
