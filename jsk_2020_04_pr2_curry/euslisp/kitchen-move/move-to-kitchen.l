@@ -59,7 +59,13 @@
 (defun move-to-microwave-ri ()
   ;; 電子レンジまで移動する
   (send *ri* :clear-costmap)
-  (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
+  (send *ri* :move-to (make-coords :pos #f(1500 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
+  )
+
+(defun move-to-seasoning-ri ()
+  ;; 電子レンジまで移動する
+  (send *ri* :clear-costmap)
+  (send *ri* :move-to (make-coords :pos #f(1700 8900 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
   )
 
 (defun move-to-microwave-unsafe ()
@@ -108,7 +114,7 @@
 (setq local-cds (make-coords :pos (float-vector 709.078 235.518 1524.735) :rpy (float-vector -3.101 0.632 -0.036)))
 (setq *k-panel* (make-cube 70 55 10))
 
-(objects (list *pr2* *cutting-board* *k-panel*))
+;; (objects (list *pr2* *cutting-board* *k-panel*))
 
 (defun recognition ()
   (setq k-pos (float-vector 0 0 0))
