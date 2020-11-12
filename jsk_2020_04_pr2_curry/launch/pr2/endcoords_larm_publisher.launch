@@ -1,6 +1,6 @@
 <launch>
 
-  <node name="endcoords_publisher"
+  <node name="larm_endcoords_publisher"
 	pkg="kitchen_recognition"
 	type="pr2-larm-end-coords-publisher.l">
   </node>
