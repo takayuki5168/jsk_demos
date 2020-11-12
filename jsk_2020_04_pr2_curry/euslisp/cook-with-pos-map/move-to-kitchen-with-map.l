@@ -1,5 +1,6 @@
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
-(require :eng2-scene "package://jsk_maps/src/eng2-scene.l")
+;; (require :eng2-scene "package://jsk_maps/src/eng2-scene.l")
+(require :eng2-scene "package://jsk_2020_04_pr2_curry/euslisp/model/my-eng2-scene.l")
 
 (defun init ()
   
@@ -32,26 +33,35 @@
 
 (defun update-pos ()
   (send *pr2* :move-to (send *ri* :state :worldcoords) :world)
+  (update-view)
   )
 
 (init)
 (update-view)
 
+(warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) (move-to-stove-ri) and (set-pose)~%")
+
+
 ;; IRT上の移動
 (defun move-to-kitchen-irt ()
   (send *pr2* :move-to (send *kitchen-spot* :copy-worldcoords) :world)
+  (update-view)
   )
 (defun move-to-sink-irt ()
   (send *pr2* :move-to (send *sink-spot* :copy-worldcoords) :world)
+  (update-view)
   )
 (defun move-to-stove-irt ()
   (send *pr2* :move-to (send *stove-spot* :copy-worldcoords) :world)
+  (update-view)
   )
 (defun move-to-microwave-irt ()
   (send *pr2* :move-to (send *microwave-spot* :copy-worldcoords) :world)
+  (update-view)
   )
 (defun move-to-seasoning-irt ()
   (send *pr2* :move-to (send *seasoning-spot* :copy-worldcoords) :world)
+  (update-view)
   )
 
 
@@ -106,11 +116,6 @@
   (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
   )
 
-
-(defun move-to-kitchenboard-ri ()
-  (go-to-spot "/eng2/7f/room73B2-front-of-kitchenboard")
-  )
-
 (defun set-pose ()
   (send *pr2* :reset-manip-pose)
   (send *pr2* :torso_lift_joint :joint-angle 325)
@@ -127,9 +132,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   )
-
-
-(warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) (move-to-stove-ri) and (set-pose)~%")
 
 
 ;; set for recognize robot's pos

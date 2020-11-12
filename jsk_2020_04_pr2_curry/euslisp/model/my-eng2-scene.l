@@ -3,7 +3,8 @@
 (load "models/elevator_call_panel_eng2-object.l")
 (load "models/elevator_inside_panel_eng2-object.l")
 
-(load "eng2-rooms.l")
+;; (load "eng2-rooms.l")
+(load "package://jsk_maps/src/eng2-rooms.l")
 
 (defun push-knowrob-properties (subj prop-name obj)
   (when (and subj obj)
@@ -397,6 +398,17 @@
 			     (send scene :object "/eng2/8f/elevator"))
 
     scene))
+
+
+;; my spot
+(setq *kitchen-spot* (make-coords :pos (float-vector 1200 8500 30000) :rpy (float-vector pi 0 0)))
+(setq *sink-spot* (make-coords :pos (float-vector 1100 9100 30000) :rpy (float-vector pi 0 0)))
+(setq *stove-spot* (make-coords :pos (float-vector 1400 8100 30000) :rpy (float-vector pi 0 0)))
+(setq *microwave-spot* (make-coords :pos (float-vector 1700 9400 30000) :rpy (float-vector pi 0 0)))
+(setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
+
+;; tools pos
+
 
 ;; example
 ;; (load "package://pr2eus/pr2-interface.l")
