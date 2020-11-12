@@ -13,6 +13,7 @@
   (unless (boundp '*pr2*) (setq *pr2* (instance pr2-sensor-robot :init)))
   (unless (boundp '*ri*) (setq *ri* (instance pr2-interface :init)))
   (send *pr2* :move-to (send *ri* :state :worldcoords) :world)
+  (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
   
   ;; ;; set spots
   (setq *kitchen-spot* (make-coords :pos (float-vector 1200 8500 30000) :rpy (float-vector pi 0 0)))
@@ -21,14 +22,25 @@
   (setq */eng2/7f/room73B2-front-of-kitchenboard* (send *scene* :spot "/eng2/7f/room73B2-front-of-kitchenboard")) ;; 1350.0 8750.0 30002.0 / 3.142 0.0 0.0
   )
 
+(defun update-view ()
+  (objects (list *scene* *pr2*))
+  (send *irtviewer* :look-all *pr2*)           
+  )
+
+(defun update-pos ()
+  (send *pr2* :move-to (send *ri* :state :worldcoords) :world)
+  )
+
 (init)
+(update-view)
 
-(objects (list *scene* *pr2*))
-(send *irtviewer* :look-all *pr2*)           
-
-;; キッチンの場所まで移動 IRT上
+;; IRT上の移動
 (defun move-to-kitchen-irt ()
   (send *pr2* :move-to (send *kitchen-spot* :copy-worldcoords) :world)
+  )
+
+(defun move-to-sink-irt ()
+  (send *pr2* :move-to (send *sink-spot* :copy-worldcoords) :world)
   )
 
 (defun move-to-kitchen-ri ()
@@ -103,9 +115,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   )
-
-(move-to-kitchen-irt)
-(send *irtviewer* :look-all *pr2*)           
 
 
 (warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) (move-to-stove-ri) and (set-pose)~%")
