@@ -407,8 +407,13 @@
 (setq *microwave-spot* (make-coords :pos (float-vector 1700 9400 30000) :rpy (float-vector pi 0 0)))
 (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
 
-;; tools pos
-
+;; tools coords
+;; (setq *knife-coords* (make-coords :pos (float-vector 580.098 2226.215 857.185) :rpy (float-vector 3.14 0.073 1.498)))
+;; (setq *peeler-coords* (make-coords :pos (float-vector 492.877 2300.143 895) :rpy (float-vector 3.14 0.049 1.51)))
+;; (setq *potato-peeler-coords* (make-coords :pos (float-vector 542.121 2414.771 900) :rpy (float-vector 3.14 0.013 1.545)))
+(setq *knife-coords* (make-coords :pos (float-vector 580 9126 30857) :rpy (float-vector 3.14 0.073 1.498)))
+(setq *peeler-coords* (make-coords :pos (float-vector 493 9200 30895) :rpy (float-vector 3.14 0.049 1.51)))
+(setq *potato-peeler-coords* (make-coords :pos (float-vector 542 9315 30900) :rpy (float-vector 3.14 0.013 1.545)))
 
 ;; example
 ;; (load "package://pr2eus/pr2-interface.l")
