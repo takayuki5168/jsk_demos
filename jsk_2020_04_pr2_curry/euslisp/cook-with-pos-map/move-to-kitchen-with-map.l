@@ -1,5 +1,4 @@
 (require :pr2-interface "package://pr2eus/pr2-interface.l")
-;; (require :eng2-scene "package://jsk_maps/src/eng2-scene.l")
 (require :eng2-scene "package://jsk_2020_04_pr2_curry/euslisp/model/my-eng2-scene.l")
 
 (defun init ()
@@ -23,10 +22,15 @@
   (setq *microwave-spot* (make-coords :pos (float-vector 1700 9400 30000) :rpy (float-vector pi 0 0)))
   (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
   
-  (setq */eng2/7f/room73B2-front-of-kitchenboard* (send *scene* :spot "/eng2/7f/room73B2-front-of-kitchenboard"))
+  (objects (list *scene* *pr2*))
   )
 
 (defun update-view ()
+  (send *viewer* :draw-objects)
+  (send *irtviewer* :look-all *pr2*)           
+  )
+
+(defun update-scene ()
   (objects (list *scene* *pr2*))
   (send *irtviewer* :look-all *pr2*)           
   )
@@ -39,7 +43,8 @@
 (init)
 (update-view)
 
-(warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) (move-to-stove-ri) and (set-pose)~%")
+(warn "please run (move-to-kitchen-irt) or (move-to-sink-irt) for move in irtviewer ~%")
+(warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) or (move-to-stove-ri) and (set-pose)~%")
 
 
 ;; IRT上の移動
