@@ -125,7 +125,7 @@
   (setq height h)
   
   (setq *carrot* (carrot :w w :l l :h h))
-  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2100.0 (+ 850.0 (/ h 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
+  (send *carrot* :transform (make-coords :pos (float-vector 500.0 2000.0 (+ 850.0 (/ h 2))) :rot #2f((0.0 -1.0 0.0) (1.0 0.0 0.0) (0.0 0.0 1.0))))
   (send *carrot* :cut)
   
   (objects (list *kitchen* *pr2* *cutting-board* *carrot*))
@@ -836,10 +836,10 @@
   (dotimes (i (+ (round (/ height interval)) 1))
     (send *arrow* :translate (float-vector (* interval 2) 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
-	  *arrow*
-	  :move-target (car (send *knife* :attention))
-	  :rotation-axis t
-	  :debug-view nil)
+  	  *arrow*
+  	  :move-target (car (send *knife* :attention))
+  	  :rotation-axis t
+  	  :debug-view nil)
     ;; (send *viewer* :draw-objects)
     ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
     ;; (send *ri* :wait-interpolation)
@@ -850,10 +850,10 @@
 
     (send *arrow* :translate (float-vector (* interval -2) 0 (/ interval -2)))
     (send *pr2* :rarm :inverse-kinematics
-	  *arrow*
-	  :move-target (car (send *knife* :attention))
-	  :rotation-axis t
-	  :debug-view nil)
+  	  *arrow*
+  	  :move-target (car (send *knife* :attention))
+  	  :rotation-axis t
+  	  :debug-view nil)
     ;; (send *viewer* :draw-objects)
     ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
     ;; (send *ri* :wait-interpolation)
@@ -1204,5 +1204,15 @@
   (cut-test)
   (finish-pose)
   (put-potato)
+  (reset-larm)
+  )
+
+
+(defun tmp-test ()
+  (set-carrot :w 150 :l 40 :h 40)
+  (grasp-carrot)
+  (grasp-knife-hor)
+  (cut-test)
+  (avoid-pose)
   (reset-larm)
   )
