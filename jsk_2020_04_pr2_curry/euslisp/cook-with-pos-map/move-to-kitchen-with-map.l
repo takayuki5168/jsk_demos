@@ -17,9 +17,12 @@
   
   ;; ;; set spots
   (setq *kitchen-spot* (make-coords :pos (float-vector 1200 8500 30000) :rpy (float-vector pi 0 0)))
-  (setq *sink-spot* (make-coords :pos (float-vector 1100 9100 30000) :rpy (float-vector pi 0 0)))   
+  (setq *sink-spot* (make-coords :pos (float-vector 1100 9100 30000) :rpy (float-vector pi 0 0)))
+  (setq *stove-spot* (make-coords :pos (float-vector 1400 8100 30000) :rpy (float-vector pi 0 0)))
+  (setq *microwave-spot* (make-coords :pos (float-vector 1700 9400 30000) :rpy (float-vector pi 0 0)))
+  (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
   
-  (setq */eng2/7f/room73B2-front-of-kitchenboard* (send *scene* :spot "/eng2/7f/room73B2-front-of-kitchenboard")) ;; 1350.0 8750.0 30002.0 / 3.142 0.0 0.0
+  (setq */eng2/7f/room73B2-front-of-kitchenboard* (send *scene* :spot "/eng2/7f/room73B2-front-of-kitchenboard"))
   )
 
 (defun update-view ()
@@ -38,10 +41,19 @@
 (defun move-to-kitchen-irt ()
   (send *pr2* :move-to (send *kitchen-spot* :copy-worldcoords) :world)
   )
-
 (defun move-to-sink-irt ()
   (send *pr2* :move-to (send *sink-spot* :copy-worldcoords) :world)
   )
+(defun move-to-stove-irt ()
+  (send *pr2* :move-to (send *stove-spot* :copy-worldcoords) :world)
+  )
+(defun move-to-microwave-irt ()
+  (send *pr2* :move-to (send *microwave-spot* :copy-worldcoords) :world)
+  )
+(defun move-to-seasoning-irt ()
+  (send *pr2* :move-to (send *seasoning-spot* :copy-worldcoords) :world)
+  )
+
 
 (defun move-to-kitchen-ri ()
   (send *ri* :clear-costmap)
