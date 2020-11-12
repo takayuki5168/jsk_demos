@@ -60,6 +60,19 @@
   )
 
 (defun put-knife ()  
+  (send *arrow* :newcoords (send *knife-coords* :copy-worldcoords))
+  (send *arrow* :translate #f(-12 0 0))
+  (send *arrow* :rotate (deg2rad -90) :x)
+  
+  (send *arrow* :translate #f(60 0 100) :world)
+  (send *pr2* :rarm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
   (send *arrow* :translate #f(-60 0 -100) :world)  
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
@@ -126,6 +139,18 @@
   )
 
 (defun put-peeler ()
+  (send *arrow* :newcoords (send *peeler-coords* :copy-worldcoords))
+  (send *arrow* :rotate (deg2rad -90) :x)
+
+  (send *arrow* :translate #f(60 0 100) :world)
+  (send *pr2* :rarm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
   (send *arrow* :translate #f(-60 0 -100) :world)
   (send *pr2* :rarm :inverse-kinematics
         (send *arrow* :copy-worldcoords)
@@ -193,6 +218,18 @@
 
 
 (defun put-potato-peeler ()
+  (send *arrow* :newcoords (send *potato-peeler-coords* :copy-worldcoords))
+  (send *arrow* :rotate (deg2rad -90) :x)
+
+  (send *arrow* :translate #f(60 0 100) :world)
+  (send *pr2* :rarm :inverse-kinematics
+        (send *arrow* :copy-worldcoords)
+        :rotation-axis t
+        :debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
   (send *arrow* :translate #f(-60 0 -100) :world)
   (send *pr2* :rarm :inverse-kinematics
         (send *arrow* :copy-worldcoords)
@@ -244,7 +281,7 @@
   (send *ri* :wait-interpolation)
   )
 
-(defun up-larm ()
+(defun up-rarm ()
   ;; 手を上げる
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate #f(0 0 50) :world)
@@ -259,7 +296,7 @@
 
 
 (defun now-set-tools ()
-  (up-larm)
+  (up-rarm)
   (receive-knife)
   (put-knife)
   (receive-peeler)
@@ -269,19 +306,27 @@
   )
 
 (defun set-knife ()
-  (up-larm)
+  (up-rarm)
   (receive-knife)
   (put-knife)
   )
 
 (defun set-peeler ()
-  (up-larm)
+  (up-rarm)
   (receive-peeler)
   (put-peeler)  
   )
 
 (defun set-potato-peeler ()
-  (up-larm)
+  (up-rarm)
   (receive-potato-peeler)
   (put-potato-peeler)  
+  )
+
+
+;; grasp-codes
+(defun grasp-knife ()
+  (up-rarm)
+
+  ()
   )
