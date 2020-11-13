@@ -16,11 +16,11 @@
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
   
   ;; ;; set spots
-  (setq *kitchen-spot* (make-coords :pos (float-vector 1200 8500 30000) :rpy (float-vector pi 0 0)))
-  (setq *sink-spot* (make-coords :pos (float-vector 1100 9100 30000) :rpy (float-vector pi 0 0)))
-  (setq *stove-spot* (make-coords :pos (float-vector 1400 8100 30000) :rpy (float-vector pi 0 0)))
-  (setq *microwave-spot* (make-coords :pos (float-vector 1700 9400 30000) :rpy (float-vector pi 0 0)))
-  (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
+  ;; (setq *kitchen-spot* (make-coords :pos (float-vector 1200 8500 30000) :rpy (float-vector pi 0 0)))
+  ;; (setq *sink-spot* (make-coords :pos (float-vector 1100 9100 30000) :rpy (float-vector pi 0 0)))
+  ;; (setq *stove-spot* (make-coords :pos (float-vector 1400 8100 30000) :rpy (float-vector pi 0 0)))
+  ;; (setq *microwave-spot* (make-coords :pos (float-vector 1700 9400 30000) :rpy (float-vector pi 0 0)))
+  ;; (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
   
   (objects (list *scene* *pr2*))
   )
@@ -120,6 +120,7 @@
   (send *ri* :go-pos-unsafe 0 -0.6 0)
   (send *ri* :go-pos-unsafe 0.09 0 0)
   (update-pos)
+  (update-view)
   )
 
 (defun go-to-kitchen ()
@@ -127,6 +128,7 @@
   (send *ri* :go-pos-unsafe -0.09 0 0)  
   (send *ri* :go-pos-unsafe 0 0.6 0)
   (update-pos)
+  (update-view)
   )
 
 (defun set-pose ()
@@ -144,27 +146,5 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-  )
-
-
-;; set for recognize robot's pos
-
-(setq local-cds (make-coords :pos (float-vector 709.078 235.518 1524.735) :rpy (float-vector -3.101 0.632 -0.036)))
-(setq *k-panel* (make-cube 70 55 10))
-
-;; (objects (list *pr2* *cutting-board* *k-panel*))
-
-(defun recognition ()
-  (setq k-pos (float-vector 0 0 0))
-  (dotimes (i 10)
-    (setq local-cds (check-detection :type "microwave" :speak-name "denshirenji" :timeout 10 :speak nil))
-    (send *k-panel* :move-to *pr2* :world)
-    (send *k-panel* :transform (send local-cds :copy-worldcoords))
-    (setq k-pos (v+ k-pos (send *k-panel* :pos)))
-    )
-  (send *k-panel* :newcoords (make-coords :pos (scale 0.1 k-pos)))
-  (send *k-panel* :rotate (deg2rad 90) :y)
-  (send *k-panel* :translate #f(35 27.5 0))
-  
   )
 
