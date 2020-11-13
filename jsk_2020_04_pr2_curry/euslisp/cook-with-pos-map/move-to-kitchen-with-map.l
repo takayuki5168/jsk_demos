@@ -26,6 +26,7 @@
   )
 
 (defun update-view ()
+  (send *pr2* :copy-worldcoords)
   (send *viewer* :draw-objects)
   (send *irtviewer* :look-all *pr2*)           
   )
@@ -69,7 +70,7 @@
   (update-view)
   )
 
-
+;; 実機の移動
 (defun move-to-kitchen-ri ()
   (send *ri* :clear-costmap)
   ;; (send *ri* :move-to (make-coords :pos #f(1200 8500 351) :rpy (float-vector pi 0 0)) :frame-id "/map")
@@ -108,17 +109,24 @@
   )
 
 (defun move-to-seasoning-ri ()
-  ;; 電子レンジまで移動する
+  ;; 調味料まで移動する
   (send *ri* :clear-costmap)
   (send *ri* :move-to (make-coords :pos #f(1700 8900 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
   )
 
-(defun move-to-microwave-unsafe ()
-  ;; 電子レンジまで移動する
-  (send *ri* :clear-costmap)
-  (send *ri* :go-pos-unsafe -0.1 0 0)
-  (send *ri* :go-pos-unsafe 0 0 -90)
-  (send *ri* :move-to (make-coords :pos #f(1400 9400 351) :rpy (float-vector 0 0 0)) :frame-id "/map")
+;; kitchen spotとsink間の移動
+(defun go-to-sink ()
+  ;; kitchen spotからsinkに実行する
+  (send *ri* :go-pos-unsafe 0 -0.6 0)
+  (send *ri* :go-pos-unsafe 0.09 0 0)
+  (update-pos)
+  )
+
+(defun go-to-kitchen ()
+  ;; sinkからkitchen spotに移動する
+  (send *ri* :go-pos-unsafe -0.09 0 0)  
+  (send *ri* :go-pos-unsafe 0 0.6 0)
+  (update-pos)
   )
 
 (defun set-pose ()
