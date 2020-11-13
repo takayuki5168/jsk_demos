@@ -1,35 +1,30 @@
-(defun tool-init ()
+(defun bowl-init ()
   ;; init
   (load "move-to-kitchen-with-map.l")
-
-  (load "package://jsk_2020_04_pr2_curry/euslisp/model/knife-new-attention.l")
-  (setq *my-knife* (knife))
-  (send *my-knife* :newcoords (send *knife-coords* :copy-worldcoords))
-
-  (load "package://jsk_2020_04_pr2_curry/euslisp/model/peeler.l")
-  (setq *peeler* (peeler))
-  (send *peeler* :newcoords (send *peeler-coords* :copy-worldcoords))
-
-  (load "package://jsk_2020_04_pr2_curry/euslisp/model/potato-peeler.l")
-  (setq *potato-peeler* (peeler))
-  (send *potato-peeler* :newcoords (send *potato-peeler-coords* :copy-worldcoords))
-
-  (objects (list *pr2* *peeler* *my-knife* *potato-peeler* *scene*))
+  
+  (objects (list *pr2* *scene*))
   (update-view)
 
   ;; set global num
   (setq *s-time* 3)
 
+  ;; def bowl grasp coords
+  (setq *bowl-1-coords* (make-coords :pos (float-vector )))
   )
 
-(move-to-kitchen-irt)
-(tool-init)
-
+(move-to-kitchen-irt) ;;not use real robot
+(bowl-init)
 
 ;; set codes
-(warn "please run (now-set-tools) or (set-knife) ~%")
+(warn "please run (now-set-bowls) or (set-bowl1) ~%")
 
-(defun receive-knife ()
+
+(defun receive-bowl1 ()
+
+
+
+
+  
   ;; knifeの位置
   (send *arrow* :newcoords (send *knife-coords* :copy-worldcoords))
   (send *arrow* :translate #f(-12 0 0))

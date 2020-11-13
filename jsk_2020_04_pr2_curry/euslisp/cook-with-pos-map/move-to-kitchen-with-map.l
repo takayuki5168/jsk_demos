@@ -131,6 +131,8 @@
   (update-view)
   )
 
+
+;; def util-funcs
 (defun set-pose ()
   (send *pr2* :reset-manip-pose)
   (send *pr2* :torso_lift_joint :joint-angle 325)
@@ -148,3 +150,8 @@
   (send *ri* :wait-interpolation)
   )
 
+;; (defun up-rarm ()
+;;   )
+
+;; (defun up-larm ()
+;;   )
