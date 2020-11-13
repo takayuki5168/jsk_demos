@@ -14,6 +14,7 @@
   (setq *potato-peeler* (peeler))
   (send *potato-peeler* :newcoords (send *potato-peeler-coords* :copy-worldcoords))
 
+  (move-to-kitchen-irt)
   (objects (list *pr2* *peeler* *my-knife* *potato-peeler* *scene*))
   (update-view)
 
@@ -22,7 +23,6 @@
 
   )
 
-(move-to-kitchen-irt)
 (tool-init)
 
 
