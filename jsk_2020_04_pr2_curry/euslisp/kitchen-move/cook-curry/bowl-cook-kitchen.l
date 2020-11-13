@@ -452,7 +452,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
 
-  ;; ボウル２を置く位置
+  ;; ボウル２を置く位置 set
   (send *arrow* :newcoords (make-coords :pos (float-vector 584.588 2046.672 885.165) :rpy (float-vector -2.389 0.788 1.578)))
   (send *arrow* :translate (float-vector 0 0 200) :world)
 
@@ -1256,6 +1256,7 @@
 
 (defun transfer-pan ()
   )
+
 
 (defun now-set ()
   (recieve-bowl)
