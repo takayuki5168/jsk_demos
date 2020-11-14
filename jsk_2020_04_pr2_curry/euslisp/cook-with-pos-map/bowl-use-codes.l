@@ -485,7 +485,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
   (send *ri* :wait-interpolation)
   
-  (send *arrow* :newcoords (make-coords :pos (float-vector 463.549 1518.534 1099.284) :rpy (float-vector -1.743 0.802 -1.842)))
+  (send *arrow* :newcoords (make-coords :pos (float-vector 463.549 8018.53 31099.284) :rpy (float-vector -1.743 0.802 -1.842))) ;; for end2 model
+  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 463.549 1518.534 1099.284) :rpy (float-vector -1.743 0.802 -1.842)))
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -494,7 +495,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-  (send *arrow* :newcoords (make-coords :pos (float-vector 465 1505 1130) :rpy (float-vector -1.571 0.436 -1.571))) 
+  (send *arrow* :newcoords (make-coords :pos (float-vector 465 8005 31130) :rpy (float-vector -1.571 0.436 -1.571))) ;; for eng2 model
+  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 465 1505 1130) :rpy (float-vector -1.571 0.436 -1.571))) 
   (send *pr2* :larm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
