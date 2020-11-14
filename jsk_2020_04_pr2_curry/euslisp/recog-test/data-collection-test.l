@@ -9,5 +9,5 @@
 (setq req (instance std_srvs::Trigger :init))
 
 (defun test ()
-  (setq res (ros::service-call "after_stow_data_collection/save_request" req nil))
+  (setq res (ros::service-call "after_stow_data_collection/save_request" req t))
   )
