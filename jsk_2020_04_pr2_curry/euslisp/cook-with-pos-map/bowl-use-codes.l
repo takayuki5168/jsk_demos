@@ -12,6 +12,7 @@
   (setq *bowl-1-coords* (make-coords :pos (float-vector 362 8446 30880) :rpy (float-vector 2.766 0.889 1.742)))
   (setq *bowl-2-coords* (make-coords :pos (float-vector 344 8616 30880) :rpy (float-vector 3.016 0.995 1.718)))
   (setq *bowl-2-set-coords* (make-coords :pos (float-vector 584.588 8546.67 30885.165) :rpy (float-vector -2.389 0.788 1.578)))
+  (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.911 8425.179 30885.843) :rpy (float-vector 2.561 1.128 2.104)))
 
   (move-to-kitchen-irt) ;;not use real robot
   )
@@ -423,7 +424,7 @@
   ;; ボウル２の位置 set
   (setq *target* (make-coords))
   ;; (send *target* :newcoords (make-coords :pos (float-vector 550.911 1925.179 885.843) :rpy (float-vector 2.561 1.128 2.104)))
-  (send *target* :newcoords (send *bowl-2-set-coords* :copy-worldcoords))
+  (send *target* :newcoords (send *bowl-2-set-larm-coords* :copy-worldcoords))
   
   (grasp-bowl-larm)
 
