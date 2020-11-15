@@ -110,13 +110,22 @@
 
 
 ;; set for recognize robot's pos
+;; point-pose-extractor
+(require :detection-interface "package://jsk_perception/euslisp/detection_interface.l")
+(defparameter *detection-topic* "/ObjectDetection")
 
 (setq local-cds (make-coords :pos (float-vector 709.078 235.518 1524.735) :rpy (float-vector -3.101 0.632 -0.036)))
 (setq *k-panel* (make-cube 70 55 10))
+(send *k-panel* :move-to *pr2* :world)
+(send *k-panel* :transform (send local-cds :copy-worldcoords))
+(send *k-panel* :newcoords (make-coords :pos (send (send *k-panel* :copy-worldcoords) :worldpos)))
+(send *k-panel* :rotate (deg2rad 90) :y)
+(send *k-panel* :translate #f(35 27.5 0))
 
 ;; (objects (list *pr2* *cutting-board* *k-panel*))
 
 (defun recognition ()
+  (set-pose-rec)
   (setq k-pos (float-vector 0 0 0))
   (dotimes (i 10)
     (setq local-cds (check-detection :type "microwave" :speak-name "denshirenji" :timeout 10 :speak nil))
