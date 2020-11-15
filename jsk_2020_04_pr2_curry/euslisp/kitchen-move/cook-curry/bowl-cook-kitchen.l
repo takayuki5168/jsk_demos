@@ -61,10 +61,10 @@
   (setq *bowl-2-set-coords* (make-coords :pos (float-vector 584.588 2046.67 885.165) :rpy (float-vector -2.389 0.788 1.578)))
   (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.911 1925.179 885.843) :rpy (float-vector 2.561 1.128 2.104)))
 
-  ;; (setq *bowl-2-coords* (make-coords :pos (flaot-vector 358 2129 884) :rpy (float-vector 2.92 1.075 -1.713))) ;; big ver
+  ;; (setq *bowl-2-coords* (make-coords :pos (float-vector 358 2129 884) :rpy (float-vector 2.92 1.075 -1.713))) ;; big ver
 
-  (setq *bowl-3-coords* (make-coords :pos (flaot-vector 674.221 1144.624 880.136) :rpy (float-vector -2.269 1.094 1.839)))
-  (setq *bowl-4-coords* (make-coords :pos (flaot-vector 602.851 1262.96 930.586) :rpy (float-vector -2.624 1.195 2.113)))
+  (setq *bowl-3-coords* (make-coords :pos (float-vector 674.221 1144.624 880.136) :rpy (float-vector -2.269 1.094 1.839)))
+  (setq *bowl-4-coords* (make-coords :pos (float-vector 602.851 1262.96 930.586) :rpy (float-vector -2.624 1.195 2.113)))
   )
 
 (defun set-pose ()
