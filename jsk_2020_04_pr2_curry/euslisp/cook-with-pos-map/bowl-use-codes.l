@@ -14,6 +14,12 @@
   (setq *bowl-2-set-coords* (make-coords :pos (float-vector 584.588 8546.67 30885.165) :rpy (float-vector -2.389 0.788 1.578)))
   (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.911 8425.179 30885.843) :rpy (float-vector 2.561 1.128 2.104)))
 
+  ;; (setq *big-bowl-2-coords* (make-coords :pos (float-vector 358 8629 30884) :rpy (float-vector 2.92 1.075 -1.713))) ;; big ver
+  (setq *big-bowl-1-coords* (make-coords :pos (float-vector 383 8425 30889) :rpy (float-vector 2.892 1.01 1.404))) ;; big ver 
+  
+  (setq *bowl-3-coords* (make-coords :pos (float-vector 672 7632 30873) :rpy (float-vector -2.152 1.02 1.606)))
+  (setq *bowl-4-coords* (make-coords :pos (float-vector 567 7824 30920) :rpy (float-vector -2.624 1.195 2.113)))
+  
   (move-to-kitchen-irt) ;;not use real robot
   )
 
@@ -22,7 +28,7 @@
 ;; set codes
 (warn "please run (now-set-bowls) or (set-bowl-1) ~%")
 
-;; def utils-funcs of bowl
+;; def util-funcs of bowl
 (defun reset-rarm ()
   (setq *rav0* (float-vector -25.6468 7.87241 -48.2704 -85.3763 253.675 -77.8887 -147.102))
   (send *pr2* :rarm :angle-vector *rav0*)
@@ -52,7 +58,7 @@
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
-  	:debug-view t)
+  	:debug-view nil)
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
@@ -87,7 +93,6 @@
   (send *ri* :wait-interpolation)  
 
   )
-
 
 (defun before-recieve-larm ()
   ;;少し上に
@@ -355,12 +360,12 @@
 
 
 ;; funcs
-(defun receive-bowl-1 ()
+(defun recieve-bowl-1 ()
   (before-recieve-larm)
   
   (send *ri* :stop-grasp :larm :wait t)
-  (send *ri* :speak-jp "ボウルを握らせて下さい")
-  (unix:sleep s-time)
+  (send *ri* :speak-jp "ボウル１を握らせて下さい")
+  (unix:sleep *s-time*)
   (send *ri* :start-grasp :larm :wait t)
 
   (warn "please run (put-bowl-1) ~%")
@@ -379,8 +384,8 @@
   (before-recieve-rarm)
   
   (send *ri* :stop-grasp :rarm :wait t)
-  (send *ri* :speak-jp "ボウルを握らせて下さい")
-  (unix:sleep s-time)
+  (send *ri* :speak-jp "ボウル２を握らせて下さい")
+  (unix:sleep *s-time*)
   (send *ri* :start-grasp :rarm :wait t)
 
   (warn "please run (put-bowl-2) ~%")
@@ -395,11 +400,101 @@
   (put-bowl-rarm)  
   )
 
+
+;; tmp
+(defun put-big-bowl-1 ()
+  ;; ボウル１を置く位置
+  (send *arrow* :newcoords (send *big-bowl-1-coords* :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 200) :world)
+
+  (put-bowl-larm)    
+  )
+
+(defun recieve-bowl-3 ()
+  (before-recieve-larm)
+  
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *ri* :speak-jp "ボウル３を握らせて下さい")
+  (unix:sleep *s-time*)
+  (send *ri* :start-grasp :larm :wait t)
+
+  (warn "please run (put-bowl-3) ~%")
+  )
+
+(defun recieve-bowl-4 ()
+  (before-recieve-larm)
+  
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *ri* :speak-jp "ボウル４を握らせて下さい")
+  (unix:sleep *s-time*)
+  (send *ri* :start-grasp :larm :wait t)
+
+  (warn "please run (put-bowl-4) ~%")
+  )
+
+
+(defun put-bowl-3 ()
+  (setq *larm1* (float-vector 42.6232 6.188 43.7963 -57.5889 111.452 -100.941 -32.9738))
+  (send *pr2* :larm :angle-vector *larm1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; ボウル３を置く位置
+  (send *arrow* :newcoords (send *bowl-3-coords* :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 200) :world)
+
+  (put-bowl-larm)  
+  )
+
+(defun put-bowl-4 ()
+  (setq *larm1* (float-vector 42.6232 6.188 43.7963 -57.5889 111.452 -100.941 -32.9738))
+  (send *pr2* :larm :angle-vector *larm1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; ボウル４を置く位置
+  (send *arrow* :newcoords (send *bowl-4-coords* :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 200) :world)
+
+  (put-bowl-larm)  
+  )
+
+
+(defun grasp-big-bowl-1 ()
+  ;; ボウル１の位置
+  (setq *target* (make-coords))
+  (send *target* :newcoords (send *big-bowl-1-coords* :copy-worldcoords))
+  
+  (grasp-bowl-larm)
+
+  (warn "please run (transfer-to-pot) ~%")  
+  )
+
+(defun grasp-bowl-3 ()
+  ;; ボウル１の位置
+  (setq *target* (make-coords))
+  (send *target* :newcoords (send *bowl-3-coords* :copy-worldcoords))
+  
+  (grasp-bowl-larm)
+
+  (warn "please run (transfer-to-pot) ~%")  
+  )
+
+(defun grasp-bowl-4 ()
+  ;; ボウル１の位置
+  (setq *target* (make-coords))
+  (send *target* :newcoords (send *bowl-4-coords* :copy-worldcoords))
+  
+  (grasp-bowl-larm)
+
+  (warn "please run (transfer-to-pot) ~%")  
+  )
+
+
 (defun grasp-bowl-2 ()
   ;; ボウル２の位置
   (setq *target* (make-coords))
-  ;; (send *target* :newcoords (make-coords :pos (float-vector 344 2116 880) :rpy (float-vector 3.016 0.995 1.718)))
-  (send *target* :newcoords (send *bowl-1-coords* :copy-worldcoords))
+  (send *target* :newcoords (send *bowl-2-coords* :copy-worldcoords))
   
   (grasp-bowl-rarm)
   
@@ -434,7 +529,7 @@
 (defun put-bowl-2-set ()
   ;; ボウル２の位置 set
   ;; (send *arrow* :newcoords (make-coords :pos (float-vector 550.911 1925.179 885.843) :rpy (float-vector 2.561 1.128 2.104)))
-  (send *arrow* :newcoords (send *bowl-2-set-coords* :copy-worldcoords))
+  (send *arrow* :newcoords (send *bowl-2-set-larm-coords* :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 200) :world)
 
   (put-bowl-larm)
@@ -536,7 +631,68 @@
   )
 
 
+(defun transfer-to-pot-left ()
+  (send *arrow* :newcoords (make-coords :pos (float-vector 609.875 7802.164 31145.744) :rpy (float-vector 2.719 0.798 1.816))) ;; for eng2 model
+  (send *pr2* :larm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (send *pr2* :larm :move-end-pos (float-vector -100 100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
 
+  (setq *larm1* (float-vector 42.6232 6.188 43.7963 -57.5889 111.452 -100.941 -32.9738))
+  (send *pr2* :larm :angle-vector *larm1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (setq *larm2* (float-vector 35.0371 5.51912 50.9811 -60.5584 159.61 -110.561 -25.9414))
+  (send *pr2* :larm :angle-vector *larm2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+  (send *ri* :wait-interpolation)
+  
+  (send *arrow* :newcoords (make-coords :pos (float-vector 463.549 8018.53 31099.284) :rpy (float-vector -1.743 0.802 -1.842))) ;; for end2 model
+  (send *pr2* :larm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (send *arrow* :newcoords (make-coords :pos (float-vector 465 8005 31130) :rpy (float-vector -1.571 0.436 -1.571))) ;; for eng2 model
+  (send *pr2* :larm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (warn "please run (after-transfer-left) ~%")  
+  )
+
+(defun after-transfer-left ()
+  (setq *larm2* (float-vector 35.0371 5.51912 50.9811 -60.5584 159.61 -110.561 -25.9414))
+  (send *pr2* :larm :angle-vector *larm2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+  (send *ri* :wait-interpolation)
+
+  (setq *larm1* (float-vector 42.6232 6.188 43.7963 -57.5889 111.452 -100.941 -32.9738))
+  (send *pr2* :larm :angle-vector *larm1*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (send *pr2* :larm :move-end-pos (float-vector 100 -100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
+  (send *ri* :wait-interpolation)
+  
+  (warn "please run (put-bowl-3) or (put-bowl-4) ~%")  
+  )
 
 
 ;; now funcs
@@ -554,35 +710,108 @@
   (reset-larm)
   )
 
+(defun now-set-big-1 ()
+  (recieve-bowl-1)
+  (put-big-bowl-1)
+  (reset-larm)
+  )
+
+(defun now-set-3 ()
+  (recieve-bowl-3)
+  (put-bowl-3)
+  (reset-larm)
+  )
+
+(defun now-set-4 ()
+  (recieve-bowl-4)
+  (put-bowl-4)
+  (reset-larm)
+  )
+
 ;; ボウル１と２をセット
 (defun now-set-all ()
   (now-set-1)
   (now-set-2)
+  (now-set-3)
+  (now-set-4)
   )
+
 
 ;; ボウル２をまな板上に
-(defun switch-2 ()
+(defun switch-bowl-2 ()
   (grasp-bowl-2)
   (set-bowl-2)
   (reset-rarm)
   )
 
-(defun transfer-2 ()
-  (transfer-pot)
-  (after-pot)
+;; TODO ヘラを入れたい
+(defun now-transfer ()
+  (transfer-to-pot)
+  (after-transfer)
+  )
+;; TODO ヘラを入れたい
+(defun now-transfer-left ()
+  (transfer-to-pot-left)
+  (after-transfer-left)
   )
 
-(defun now-test ()
-  (transfer-pot)
-  (after-pot)
+(defun now-transfer-1 ()
+  (grasp-big-bowl-1)
+  (now-transfer)
+  (put-big-bowl-1)
+  (reset-larm)
   )
 
-;; ボウル２をまな板上に置いて使う
-(defun now-devel ()
-  (grasp-bowl-2)
-  (set-bowl-2)
+(defun now-transfer-2 ()
+  (grasp-bowl-2-set)
+  (now-transfer)
+  (put-bowl-2-set)
+  (reset-larm)
+  )
+
+(defun now-transfer-3 ()
+  (grasp-bowl-3)
+  (now-transfer-left)
+  (put-bowl-3)
+  (reset-larm)
+  )
+
+(defun now-transfer-4 ()
+  (grasp-bowl-4)
+  (now-transfer-left)
+  (put-bowl-4)
+  (reset-larm)
+  )
+
+
+(defun tmp-test ()
+  ;; (now-set-3)
+  ;; (now-transfer-3)
+  )
+
+
+(defun now-set-test ()
+  (recieve-bowl-2)
+  (put-bowl-2)
   (reset-rarm)
 
-  (transfer-pot)
-  (after-pot)
+  (recieve-bowl-1)
+  (put-big-bowl-1)
+  (reset-larm)
+
+  (recieve-bowl-3)
+  (put-bowl-3)
+  (reset-larm)
+
+  (recieve-bowl-4)
+  (put-bowl-4)
+  (reset-larm)
+  )
+
+(defun transfer-all-test ()
+  (switch-bowl-2)
+  (now-transfer-2) ;; 玉ねぎ
+  (now-transfer-4) ;; 肉
+  (now-transfer-1) ;; 野菜
+  (now-transfer-3) ;; カレールー
   )

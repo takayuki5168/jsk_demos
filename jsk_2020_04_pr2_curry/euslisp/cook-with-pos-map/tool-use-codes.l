@@ -3,8 +3,8 @@
   (load "move-to-kitchen-with-map.l")
 
   (load "package://jsk_2020_04_pr2_curry/euslisp/model/knife-new-attention.l")
-  (setq *my-knife* (knife))
-  (send *my-knife* :newcoords (send *knife-coords* :copy-worldcoords))
+  (setq *knife* (knife))
+  (send *knife* :newcoords (send *knife-coords* :copy-worldcoords))
 
   (load "package://jsk_2020_04_pr2_curry/euslisp/model/peeler.l")
   (setq *peeler* (peeler))
@@ -28,6 +28,7 @@
 
 ;; set codes
 (warn "please run (now-set-tools) or (set-knife) ~%")
+(warn "if irt (move-to-kitchrn-irt) , if ri (update-pos)")
 
 (defun receive-knife ()
   ;; knifeの位置
@@ -294,36 +295,6 @@
   (send *ri* :wait-interpolation)
   )
 
-
-(defun now-set-tools ()
-  (up-rarm)
-  (receive-knife)
-  (put-knife)
-  (receive-peeler)
-  (put-peeler)
-  (receive-potato-peeler)
-  (put-potato-peeler)  
-  )
-
-(defun set-knife ()
-  (up-rarm)
-  (receive-knife)
-  (put-knife)
-  )
-
-(defun set-peeler ()
-  (up-rarm)
-  (receive-peeler)
-  (put-peeler)  
-  )
-
-(defun set-potato-peeler ()
-  (up-rarm)
-  (receive-potato-peeler)
-  (put-potato-peeler)  
-  )
-
-
 ;; grasp-codes
 (defun grasp-knife ()
   (up-rarm)
@@ -497,3 +468,32 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)  
   )
+
+(defun now-set-tools ()
+  (up-rarm)
+  (receive-knife)
+  (put-knife)
+  (receive-peeler)
+  (put-peeler)
+  (receive-potato-peeler)
+  (put-potato-peeler)  
+  )
+
+(defun set-knife ()
+  (up-rarm)
+  (receive-knife)
+  (put-knife)
+  )
+
+(defun set-peeler ()
+  (up-rarm)
+  (receive-peeler)
+  (put-peeler)  
+  )
+
+(defun set-potato-peeler ()
+  (up-rarm)
+  (receive-potato-peeler)
+  (put-potato-peeler)  
+  )
+

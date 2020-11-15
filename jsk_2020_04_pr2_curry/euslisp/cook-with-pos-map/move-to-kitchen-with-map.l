@@ -14,6 +14,9 @@
   (unless (boundp '*ri*) (setq *ri* (instance pr2-interface :init)))
   (send *pr2* :move-to (send *ri* :state :worldcoords) :world)
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+
+  (load "models/arrow-object.l")
+  (setq *arrow* (arrow))
   
   ;; ;; set spots
   ;; (setq *kitchen-spot* (make-coords :pos (float-vector 1200 8500 30000) :rpy (float-vector pi 0 0)))
