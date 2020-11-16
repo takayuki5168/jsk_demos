@@ -408,12 +408,24 @@
 (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
 
 ;; tools coords
-;; (setq *knife-coords* (make-coords :pos (float-vector 580.098 2226.215 857.185) :rpy (float-vector 3.14 0.073 1.498)))
-;; (setq *peeler-coords* (make-coords :pos (float-vector 492.877 2300.143 895) :rpy (float-vector 3.14 0.049 1.51)))
-;; (setq *potato-peeler-coords* (make-coords :pos (float-vector 542.121 2414.771 900) :rpy (float-vector 3.14 0.013 1.545)))
-(setq *knife-coords* (make-coords :pos (float-vector 580 8726 30857) :rpy (float-vector 3.14 0.073 1.498)))
-(setq *peeler-coords* (make-coords :pos (float-vector 493 8800 30895) :rpy (float-vector 3.14 0.049 1.51)))
-(setq *potato-peeler-coords* (make-coords :pos (float-vector 542 8915 30900) :rpy (float-vector 3.14 0.013 1.545)))
+(setq *knife-coords* (make-coords :pos (float-vector 580 8726 30857) :rpy (float-vector 3.14 0.073 1.498))) ;; 包丁
+(setq *peeler-coords* (make-coords :pos (float-vector 493 8800 30895) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
+(setq *potato-peeler-coords* (make-coords :pos (float-vector 542 8915 30900) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
+(setq *spatule-coords-0* (make-coords :pos (float-vector 340 8739 31433) :rpy (float-vector -3.14 -0.008 -0.042))) ;; ヘラ，棚の中
+(setq *spatule-coords-1* (make-coords :pos (float-vector 604 8573 30872) :rpy (float-vector 3.101 -0.002 -0.111))) ;; ヘラ，平置き
+(setq *ladle-coords-0* (make-coords :pos (float-vector 546 8343 31082) :rpy (float-vector -1.782 1.485 -0.206))) ;; おたま，棚の中
+(setq *ladle-coords-1* (make-coords :pos (float-vector 604 8573 30872) :rpy (float-vector 3.101 -0.002 -0.111))) ;; おたま，平置き
+
+;; equipment coords
+;; 棚
+(setq *shelf-knob-closed-coords* (make-coords :pos (float-vector 425 8573 31445) :rpy (float-vector 3.105 0.012 3.092)))
+(setq *shelf-knob-opened-coords* (make-coords :pos (float-vector 629 8859 31445) :rpy (float-vector -1.636 -0.095 -3.091)))
+
+;; 水道
+(setq *fauset-lever-rarm-coords* (make-coords :pos (float-vector 223 9157 31014) :rpy (float-vector -2.478 0.08 -1.623)))
+
+;; コンロ
+(setq *ih-switch-coords* (make-coords :pos (float-vector 701 8181 30756) :rpy (float-vector 3.138 0.177 1.515)))
 
 ;; example
 ;; (load "package://pr2eus/pr2-interface.l")
