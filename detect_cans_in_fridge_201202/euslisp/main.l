@@ -157,12 +157,10 @@
     (return-from demo))
 
   ;; move
-
   (unless (grasp-can :use-arm use-arm)
     (return-from demo))
 
   ;; move
-
   (unless (close-fridge :use-arm use-arm)
     (return-from demo))
 

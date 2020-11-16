@@ -1013,9 +1013,9 @@
   )
 
 
-(defun grasp-can-init ()
+(defun grasp-can-init (&optional (use-arm :larm))
   (send *pr2* :head :neck-p :joint-angle 30)
-  (send *pr2* :head :neck-y :joint-angle 23)
+  (if (eq use-arm :larm) (send *pr2* :head :neck-y :joint-angle 23))
   (send *ri* :angle-vector (send *pr2* :angle-vector) 2000 :head-controller)
   )
 
@@ -1087,7 +1087,7 @@
   (if (eq use-arm :larm) (setq rotation (- rotation)))
   ;; move-to can spot for grasping
   (move-to-can-spot :use-arm use-arm :rotation rotation :move move :pre-move pre-move)
-  (grasp-can-init)
+  (grasp-can-init use-arm)
   (cond
    ((not move-only)
     (let (isgrasp res)
@@ -1097,7 +1097,7 @@
         (setq isgrasp (grasp-can-motion :use-arm use-arm :rotation rotation))
         (if isgrasp (return)))
       (if isgrasp
-          (if move
+          (if (and post-move move)
             (go-back-from-fridge :use-arm use-arm :rotation rotation) t)
         (progn (speak-jp "失敗しました。") isgrasp))))
    ((and move move-only post-move)

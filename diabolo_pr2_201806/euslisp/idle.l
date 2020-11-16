@@ -198,6 +198,7 @@
           (ros::sleep)
           )
         )
+    ;;(unix::usleep 50000)
     )
   (send *idle-msg* :data 0)
   (ros::publish "idle" *idle-msg*)
