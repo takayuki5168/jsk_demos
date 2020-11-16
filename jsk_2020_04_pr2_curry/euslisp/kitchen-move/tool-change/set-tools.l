@@ -8,17 +8,6 @@
 (warn "please run (before-knife) or (now-set) ~%")
 
 (defun before-knife ()
-  ;; ;; 手を上げる
-  ;; (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  ;; (send *arrow* :translate #f(0 0 50) :world)
-  ;; (send *pr2* :rarm :inverse-kinematics
-  ;; 	(send *arrow* :copy-worldcoords)
-  ;; 	:rotation-axis t
-  ;; 	:debug-view t)
-  ;; (send *viewer* :draw-objects)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  ;; (send *ri* :wait-interpolation)
-
   ;; 離す位置
   (send *arrow* :newcoords (send *knife-coords* :copy-worldcoords))
   (send *arrow* :translate #f(-12 0 0))
@@ -91,17 +80,6 @@
   )
 
 (defun before-peeler ()
-  ;; ;; 手を上げる
-  ;; (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  ;; (send *arrow* :translate #f(0 0 50) :world)
-  ;; (send *pr2* :rarm :inverse-kinematics
-  ;;       (send *arrow* :copy-worldcoords)
-  ;;       :rotation-axis t
-  ;;       :debug-view t)
-  ;; (send *viewer* :draw-objects)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  ;; (send *ri* :wait-interpolation)
-
   ;;掴む位置
   (send *arrow* :newcoords (send *peeler-coords* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad -90) :x)
@@ -172,17 +150,6 @@
   )
 
 (defun before-potato-peeler ()
-  ;; ;; 手を上げる
-  ;; (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  ;; (send *arrow* :translate #f(0 0 50) :world)
-  ;; (send *pr2* :rarm :inverse-kinematics
-  ;;       (send *arrow* :copy-worldcoords)
-  ;;       :rotation-axis t
-  ;;       :debug-view t)
-  ;; (send *viewer* :draw-objects)
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-  ;; (send *ri* :wait-interpolation)
-  
   ;;掴む位置
   (send *arrow* :newcoords (send *potato-peeler-coords* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad -90) :x)
@@ -265,6 +232,12 @@
   (send *pr2* :rarm :angle-vector *rav2*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
+
+  (setq *rav3* #f(-75.0 50.0 -110.0 -110.0 20.0 -10.0 -10.0))
+  (send *pr2* :rarm :angle-vector *rav3*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+  (send *ri* :wait-interpolation)
+  
   )
 
 (defun up-larm ()

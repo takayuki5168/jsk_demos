@@ -280,6 +280,11 @@
   (send *pr2* :rarm :angle-vector *rav2*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
+  
+  (setq *rav3* #f(-75.0 50.0 -110.0 -110.0 20.0 -10.0 -10.0))
+  (send *pr2* :rarm :angle-vector *rav3*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+  (send *ri* :wait-interpolation)
   )
 
 (defun up-rarm ()
