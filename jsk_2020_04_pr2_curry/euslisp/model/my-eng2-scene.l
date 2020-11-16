@@ -414,7 +414,7 @@
 (setq *spatule-coords-0* (make-coords :pos (float-vector 340 8739 31433) :rpy (float-vector -3.14 -0.008 -0.042))) ;; ヘラ，棚の中
 (setq *spatule-coords-1* (make-coords :pos (float-vector 604 8573 30872) :rpy (float-vector 3.101 -0.002 -0.111))) ;; ヘラ，平置き
 (setq *ladle-coords-0* (make-coords :pos (float-vector 346 8637 31449) :rpy (float-vector 3.128 -0.098 -0.057))) ;; おたま，棚の中
-(setq *ladle-coords-1* (make-coords :pos (float-vector 599 8313 30877) :rpy (float-vecotr -3.136 -0.092 -0.033))) ;; おたま，平置き
+(setq *ladle-coords-1* (make-coords :pos (float-vector 599 8313 30877) :rpy (float-vector -3.136 -0.092 -0.033))) ;; おたま，平置き
 
 ;; equipment coords
 ;; 棚
@@ -426,6 +426,8 @@
 
 ;; コンロ
 (setq *ih-switch-coords* (make-coords :pos (float-vector 701 8181 30756) :rpy (float-vector 3.138 0.177 1.515)))
+
+
 
 ;; example
 ;; (load "package://pr2eus/pr2-interface.l")
