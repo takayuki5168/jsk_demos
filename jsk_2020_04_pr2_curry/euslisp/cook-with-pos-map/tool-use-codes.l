@@ -429,7 +429,7 @@
   (send *ri* :wait-interpolation)  
   )
 
-(defun open-shelf ()
+(defun open-shelf-set ()
   ;; 中間姿勢になるための座標
   (send *arrow* :newcoords (make-coords :pos (float-vector 570 8500 31100) :rpy (float-vector 3.14 0.0 0.0)))
   (send *pr2* :rarm :inverse-kinematics
@@ -484,8 +484,14 @@
   (send *ri* :angle-vector-sequence avs tms)
   (send *ri* :wait-interpolation)
 
+  (send *ri* :start-grasp :rarm :wait t)
+
+  (warn "please run (open-shelf) ~%")
   )
 
+(defun open-shelf ()
+  ;; 電子レンジの扉開けをパクって実装する．
+  )
 
 
 
