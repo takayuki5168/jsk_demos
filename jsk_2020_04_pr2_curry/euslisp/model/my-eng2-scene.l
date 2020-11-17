@@ -4,7 +4,8 @@
 (load "models/elevator_inside_panel_eng2-object.l")
 
 ;; (load "eng2-rooms.l")
-(load "package://jsk_maps/src/eng2-rooms.l")
+;; (load "package://jsk_maps/src/eng2-rooms.l")
+(load "package://jsk_2020_04_pr2_curry/euslisp/model/my-eng2-rooms.l")
 
 (defun push-knowrob-properties (subj prop-name obj)
   (when (and subj obj)
