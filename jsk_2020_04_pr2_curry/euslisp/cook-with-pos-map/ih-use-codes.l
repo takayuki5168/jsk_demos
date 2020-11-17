@@ -57,6 +57,31 @@
       )))
 
 
+;; def util-funcs
+(defun reset-rarm ()
+  (setq *rav0* #f(-20.8048 54.2396 -5.42985 -119.734 197.32 -75.8373 -189.059))
+  (send *pr2* :rarm :angle-vector *rav0*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+
+  (setq *rav2* #f(-30.0303 1.63624 -169.166 -116.783 100.843 -98.3015 -58.1037))
+  (send *pr2* :rarm :angle-vector *rav2*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
+  (setq *rav3* #f(-75.0 50.0 -110.0 -110.0 20.0 -10.0 -10.0))
+  (send *pr2* :rarm :angle-vector *rav3*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+  (send *ri* :wait-interpolation)
+  )
+
+(defun reset-larm-3 ()
+  (setq *larm0* #f(117.007 48.3805 113.439 -103.326 38.7107 -5.72958 14.4628))
+  (send *pr2* :larm :angle-vector *larm0*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)  
+  )
+
 
 ;; IH funcs 
 (defun push-stove-button ()
@@ -353,6 +378,8 @@
 
 
 ;; tool funcs
+
+;; spatula
 (defun set-spatula ()
   (setq *spatula* (spatula))
 
@@ -410,7 +437,6 @@
 
 (defun mix-with-spatula ()
   ;; 最初の位置
-  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 484.884 1707.132 848.987) :rpy (float-vector -2.191 1.285 -0.0)))
   (send *arrow* :newcoords (make-coords :pos (float-vector 427.739 8071.081 30846.132) :rpy (float-vector -2.267 0.887 0.091)))
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -421,7 +447,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 409.674 1635.221 852.548) :rpy (float-vector -2.319 1.076 -0.253)))
   (send *arrow* :newcoords (make-coords :pos (float-vector 509.423 8110.011 30860.304) :rpy (float-vector -2.038 1.081 0.261)))
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -442,10 +467,10 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
   (send *ri* :wait-interpolation)
 
-  (warn "please run (mix-with-spatula) again or (wait-pose) ~%")
+  (warn "please run (mix-with-spatula) again or (wait-pose-spatula) ~%")
   )
 
-(defun wait-pose ()
+(defun wait-pose-spatula ()
   (send *arrow* :newcoords (make-coords :pos (float-vector 471 8170 31070) :rpy (float-vector -1.603 0.03 -0.018))) ;; wait-pose
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -456,11 +481,10 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (warn "please run (mix-with-spatula) or (avoid-rarm) ~%")
+  (warn "please run (mix-with-spatula) or (avoid-rarm-spatula) ~%")
   )
 
 (defun avoid-rarm ()
-  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 470.835 1605.337 1070.223) :rpy (float-vector -1.603 0.03 -0.018)))
   (send *arrow* :newcoords (make-coords :pos (float-vector 470 8105 31070) :rpy (float-vector -1.603 0.03 -0.018)))
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -471,7 +495,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 550 1950 1150) :rpy (float-vector -1.603 0.03 -0.018)))
   (send *arrow* :newcoords (make-coords :pos (float-vector 550 8450 31150) :rpy (float-vector -1.603 0.03 -0.018)))
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -482,7 +505,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; (send *arrow* :newcoords (make-coords :pos (float-vector 600 2100 1144.971) :rpy (float-vector -3.048 -0.062 -1.634)))
   (send *arrow* :newcoords (make-coords :pos (float-vector 600 8600 31144) :rpy (float-vector -3.048 -0.062 -1.634)))
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
@@ -500,3 +522,21 @@
   (warn "please run (after-transfer) ~%")
   )
 
+;; ladle
+(defun set-ladle ()
+  (setq *ladle* (ladle))
+
+  ;; おたまをセットする．
+  (send *ladle* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *ladle* :rotate (deg2rad 90) :x)
+  (send *pr2* :rarm :end-coords :assoc *ladle*)
+
+  (objects (list *scene* *pr2* *ladle* *pot*))
+  (update-view)
+
+  (warn "please run (mix-with-ladle-set) ~%")
+  )
+
+(defun mix-with-ladle-set ()
+  
+  )
