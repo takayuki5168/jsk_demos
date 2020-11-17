@@ -2,11 +2,19 @@
   ;; init
   (load "move-to-kitchen-with-map.l")
   (load "tool-use-codes.l")
+
+  ;; set pot
+  (load "../../model/cooking-pot-73b2.l")
+  (setq *pot* (cooking-pot))
+  (send *pot* :newcoords (send *pot-coords* :copy-worldcoords))
+  
   
   ;; set global num
   (setq *s-time* 3)
-  
+
   (move-to-kitchen-irt)
+  (objects (list *pr2* *scene* *spatula* *ladle* *pot*))
+  (update-view)
   )
 
 (ih-init)
@@ -45,6 +53,8 @@
       )))
 
 
+
+;; IH funcs 
 (defun push-stove-button ()
   ;; (send *arrow* :translate #f(130 0 0) :world) ;;をしている前提で始める
   
@@ -250,3 +260,5 @@
   (send *ri* :wait-interpolation)
   )
 
+
+;; pot funcs

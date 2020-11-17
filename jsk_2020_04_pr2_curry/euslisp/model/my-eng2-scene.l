@@ -417,6 +417,12 @@
 (setq *ladle-coords-0* (make-coords :pos (float-vector 346 8637 31449) :rpy (float-vector 3.128 -0.098 -0.057))) ;; おたま，棚の中
 (setq *ladle-coords-1* (make-coords :pos (float-vector 599 8313 30877) :rpy (float-vector 3.128 -0.098 1.514))) ;; おたま，平置き
 
+
+;; kitchenware coords
+(setq *pot-coords* (make-coords :pos (float-vector 420 8000 30840) :rpy (float-vector 0 0 0)))
+;; ボウルとかも追加する？
+
+
 ;; equipment coords
 ;; 棚
 (setq *shelf-knob-closed-coords* (make-coords :pos (float-vector 425 8573 31445) :rpy (float-vector 3.105 0.012 3.092)))
