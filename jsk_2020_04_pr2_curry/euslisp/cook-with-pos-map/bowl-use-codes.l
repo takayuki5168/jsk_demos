@@ -51,7 +51,7 @@
 (warn "If you use real robot, run (update-pos) ~%")
 (warn "please run (now-set-bowls) or (set-bowl-1) ~%")
 
-;; def util-funcs of bowl
+;; def util-funcs
 (defun reset-rarm ()
   (setq *rav0* (float-vector -25.6468 7.87241 -48.2704 -85.3763 253.675 -77.8887 -147.102))
   (send *pr2* :rarm :angle-vector *rav0*)
