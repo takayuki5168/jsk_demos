@@ -18,13 +18,6 @@
   (load "models/arrow-object.l")
   (setq *arrow* (arrow))
   
-  ;; ;; set spots
-  ;; (setq *kitchen-spot* (make-coords :pos (float-vector 1200 8500 30000) :rpy (float-vector pi 0 0)))
-  ;; (setq *sink-spot* (make-coords :pos (float-vector 1100 9100 30000) :rpy (float-vector pi 0 0)))
-  ;; (setq *stove-spot* (make-coords :pos (float-vector 1400 8100 30000) :rpy (float-vector pi 0 0)))
-  ;; (setq *microwave-spot* (make-coords :pos (float-vector 1700 9400 30000) :rpy (float-vector pi 0 0)))
-  ;; (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
-  
   (objects (list *scene* *pr2*))
   )
 
