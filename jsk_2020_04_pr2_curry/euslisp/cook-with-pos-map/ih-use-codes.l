@@ -538,5 +538,93 @@
   )
 
 (defun mix-with-ladle-set ()
+  (send *ri* :start-grasp :rarm :gain 30 :wait t)
+
+  (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+  (send *arrow* :translate #f(0 0 100) :world)
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:rotation-axis nil
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
   
+  (send *arrow* :newcoords (make-coords :pos (float-vector 550 8250 31180) :rpy (float-vector -1.603 0.0 3.14)))
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (car (send *ladle* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (send *arrow* :newcoords (make-coords :pos (float-vector 471 8170 31070) :rpy (float-vector -1.603 0.0 3.14))) ;; wait-pose
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (car (send *ladle* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
+  (warn "please run (mix-with-ladle) ~%")
   )
+
+(defun mix-with-ladle ()
+  ;; 最初の位置
+  (send *arrow* :newcoords (make-coords :pos (float-vector 417.495 8067.248 30861.184) :rpy (float-vector 1.772 1.446 1.068)))
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (elt (send *ladle* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *arrow* :newcoords (make-coords :pos (float-vector 540.829 8145.059 30854.487) :rpy (float-vector 0.509 0.96 -0.306)))
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (elt (send *ladle* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
+  (send *arrow* :newcoords (make-coords :pos (float-vector 485.52 8113.658 30870.807) :rpy (float-vector 0.77 1.155 -0.115)))
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (elt (send *ladle* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+
+  (warn "please run (mix-with-ladle) again or (wait-pose-ladle) ~%")
+  )
+
+(defun wait-pose-ladle ()
+  (send *arrow* :newcoords (make-coords :pos (float-vector 471 8170 31070) :rpy (float-vector -1.603 0.0 3.14))) ;; wait-pose
+  (send *pr2* :rarm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+  	:move-target (car (send *ladle* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  )
+
+
+(defun now-devel ()
+  (grasp-ladle)
+  (mix-with-ladle-set)
+  (mix-with-ladle)
+  )
+
+(now-devel)
