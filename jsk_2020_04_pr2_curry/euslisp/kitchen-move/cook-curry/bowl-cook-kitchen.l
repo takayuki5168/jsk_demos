@@ -84,7 +84,7 @@
 
 ;; add for sense
 (ros::roseus "stove_rec_test" :anonymous t)
-(setq *topic-name* "/left_endeffector/wrench")
+(setq *topic-name* "/right_endeffector/wrench")
 (ros::load-ros-manifest "geometry_msgs")
 (setq *cb-flag* nil)
 (defun wrench-x-cb (msg)
