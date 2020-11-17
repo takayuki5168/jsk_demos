@@ -35,8 +35,8 @@
 
 
 ;; set codes
+(warn "If you use real robot, run (update-pos) ~%")
 (warn "please run (now-set-tools) or (set-knife) ~%")
-(warn "if irt (move-to-kitchrn-irt) , if ri (update-pos)")
 
 (defun receive-knife ()
   ;; knifeの位置

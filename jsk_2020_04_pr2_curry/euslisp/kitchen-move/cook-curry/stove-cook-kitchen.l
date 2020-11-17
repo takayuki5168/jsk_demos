@@ -93,9 +93,9 @@
 (defparameter *detection-topic* "/ObjectDetection")
 
 
+;; add for sense
 (setq *x-thre* -15)
 
-;; add for sense
 (ros::roseus "stove_rec_test" :anonymous t)
 (setq *topic-name* "/left_endeffector/wrench")
 (ros::load-ros-manifest "geometry_msgs")
@@ -111,8 +111,6 @@
             )
         (format t "x: ~A ~%" x))
       )))
-
-(warn "please run (set-pose) or (set-pose-2) ~%")
 
 
 (setq local-cds (make-coords :pos (float-vector 527.349 424.972 760.996) :rpy (float-vector 3.129 0.857 -0.026)))
@@ -192,16 +190,6 @@
 
   (push-stove-button)
 
-  ;; (dotimes (i 13)
-  ;;   (send *pr2* :larm :move-end-pos #f(10 0 0) :world)
-  ;;   (setq av (send *pr2* :angle-vector))
-  ;;   (setq avs (append avs (list av)))
-  ;;   (setq tms (append tms (list 400)))
-  ;;   )
-
-  ;; (send *ri* :angle-vector-sequence avs tms)
-  ;; (send *ri* :wait-interpolation)
-
   (setq s-pos (send (send *s-panel* :copy-worldcoords) :worldpos))
   (send *arrow* :newcoords (make-coords :pos (float-vector (elt s-pos 0) (+ (elt s-pos 1) 47) 750) :rpy (float-vector -3.047 -0.011 1.512)))
   (send *arrow* :translate #f(130 0 0) :world)
@@ -231,26 +219,6 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  ;; (setq avs (list))
-  ;; (setq tms (list))
-
-  ;; (dotimes (i 13)
-  ;;   (send *pr2* :larm :move-end-pos #f(-10 0 0) :world)
-  ;;   (setq av (send *pr2* :angle-vector))
-  ;;   (setq avs (append avs (list av)))
-  ;;   (setq tms (append tms (list 400)))
-  ;;   )
-  
-  ;; (dotimes (i 13)
-  ;;   (send *pr2* :larm :move-end-pos #f(10 0 0) :world)
-  ;;   (setq av (send *pr2* :angle-vector))
-  ;;   (setq avs (append avs (list av)))
-  ;;   (setq tms (append tms (list 400)))
-  ;;   )
-
-  ;; (send *ri* :angle-vector-sequence avs tms)
-  ;; (send *ri* :wait-interpolation)
-
   (push-stove-button)
 
   (setq s-pos (send (send *s-panel* :copy-worldcoords) :worldpos))
@@ -279,26 +247,6 @@
 	:debug-view t)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-
-  ;; (setq avs (list))
-  ;; (setq tms (list))
-
-  ;; (dotimes (i 13)
-  ;;   (send *pr2* :larm :move-end-pos #f(-10 0 0) :world)
-  ;;   (setq av (send *pr2* :angle-vector))
-  ;;   (setq avs (append avs (list av)))
-  ;;   (setq tms (append tms (list 400)))
-  ;;   )
-  
-  ;; (dotimes (i 13)
-  ;;   (send *pr2* :larm :move-end-pos #f(10 0 0) :world)
-  ;;   (setq av (send *pr2* :angle-vector))
-  ;;   (setq avs (append avs (list av)))
-  ;;   (setq tms (append tms (list 400)))
-  ;;   )
-
-  ;; (send *ri* :angle-vector-sequence avs tms)
-  ;; (send *ri* :wait-interpolation)
 
   (push-stove-button)
   
@@ -389,9 +337,6 @@
   (setq tms (append tms (list 600)))
   (send *ri* :angle-vector-sequence avs tms)
   (send *ri* :wait-interpolation)
-
-  ;; (send *ri* :angle-vector (send *pr2* :angle-vector))
-  ;; (send *ri* :wait-interpolation)
 
   )
 

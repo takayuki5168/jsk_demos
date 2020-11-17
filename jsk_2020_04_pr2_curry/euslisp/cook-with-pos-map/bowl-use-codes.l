@@ -13,13 +13,12 @@
   (setq *s-time* 3)
   
   ;; def bowl grasp coords
-  (setq *bowl-1-coords* (make-coords :pos (float-vector 362 8446 30880) :rpy (float-vector 2.766 0.889 1.742)))
+  ;; (setq *bowl-1-coords* (make-coords :pos (float-vector 362 8446 30880) :rpy (float-vector 2.766 0.889 1.742)))
+  (setq *bowl-1-coords* (make-coords :pos (float-vector 383 8425 30889) :rpy (float-vector 2.892 1.01 1.404))) ;; big ver 
   (setq *bowl-2-coords* (make-coords :pos (float-vector 344 8616 30880) :rpy (float-vector 3.016 0.995 1.718)))
   (setq *bowl-2-set-coords* (make-coords :pos (float-vector 584.588 8546.67 30885.165) :rpy (float-vector -2.389 0.788 1.578)))
   (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.911 8425.179 30885.843) :rpy (float-vector 2.561 1.128 2.104)))
-
-  ;; (setq *big-bowl-2-coords* (make-coords :pos (float-vector 358 8629 30884) :rpy (float-vector 2.92 1.075 -1.713))) ;; big ver
-  (setq *big-bowl-1-coords* (make-coords :pos (float-vector 383 8425 30889) :rpy (float-vector 2.892 1.01 1.404))) ;; big ver 
+  
   
   (setq *bowl-3-coords* (make-coords :pos (float-vector 672 7632 30873) :rpy (float-vector -2.152 1.02 1.606)))
   (setq *bowl-4-coords* (make-coords :pos (float-vector 567 7824 30920) :rpy (float-vector -2.624 1.195 2.113)))
@@ -49,7 +48,7 @@
       )))
 
 
-;; set codes
+(warn "If you use real robot, run (update-pos) ~%")
 (warn "please run (now-set-bowls) or (set-bowl-1) ~%")
 
 ;; def util-funcs of bowl
@@ -417,15 +416,6 @@
   )
 
 
-;; tmp
-(defun put-big-bowl-1 ()
-  ;; ボウル１を置く位置
-  (send *arrow* :newcoords (send *big-bowl-1-coords* :copy-worldcoords))
-  (send *arrow* :translate (float-vector 0 0 200) :world)
-
-  (put-bowl-larm)    
-  )
-
 (defun recieve-bowl-3 ()
   (before-recieve-larm)
   
@@ -473,17 +463,6 @@
   (send *arrow* :translate (float-vector 0 0 200) :world)
 
   (put-bowl-larm)  
-  )
-
-
-(defun grasp-big-bowl-1 ()
-  ;; ボウル１の位置
-  (setq *target* (make-coords))
-  (send *target* :newcoords (send *big-bowl-1-coords* :copy-worldcoords))
-  
-  (grasp-bowl-larm)
-
-  (warn "please run (transfer-to-pot) ~%")  
   )
 
 (defun grasp-bowl-3 ()
@@ -931,12 +910,6 @@
   (reset-larm)
   )
 
-(defun now-set-big-1 ()
-  (recieve-bowl-1)
-  (put-big-bowl-1)
-  (reset-larm)
-  )
-
 (defun now-set-3 ()
   (recieve-bowl-3)
   (put-bowl-3)
@@ -949,7 +922,7 @@
   (reset-larm)
   )
 
-;; ボウル１と２をセット
+;; ボウル１〜４をセット
 (defun now-set-all ()
   (now-set-1)
   (now-set-2)
@@ -977,9 +950,9 @@
   )
 
 (defun now-transfer-1 ()
-  (grasp-big-bowl-1)
+  (grasp-bowl-1)
   (now-transfer)
-  (put-big-bowl-1)
+  (put-bowl-1)
   (reset-larm)
   )
 
@@ -1011,7 +984,7 @@
   (reset-rarm)
 
   (recieve-bowl-1)
-  (put-big-bowl-1)
+  (put-bowl-1)
   (reset-larm)
 
   (recieve-bowl-3)

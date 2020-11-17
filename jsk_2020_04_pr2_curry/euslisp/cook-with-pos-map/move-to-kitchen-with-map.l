@@ -47,7 +47,7 @@
 (init)
 (update-view)
 
-(warn "please run (move-to-kitchen-irt) or (move-to-sink-irt) for move in irtviewer ~%")
+(warn "If you use real robot, run (update-pos) ~%")
 (warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) or (move-to-stove-ri) and (set-pose)~%")
 
 
