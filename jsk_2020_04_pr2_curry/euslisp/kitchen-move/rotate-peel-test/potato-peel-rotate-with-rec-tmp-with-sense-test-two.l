@@ -146,9 +146,9 @@
 
 (setq interval height)
 
+;; add for sense
 (setq *y-thre* -11)
 
-;; add for sense
 (setq *topic-name* "/right_endeffector/wrench")
 (ros::load-ros-manifest "geometry_msgs")
 (setq *cb-flag* nil)
@@ -163,6 +163,16 @@
             )
         (format t "y: ~A ~%" y))
       )))
+
+;; add for rosservice
+(ros::load-ros-manifest "std_srvs")
+(ros::wait-for-service "after_stow_data_collection/save_request")
+(setq req (instance std_srvs::TriggerRequest :init))
+
+
+(defun rossrv-test ()
+  (setq res (ros::service-call "after_stow_data_collection/save_request" req t))
+  )
 
 
 (warn "please run (grasp-potato-peel) or (now-devel)~%")
@@ -769,6 +779,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (set-potato-1-2) ~%")  
   )
 
@@ -788,7 +799,8 @@
   )
 
 (defun peel-test-1 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-potato-1) ~%")  
   )
 
@@ -804,11 +816,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-2) ~%")  
   )
 
 (defun peel-test-2 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-potato-3) ~%")  
   )
 
@@ -823,11 +837,14 @@
   (send *pr2* :larm :angle-vector *pav3*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+
+  (rossrv-test)
   (warn "please run  (peel-test-3) ~%")  
   )
 
 (defun peel-test-3 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-potato-4) ~%")  
   )
 
@@ -843,11 +860,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-4) ~%")  
   )
 
 (defun peel-test-4 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-potato-5) ~%")  
   )
 
@@ -862,11 +881,14 @@
   (send *pr2* :larm :angle-vector *pav5*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+
+  (rossrv-test)
   (warn "please run  (peel-test-5) ~%")  
   )
 
 (defun peel-test-5 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-potato-6) ~%")  
   )
 
@@ -882,11 +904,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-6) ~%")  
   )
 
 (defun peel-test-6 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-potato-7) ~%")  
   )
 
@@ -901,11 +925,14 @@
   (send *pr2* :larm :angle-vector *pav7*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+
+  (rossrv-test)
   (warn "please run  (peel-test-7) ~%")  
   )
 
 (defun peel-test-7 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-potato-8) ~%")  
   )
 
@@ -921,11 +948,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-8) ~%")  
   )
 
 (defun peel-test-8 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (finish-pose-peel) ~%")  
   )
 
@@ -1243,7 +1272,6 @@
       (progn
 	(reset-larm)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (set-peeler)
@@ -1254,11 +1282,10 @@
       (progn
 	(reset-larm)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (setq adj (+ adj 10))
-  (peel-test4)
+  (peel-test-1)
   (setq adj (- adj 10))
   (set-potato-1)
   (set-potato-2)
@@ -1268,10 +1295,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-2)
   (set-potato-3)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1279,10 +1305,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-3)
   (set-potato-4)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1290,10 +1315,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-4)
   (set-potato-5)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1301,10 +1325,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-5)
   (set-potato-6)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1312,10 +1335,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-6)
   (set-potato-7)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1323,10 +1345,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-7)
   (set-potato-8)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1334,10 +1355,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-fail-set.l")
-	;; (load "potato-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-8)
   (finish-pose-peel)
   (put-potato)
   (reset-larm)  

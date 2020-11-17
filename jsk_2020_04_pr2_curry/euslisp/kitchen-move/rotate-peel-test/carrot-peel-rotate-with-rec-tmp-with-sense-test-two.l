@@ -152,14 +152,13 @@
        (flatten (send-all (send *pr2* :bodies) :vertices))))
 (send *irtviewer* :draw-objects)
 
-
 (setq interval height)
 
+;; add for sense
 
 ;; (setq *y-thre* -12)
 (setq *y-thre* -10)
 
-;; add for sense
 (setq *topic-name* "/right_endeffector/wrench")
 (ros::load-ros-manifest "geometry_msgs")
 (setq *cb-flag* nil)
@@ -174,6 +173,17 @@
             )
         (format t "y: ~A ~%" y))
       )))
+
+
+;; add for rosservice
+(ros::load-ros-manifest "std_srvs")
+(ros::wait-for-service "after_stow_data_collection/save_request")
+(setq req (instance std_srvs::TriggerRequest :init))
+
+
+(defun rossrv-test ()
+  (setq res (ros::service-call "after_stow_data_collection/save_request" req t))
+  )
 
 
 (warn "please run (grasp-carrot-peel) or (now-devel)~%")
@@ -271,7 +281,6 @@
   (send *viewer* :draw-objects)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
-
   )
 
 (defun before-set ()
@@ -825,6 +834,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (set-carrot-1-2) ~%")  
   )
 
@@ -843,7 +853,8 @@
   )
 
 (defun peel-test-1 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-carrot-1) ~%")  
   )
 
@@ -859,11 +870,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-2) ~%")  
   )
 
 (defun peel-test-2 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-carrot-3) ~%")  
   )
 
@@ -878,6 +891,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-3) ~%")  
   )
 
@@ -897,11 +911,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-4) ~%")  
   )
 
 (defun peel-test-4 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-carrot-5) ~%")  
   )
 
@@ -915,11 +931,14 @@
   (send *pr2* :larm :angle-vector *cav5*)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
+
+  (rossrv-test)
   (warn "please run  (peel-test-5) ~%")  
   )
 
 (defun peel-test-5 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-carrot-6) ~%")  
   )
 
@@ -934,11 +953,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-6) ~%")  
   )
 
 (defun peel-test-6 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-carrot-7) ~%")  
   )
 
@@ -953,11 +974,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-7) ~%")  
   )
 
 (defun peel-test-7 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (set-carrot-8) ~%")  
   )
 
@@ -973,11 +996,13 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
+  (rossrv-test)
   (warn "please run  (peel-test-8) ~%")  
   )
 
 (defun peel-test-8 ()
-  (peel-test)
+  (peel-test4)
+  (rossrv-test)
   (warn "please run  (finsih-pose-peel) ~%")  
   )
 
@@ -1293,7 +1318,6 @@
       (progn
 	(reset-larm)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-fail-set.l")
-	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (set-carrot-1)
@@ -1303,12 +1327,11 @@
       (progn
 	(reset-larm)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-fail-set.l")
-	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
   (set-peeler)
   (setq adj (+ adj 10))
-  (peel-test4)
+  (peel-test-1)
   (setq adj (- adj 10))
   (set-carrot-1)
   (set-carrot-2)
@@ -1321,7 +1344,7 @@
 	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-2)
   (set-carrot-3)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1332,7 +1355,7 @@
 	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-3)
   (set-carrot-4)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1340,10 +1363,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-fail-set.l")
-	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-4)
   (set-carrot-5)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1351,10 +1373,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-fail-set.l")
-	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-5)
   (set-carrot-6)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1362,10 +1383,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-fail-set.l")
-	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-6)
   (set-carrot-7)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1373,10 +1393,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-fail-set.l")
-	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-7)
   (set-carrot-8)
   (fail-check)
   (if (eql *fail-flag* t)
@@ -1384,10 +1403,9 @@
 	(reset-larm)
 	(finish-pose-peel)
 	(load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-fail-set.l")
-	;; (load "carrot-fail-set.l")
 	(now-set)
 	(return-from now-peel)))
-  (peel-test4)
+  (peel-test-8)
 
   (finish-pose-peel)
   (put-carrot)
