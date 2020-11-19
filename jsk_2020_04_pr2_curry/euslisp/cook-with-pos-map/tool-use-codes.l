@@ -450,8 +450,9 @@
   (send *ri* :move-gripper :rarm 0.05)
   
   ;; 棚のノブの位置
-  (send *arrow* :newcoords (send *shelf-knob-closed-coords* :copy-worldcoords))
-
+  ;; (send *arrow* :newcoords (send *shelf-knob-closed-coords* :copy-worldcoords))
+  (send *arrow* :newcoords (send (car (send *shelf-door* :handle)) :copy-worldcoords))
+  
   (send *arrow* :translate (float-vector 100 0 -100) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
@@ -470,7 +471,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
   (send *ri* :wait-interpolation)
 
-  ;; ノブのところまで手を伸ばす
+  ;; ノブのところまで手を伸ばす 力覚を入れても良い．
   (setq avs (list))
   (setq tms (list))
   
@@ -479,7 +480,7 @@
     (send *pr2* :rarm :inverse-kinematics
           *arrow*
           :rotation-axis t
-          :debug-view t)
+          :debug-view nil)
     
     (setq av (send *pr2* :angle-vector))
     
@@ -496,28 +497,49 @@
   )
 
 (defun open-shelf ()
-  ;; 電子レンジの扉開けをパクって実装する
-  
-  (let ((i 170)   ;; open
+  (let ((i 0)   ;; open
+	(handle-coords (make-coords))
 	(av)
 	(tms (list))
 	(avs (list)))
-    (while (> i 89) ;; 99
-      (send *microwave* :angle-vector (float-vector i))
-      (setq handle-coords (make-coords :pos (send (send m-handle :copy-worldcoords) :worldpos) :rpy (float-vector (car (car (rpy-angle (send (send m-handle :copy-worldcoords) :worldrot)))) 0 0)))
-      (send handle-coords :translate (float-vector -80 -10 50))
+    (while (< i 99) 
+      (send *shelf-door* :angle-vector (float-vector i))
+      (send handle-coords :newcoords (send (car (send *shelf-door* :handle)) :copy-worldcoords))
       
-      (send *pr2* :larm :inverse-kinematics (send (send handle-coords :copy-worldcoords) :rotate (/ pi -2) :y) :rotation-axis t)
+      (send *pr2* :rarm :inverse-kinematics (send handle-coords :copy-worldcoords) :rotation-axis t)
       (setq av (send *pr2* :angle-vector))
       (setq avs (append avs (list av)))
       (setq tms (append tms (list 600)))
       
-      (setq i (- i 10))
+      (setq i (+ i 10))
       )
     (send *ri* :angle-vector-sequence avs tms)
     (send *ri* :wait-interpolation)
     )
+  (warn "please run (after-open) ~%")
   )
+
+(defun after-open ()
+  (send *ri* :stop-grasp :rarm :wait t)
+
+  (send *pr2* :move-end-pos :rarm #f(0 20 -60) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
+  ;; 中間姿勢になる
+  (send *arrow* :newcoords (make-coords :pos (float-vector 570 8500 31100) :rpy (float-vector 3.14 0.0 0.0)))
+  (send *pr2* :rarm :inverse-kinematics
+	(send *arrow* :copy-worldcoords)
+	:rotation-axis t
+	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (warn "please run (grasp-spatula-0) ~%")
+  )
+
+
 
 (defun reset-rarm ()
 
