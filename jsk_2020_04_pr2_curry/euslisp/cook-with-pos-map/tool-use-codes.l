@@ -2,6 +2,7 @@
   ;; init
   (load "move-to-kitchen-with-map.l")
 
+  ;; set tools
   (load "package://jsk_2020_04_pr2_curry/euslisp/model/knife-new-attention.l")
   (setq *knife* (knife))
   (send *knife* :newcoords (send *knife-coords* :copy-worldcoords))
@@ -22,8 +23,13 @@
   (setq *ladle* (ladle))
   (send *ladle* :newcoords (send *ladle-coords-1* :copy-worldcoords)) ;; tmp 本来は棚の中想定
 
+  ;; set equipment
+  (load "package://jsk_2020_04_pr2_curry/euslisp/model/shelf-door.l")
+  (setq *shelf-door* (shelf-door))
+  (send *shelf-door* :newcoords (send *shelf-door-coords* :copy-worldcoords))
+
   (move-to-kitchen-irt)
-  (objects (list *pr2* *peeler* *knife* *potato-peeler* *scene* *spatula* *ladle*))
+  (objects (list *pr2* *peeler* *knife* *potato-peeler* *scene* *spatula* *ladle* *shelf-door*))
   (update-view)
   
   ;; set global num

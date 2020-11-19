@@ -428,11 +428,12 @@
 (setq *shelf-knob-closed-coords* (make-coords :pos (float-vector 425 8573 31445) :rpy (float-vector 3.105 0.012 3.092)))
 (setq *shelf-knob-opened-coords* (make-coords :pos (float-vector 629 8859 31445) :rpy (float-vector -1.636 -0.095 -3.091)))
 
+(setq *shelf-door-coords* (make-coords :pos (float-vector 420 8845 31445) :rpy (float-vector 3.14 0 0)))
+
 ;; 水道
 (setq *fauset-lever-rarm-coords* (make-coords :pos (float-vector 223 9157 31014) :rpy (float-vector -2.478 0.08 -1.623)))
 
 ;; コンロ
-;; (setq *ih-switch-on-coords* (make-coords :pos (float-vector 701 8181 30756) :rpy (float-vector 3.138 0.177 1.515)))
 (setq *ih-switch-on-coords* (make-coords :pos (float-vector 680 8181 30750) :rpy (float-vector -3.047 -0.011 1.512)))
 (setq *ih-switch-off-coords* (make-coords :pos (float-vector 680 8171 30750) :rpy (float-vector -3.047 -0.011 1.512)))
 (setq *ih-knob-coords* (make-coords :pos (float-vector 680 8164 30715) :rpy (float-vector -3.047 -0.011 1.512)))
