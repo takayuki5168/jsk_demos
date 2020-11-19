@@ -11,18 +11,26 @@
      (send-super* :init :name name args)
 
      ;; definition of link
-     (setq b2 (make-cube 180 15 8))
-     
-     (send b2 :locate #f(45 0 0))
-     (send b1 :locate #f(180 0 -4))
+     (setq b1 (make-cube 10 295 60))     
+     (setq b2 (make-cube 10 10 30))
 
-     (send b1 :set-color :BurlyWood)
-     (send b2 :set-color :BurlyWood)
+     (send b1 :locate #f(-5 147.5 0))
+     (send b2 :locate #f(-15 275 0))
+
+     (send b1 :set-color :blue)
+     (send b2 :set-color :yellow)
      (send b1 :assoc b2)
+     
 
      (setq link1 (instance bodyset-link :init (make-cascoords) :bodies (list b1 b2) :weight 1 :centroid (float-vector 0.0 0.0 0.0) :inertia-tensor #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
 
-
+     ;; link0
+     (setq b3 (make-cube 100 10 60))
+     (send b3 :locate #f(50 0 0))
+     (send b3 :set-color :blue)
+     
+     (setq link0 (instance bodyset-link :init (make-cascoords) :bodies (list b3) :weight 1 :centroid (float-vector 0.0 0.0 0.0) :inertia-tensor #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0))))
+     
      ;; definition of assoc
      (send self :assoc link1)
 
@@ -42,7 +50,7 @@
 
 
      ;; init-ending 
-     (setq links (list link1))
+     (setq links (list link1 link0))
      (send self :init-ending)
      (send self :move-to (make-coords :pos pos :rot rot))
      (send-all links :worldcoords)
