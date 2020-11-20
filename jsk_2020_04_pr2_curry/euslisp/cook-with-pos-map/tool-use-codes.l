@@ -41,7 +41,7 @@
 
 
 ;; set codes
-(warn "If you use real robot, run (update-pos) ~%")
+(warn "~%  If you use real robot, run (update-pos) ~%")
 (warn "please run (now-set-tools) or (set-knife) ~%")
 
 (defun receive-knife ()

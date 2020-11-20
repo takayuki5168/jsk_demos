@@ -40,7 +40,7 @@
 (init)
 (update-view)
 
-(warn "If you use real robot, run (update-pos) ~%")
+(warn "~% If you use real robot, run (update-pos) ~%")
 (warn "please run (move-to-kitchen-ri) , (move-to-sink-ri) or (move-to-stove-ri) and (set-pose)~%")
 
 

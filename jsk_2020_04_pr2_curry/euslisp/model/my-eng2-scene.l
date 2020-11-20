@@ -409,9 +409,17 @@
 (setq *seasoning-spot* (make-coords :pos (float-vector 1700 8900 30000) :rpy (float-vector pi 0 0)))
 
 ;; tools coords
+;; ;; 元の座標
+;; (setq *knife-coords* (make-coords :pos (float-vector 580 8726 30857) :rpy (float-vector 3.14 0.073 1.498))) ;; 包丁
+;; (setq *peeler-coords* (make-coords :pos (float-vector 493 8800 30895) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
+;; (setq *potato-peeler-coords* (make-coords :pos (float-vector 542 8915 30900) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
+
+;; tmp
 (setq *knife-coords* (make-coords :pos (float-vector 580 8726 30857) :rpy (float-vector 3.14 0.073 1.498))) ;; 包丁
-(setq *peeler-coords* (make-coords :pos (float-vector 493 8800 30895) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
-(setq *potato-peeler-coords* (make-coords :pos (float-vector 542 8915 30900) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
+(setq *peeler-coords* (make-coords :pos (float-vector 565 8825 30860) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
+(setq *potato-peeler-coords* (make-coords :pos (float-vector 560 8915 30850) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
+;;
+
 (setq *spatula-coords-0* (make-coords :pos (float-vector 340 8739 31433) :rpy (float-vector -3.14 -0.008 1.529))) ;; ヘラ，棚の中
 (setq *spatula-coords-1* (make-coords :pos (float-vector 604 8573 30872) :rpy (float-vector 3.101 -0.002 1.46))) ;; ヘラ，平置き
 (setq *ladle-coords-0* (make-coords :pos (float-vector 346 8637 31449) :rpy (float-vector -3.14 -0.008 1.529))) ;; おたま，棚の中
