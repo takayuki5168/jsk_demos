@@ -730,8 +730,42 @@
 
 
 
+;; now funcs
+(defun ih-test ()
+  (set-pose-3)
+  (on-stove) ;;電源を入れる
+  (push-knob) ;;つまみを押す
 
-(defun now-devel ()
+  (grasp-knob) ;;つまみを掴む
+  (rotate-knob :deg 30) ;;時計回りに30度つまみを回す
+  (release-knob) ;;つまみを離す
+
+  (push-knob) ;;つまみを押す
+  (off-stove) ;;電源を切る
+  (set-pose-3)
+  )
+
+(defun knob-test (&rest args &key (deg 30) &allow-other-keys)
+  ;;つまみが出ている状態で調節する
+  (grasp-knob) ;;つまみを掴む
+  (rotate-knob :deg deg) ;;時計回りにdeg度つまみを回す
+  (release-knob) ;;つまみを離す
+  )
+
+
+(defun spatula-mix-test ()
+  ;; ヘラでかき混ぜる動作のテスト
+  (grasp-pot-from-below)
+  (grasp-spatula)
+  (mix-with-spatula-set)
+  (mix-with-spatula)
+  (wait-pose-spatula)
+  (avoid-rarm-spatula)
+  (release-pot-from-below)
+  )
+
+(defun ladle-mix-test ()
+  ;; おたまでかき混ぜる動作のテスト
   (grasp-pot-from-below)
   (grasp-ladle)
   (mix-with-ladle-set)
@@ -740,5 +774,3 @@
   (avoid-rarm-ladle)
   (release-pot-from-below)
   )
-
-(now-devel)
