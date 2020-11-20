@@ -218,7 +218,7 @@
   (send *ri* :wait-interpolation)
 
   (send *ri* :stop-grasp :rarm)
-  (send *ri* :speak-jp "ピーラーを握らせて下さい")
+  (send *ri* :speak-jp "じゃがいもピーラーを握らせて下さい")
 
   (unix:sleep *s-time*)
   (send *ri* :start-grasp :rarm :wait t :gain 100)
@@ -1177,6 +1177,7 @@
 
 
 (defun now-set-tools ()
+  ;; 包丁，ピーラー，じゃがいもピーラーをセットする．
   (up-rarm)
   (receive-knife)
   (put-knife)
@@ -1231,6 +1232,7 @@
 
 
 (defun set-in-shelf ()
+  ;; 棚の中におたまとヘラをセットする．
   (open-shelf-set)
   (oepn-shelf)
 
