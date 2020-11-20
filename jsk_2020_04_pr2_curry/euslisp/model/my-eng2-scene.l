@@ -3,8 +3,6 @@
 (load "models/elevator_call_panel_eng2-object.l")
 (load "models/elevator_inside_panel_eng2-object.l")
 
-;; (load "eng2-rooms.l")
-;; (load "package://jsk_maps/src/eng2-rooms.l")
 (load "package://jsk_2020_04_pr2_curry/euslisp/model/my-eng2-rooms.l")
 
 (defun push-knowrob-properties (subj prop-name obj)
@@ -428,6 +426,8 @@
 
 ;; kitchenware coords
 (setq *pot-coords* (make-coords :pos (float-vector 450 8100 30840) :rpy (float-vector 0 0 0)))
+(setq *mcup-coords* (make-coords :pos (float-vector 200.0 8300.0 30840.0) :rpy (float-vector -1.571 0 0)))
+
 ;; ボウルとかも追加する？
 
 

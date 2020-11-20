@@ -5,8 +5,13 @@
 
   ;; spatula on the cutting board
   (send *spatula* :newcoords (send *spatula-coords-1* :copy-worldcoords))
+
+  ;; set measuring-cup
+  (load "package://jsk_2020_04_pr2_curry/euslisp/model/measuring-cup-73b2.l")
+  (setq *mcup* (measuring-cup-73b2))
+  (send *mcup* :newcoords (send *mcup-coords* :copy-worldcoords))
   
-  (objects (list *pr2* *scene* *spatula*))
+  (objects (list *pr2* *scene* *spatula* *mcup* *ladle*))
   (update-view)
   
   ;; set global num
@@ -18,7 +23,6 @@
   (setq *bowl-2-coords* (make-coords :pos (float-vector 344 8616 30880) :rpy (float-vector 3.016 0.995 1.718)))
   (setq *bowl-2-set-coords* (make-coords :pos (float-vector 584.588 8546.67 30885.165) :rpy (float-vector -2.389 0.788 1.578)))
   (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.911 8425.179 30885.843) :rpy (float-vector 2.561 1.128 2.104)))
-  
   
   (setq *bowl-3-coords* (make-coords :pos (float-vector 672 7632 30873) :rpy (float-vector -2.152 1.02 1.606)))
   (setq *bowl-4-coords* (make-coords :pos (float-vector 567 7824 30920) :rpy (float-vector -2.624 1.195 2.113)))
@@ -122,11 +126,13 @@
   (send *ri* :wait-interpolation)
 
   ;;少し前に
-  (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate #f(-200 50 50) :world)
-  (send *arrow* :rotate (deg2rad 90) :z :world)
-  (send *arrow* :rotate (deg2rad 90) :x)
-  (send *arrow* :rotate (deg2rad -60) :x :world)  
+  ;; (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :larm :end-coords) :copy-worldcoords) :worldpos)))
+  ;; (send *arrow* :translate #f(-200 50 50) :world)
+  ;; (send *arrow* :rotate (deg2rad 90) :z :world)
+  ;; (send *arrow* :rotate (deg2rad 90) :x)
+  ;; (send *arrow* :rotate (deg2rad -60) :x :world)
+  (send *arrow* :newcoords (make-coords :pos (float-vector 600 8361 31167) :rpy (float-vector 1.571 1.047 1.571)))
+  
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
@@ -894,6 +900,125 @@
   )
 
 
+;; mcup codes tmp
+(defun set-mcup ()
+  (if (not (eql (send *mcup* :parent) nil))
+      (send (send *mcup* :parent) :dissoc *mcup*))
+  (let (local-cds)
+    (setq local-cds (make-cascoords))
+    (send local-cds :newcoords (send (send *mcup* :handle-handle1) :copy-worldcoords))
+    (send local-cds :assoc *mcup*)
+    (send local-cds :newcoords (send (send *pr2* :larm :end-coords) :copy-worldcoords))
+    (send local-cds :dissoc *mcup*)
+    )
+  (send *viewer* :draw-objects)
+  (send (send *pr2* :larm :end-coords) :assoc *mcup*)
+  )
+
+(defun grasp-mcup ()
+  ;; mcupの位置
+  (setq *target* (make-coords))
+  (send *target* :newcoords (send (send *mcup* :handle-handle1) :copy-worldcoords))
+  
+  (grasp-bowl-larm)
+
+  (set-mcup)
+  
+  (warn "please run (carry-mcup-pose) ~%")
+  )
+
+(defun put-mcup ()
+  ;; mcupの位置を置く位置
+  (if (not (eql (send *mcup* :parent) nil))
+      (send (send *mcup* :parent) :dissoc *mcup*))
+  (send *mcup* :newcoords (send *mcup-coords* :copy-worldcoords))
+  (send *arrow* :newcoords (send (send *mcup* :handle-handle1) :copy-worldcoords))
+  (send *arrow* :translate (float-vector 0 0 200) :world)
+
+  (put-bowl-larm)
+  )
+
+(defun carry-mcup-pose ()
+  (setq *lav-cm* #f(38.442 -20.2481 94.8038 -104.353 117.885 -64.3683 -258.356))
+  (send *pr2* :larm :angle-vector *lav-cm*)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 8000)
+  (send *ri* :wait-interpolation)
+  )
+
+(defun transfer-mcup ()
+  (set-mcup)
+  
+  ;; スライドさせて行く
+  (send *pr2* :larm :move-end-pos #f(0 -100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 -100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(100 0 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 移し始める座標
+  (send *arrow* :newcoords (make-coords :pos (float-vector 510 8100 31080) :rpy (float-vector 3.14 0 0)))
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (car (send *mcup* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)  
+
+  ;; 傾けていく
+  (setq avs (list))
+  (setq tms (list))
+  
+  (dotimes (i 5)
+    (send *arrow* :rotate (deg2rad 10) :y)
+    (send *pr2* :larm :inverse-kinematics
+          *arrow*
+	  :move-target (car (send *mcup* :attention))
+          :rotation-axis t
+          :debug-view nil)
+    
+    (setq av (send *pr2* :angle-vector))
+    
+    (setq avs (append avs (list av)))
+    (setq tms (append tms (list 600)))
+    )
+  
+  (send *ri* :angle-vector-sequence avs tms)
+  (send *ri* :wait-interpolation)
+  
+  ;; 移し終わったかどうか等を判定する？
+  
+  (warn "please run (after-mcup) ~%")
+  )
+
+(defun after-mcup ()
+  (send *arrow* :newcoords (make-coords :pos (float-vector 510 8100 31080) :rpy (float-vector 3.14 0 0)))
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (car (send *mcup* :attention))
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 100 100) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+  
+  (carry-mcup-pose)
+  
+  (warn "please run (put-mcup) ~%")
+  )
+
+
 
 ;; now funcs
 ;; ボウル２をセット
@@ -1003,3 +1128,34 @@
   (now-transfer-1) ;; 野菜
   (now-transfer-3) ;; カレールー
   )
+
+(defun now-set-mcup ()
+  (set-pose)
+  (grasp-mcup)
+  (carry-mcup-pose)
+
+  (warn "please go to sink spot ~%")
+  )
+
+(defun now-pour-water ()
+  (carry-mcup-pose)
+  (transfer-mcup)
+  (after-mcup)
+  (put-mcup)
+  (reset-larm)
+  )
+
+
+
+(defun now-devel ()
+  (set-pose)
+  (grasp-mcup)
+  (carry-mcup-pose)
+
+  (transfer-mcup)
+  (after-mcup)
+  (put-mcup)
+
+  (reset-larm)
+  )
+
