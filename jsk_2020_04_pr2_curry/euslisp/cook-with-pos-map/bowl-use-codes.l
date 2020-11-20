@@ -1,6 +1,6 @@
 (defun bowl-init ()
   ;; init
-  (load "move-to-kitchen-with-map.l")
+  ;; (load "move-to-kitchen-with-map.l")
   (load "tool-use-codes.l")
 
   ;; spatula on the cutting board

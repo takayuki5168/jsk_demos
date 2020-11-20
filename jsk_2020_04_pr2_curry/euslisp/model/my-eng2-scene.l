@@ -439,7 +439,8 @@
 (setq *shelf-door-coords* (make-coords :pos (float-vector 420 8845 31445) :rpy (float-vector 3.14 0 0)))
 
 ;; 水道
-(setq *fauset-lever-rarm-coords* (make-coords :pos (float-vector 223 9157 31014) :rpy (float-vector -2.478 0.08 -1.623)))
+(setq *fauset-lever-rarm-coords* (make-coords :pos (float-vector 223 9157 31014) :rpy (float-vector -2.478 0.08 -1.623))) ;; 水道のレバーを掴む座標
+(setq *fauset-coords* (make-coords :pos (float-vector 350 9157 30850) :rpy (float-vector 3.14 0 0)))
 
 ;; コンロ
 (setq *ih-switch-on-coords* (make-coords :pos (float-vector 680 8181 30750) :rpy (float-vector -3.047 -0.011 1.512)))

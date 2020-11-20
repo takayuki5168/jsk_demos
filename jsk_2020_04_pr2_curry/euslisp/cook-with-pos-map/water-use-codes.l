@@ -1,6 +1,7 @@
 (defun water-init ()
   ;; init
-  (load "move-to-kitchen-with-map.l")
+  ;; (load "move-to-kitchen-with-map.l")
+  (load "bowl-use-codes.l")
   
   ;; set global num
   (setq *s-time* 3)
@@ -47,10 +48,13 @@
 
   ;;少し前に
   (send *arrow* :newcoords (make-coords :pos (send (send (send *pr2* :rarm :end-coords) :copy-worldcoords) :worldpos)))
-  (send *arrow* :translate (float-vector -200 50 50) :world)
+  (send *arrow* :translate (float-vector -200 50 40) :world)
   (send *arrow* :rotate (deg2rad -90) :z :world)
   (send *arrow* :rotate (deg2rad 90) :x)
-  (send *arrow* :rotate (deg2rad 60) :x :world)  
+  (send *arrow* :rotate (deg2rad 60) :x :world)
+
+  (setq *tmp* (send *arrow* :copy-worldcoords))
+  
   (send *pr2* :rarm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
@@ -66,7 +70,7 @@
   (send *arrow* :newcoords (send *fauset-lever-rarm-coords* :copy-worldcoords))
   
   (send *arrow* :translate #f(100 60 20) :world)
-  (send *pr2* :larm :inverse-kinematics
+  (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
 	:debug-view t)
@@ -74,7 +78,7 @@
   (send *ri* :wait-interpolation)
 
   (send *arrow* :translate #f(-100 -60 -20) :world)
-  (send *pr2* :larm :inverse-kinematics
+  (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
 	:debug-view t)
@@ -88,6 +92,7 @@
 
 
 (defun water-on ()
+  ;; こことかも実はモデルをつくって開ける閉める動作にした方が良いのかな？という感じはする．
   ;; レバーを掴んでいる状態から
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
   (send *arrow* :translate (float-vector 0 0 80) :world)
@@ -114,7 +119,7 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (warn "please run (release-lever)")
+  (warn "please run (release-lever) ~%")
   )
 
 
@@ -124,7 +129,7 @@
   
   (send *arrow* :newcoords (send *fauset-lever-rarm-coords* :copy-worldcoords))
   (send *arrow* :translate #f(100 60 20) :world)
-  (send *pr2* :larm :inverse-kinematics
+  (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
 	:debug-view t)
@@ -133,3 +138,112 @@
 
   (reset-rarm)
   )
+
+
+;; measuring cup funcs
+(defun mcup-water-set ()
+  (send *pr2* :torso_lift_joint :joint-angle 325)
+  (carry-mcup-pose)
+
+  ;; スライドさせて行く
+  (send *pr2* :larm :move-end-pos #f(0 100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 0 -100) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  ;; 蛇口の位置
+  (send *arrow* :newcoords (send *fauset-coords* :copy-worldcoords))
+  (send *arrow* :translate #f(0 -100 0) :world)
+  (send *arrow* :translate #f(100 0 100) :world)
+
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (elt (send *mcup* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 8000)
+  (send *ri* :wait-interpolation)  
+
+  (send *arrow* :translate #f(-100 0 -100) :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (elt (send *mcup* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)  
+  
+  (send *arrow* :translate #f(0 100 0) :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (elt (send *mcup* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)  
+
+  (warn "please run (grasp-lever) ~%")
+  )
+
+(defun after-mcup-water ()
+  ;; 蛇口の位置
+  (send *arrow* :newcoords (send *fauset-coords* :copy-worldcoords))
+  (send *arrow* :translate #f(0 -100 0) :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (elt (send *mcup* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)  
+  
+  (send *arrow* :translate #f(100 0 100) :world)
+  (send *pr2* :larm :inverse-kinematics
+  	(send *arrow* :copy-worldcoords)
+	:move-target (elt (send *mcup* :attention) 1)
+  	:rotation-axis t
+  	:debug-view t)
+  (send *viewer* :draw-objects)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)  
+
+  (send *pr2* :larm :move-end-pos #f(0 0 100) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (send *pr2* :larm :move-end-pos #f(0 -100 0) :world)
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
+  (send *ri* :wait-interpolation)
+
+  (carry-mcup-pose)
+
+  (warn "please return to kitchen spot! ~%")
+  )
+
+
+;; wash vegitable funcs
+
+
+;; now funcs
+(defun now-devel ()
+  (set-mcup)
+  (carry-mcup-pose)
+  (mcup-water-set)
+  
+  (grasp-lever)
+  (water-on)
+
+  ;; 本当はここで認識をする
+  (water-off)
+  (release-lever)
+  
+  (after-mcup-water)
+  )
+
