@@ -414,8 +414,8 @@
 
 ;; tmp
 (setq *knife-coords* (make-coords :pos (float-vector 580 8726 30857) :rpy (float-vector 3.14 0.073 1.498))) ;; 包丁
-(setq *peeler-coords* (make-coords :pos (float-vector 565 8825 30860) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
-(setq *potato-peeler-coords* (make-coords :pos (float-vector 560 8915 30850) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
+(setq *peeler-coords* (make-coords :pos (float-vector 580 8810 30870) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
+(setq *potato-peeler-coords* (make-coords :pos (float-vector 580 8915 30865) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
 ;;
 
 (setq *spatula-coords-0* (make-coords :pos (float-vector 340 8739 31433) :rpy (float-vector -3.14 -0.008 1.529))) ;; ヘラ，棚の中
@@ -436,7 +436,7 @@
 (setq *shelf-knob-closed-coords* (make-coords :pos (float-vector 425 8573 31445) :rpy (float-vector 3.105 0.012 3.092)))
 (setq *shelf-knob-opened-coords* (make-coords :pos (float-vector 629 8859 31445) :rpy (float-vector -1.636 -0.095 -3.091)))
 
-(setq *shelf-door-coords* (make-coords :pos (float-vector 420 8845 31445) :rpy (float-vector 3.14 0 0)))
+(setq *shelf-door-coords* (make-coords :pos (float-vector 420 8855 31445) :rpy (float-vector 3.14 0 0)))
 
 ;; 水道
 (setq *fauset-lever-rarm-coords* (make-coords :pos (float-vector 223 9157 31014) :rpy (float-vector -2.478 0.08 -1.623))) ;; 水道のレバーを掴む座標

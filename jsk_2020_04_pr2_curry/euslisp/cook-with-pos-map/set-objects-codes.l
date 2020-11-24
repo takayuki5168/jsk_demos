@@ -14,6 +14,7 @@
   (set-in-shelf);; 棚の中におたまとヘラをセットする．
   )
 
+
 (defun set-bowls ()
   (load "package://jsk_2020_04_pr2_curry/euslisp/model/bowl-use-codes.l")
   (update-pos)

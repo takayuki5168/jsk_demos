@@ -97,7 +97,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-  (send *ri* :stop-grasp :rarm :wait t)
+  ;; (send *ri* :stop-grasp :rarm :wait t)
+  (send *ri* :move-gripper :rarm 0.08)
   (send *pr2* :rarm :end-coords :dissoc *knife*)
   
   ;; 手を上げる
@@ -175,7 +176,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *ri* :stop-grasp :rarm :wait t)
+  ;; (send *ri* :stop-grasp :rarm :wait t)
+  (send *ri* :move-gripper :rarm 0.08)
   (send *pr2* :rarm :end-coords :dissoc *peeler*)
 
   ;; 手を上げる
@@ -254,7 +256,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
 
-  (send *ri* :stop-grasp :rarm :wait t)
+  ;; (send *ri* :stop-grasp :rarm :wait t)
+  (send *ri* :move-gripper :rarm 0.08)
   (send *pr2* :rarm :end-coords :dissoc *potato-peeler*)
 
   ;; 手を上げる
@@ -298,7 +301,7 @@
   (send *ri* :wait-interpolation)
 
   (send *ri* :stop-grasp :rarm)
-  (send *ri* :speak-jp "包丁を握らせて下さい")
+  (send *ri* :speak-jp "ヘラを握らせて下さい")
 
   (unix:sleep *s-time*)
   (send *ri* :start-grasp :rarm :wait t :gain 100)
@@ -312,10 +315,15 @@
   )
 
 (defun put-spatula-1 ()  
+  (send *pr2* :larm :angle-vector #f(117.007 48.3805 113.439 -103.326 38.7107 -5.72958 14.4628))
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+
   (send *arrow* :newcoords (send *spatula-coords-1* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad -90) :x)
   
   (send *arrow* :translate #f(60 0 100) :world)
+  (send *ri* :wait-interpolation)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -333,7 +341,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-  (send *ri* :stop-grasp :rarm :wait t)
+  ;; (send *ri* :stop-grasp :rarm :wait t)
+  (send *ri* :move-gripper :rarm 0.08)
   (send *pr2* :rarm :end-coords :dissoc *spatula*)
   
   ;; 手を上げる
@@ -374,7 +383,7 @@
   (send *ri* :wait-interpolation)
 
   (send *ri* :stop-grasp :rarm)
-  (send *ri* :speak-jp "包丁を握らせて下さい")
+  (send *ri* :speak-jp "おたまを握らせて下さい")
 
   (unix:sleep *s-time*)
   (send *ri* :start-grasp :rarm :wait t :gain 100)
@@ -388,6 +397,10 @@
   )
 
 (defun put-ladle-1 ()  
+  (send *pr2* :larm :angle-vector #f(117.007 48.3805 113.439 -103.326 38.7107 -5.72958 14.4628))
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
   (send *arrow* :newcoords (send *ladle-coords-1* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad -90) :x)
   
@@ -409,7 +422,8 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
   (send *ri* :wait-interpolation)
   
-  (send *ri* :stop-grasp :rarm :wait t)
+  ;; (send *ri* :stop-grasp :rarm :wait t)
+  (send *ri* :move-gripper :rarm 0.08)
   (send *pr2* :rarm :end-coords :dissoc *ladle*)
   
   ;; 手を上げる
@@ -425,7 +439,7 @@
   
   ;; 手を上げる
   (send *arrow* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *arrow* :translate #f(60 -150 170) :world)
+  (send *arrow* :translate #f(60 100 170) :world)
   (send *pr2* :rarm :inverse-kinematics
 	(send *arrow* :copy-worldcoords)
 	:rotation-axis t
@@ -495,8 +509,11 @@
   
   (send *ri* :angle-vector-sequence avs tms)
   (send *ri* :wait-interpolation)
+
+  ;; (send *arrow* :newcoords)
   
-  (send *ri* :start-grasp :rarm :wait t)
+
+  ;; (send *ri* :start-grasp :rarm :wait t)
   
   (warn "please run (open-shelf) ~%")
   )
@@ -824,7 +841,7 @@
   (send *ri* :wait-interpolation)
 
   ;;グリッパを微妙に開く
-  (send *ri* :move-gripper :rarm 0.05)
+  (send *ri* :move-gripper :rarm 0.07)
   (send *pr2* :rarm :end-coords :dissoc *spatula*)
 
   (send *arrow* :translate #f(60 0 30) :world)
@@ -907,7 +924,7 @@
   (send *ri* :wait-interpolation)
 
   ;;グリッパを微妙に開く
-  (send *ri* :move-gripper :rarm 0.05)
+  (send *ri* :move-gripper :rarm 0.07)
   (send *pr2* :rarm :end-coords :dissoc *ladle*)
 
   (send *arrow* :translate #f(60 0 30) :world)
@@ -1260,4 +1277,9 @@
   (close-shelf-set)
   (close-shelf)
   (after-close)
+  )
+
+(defun set-tool-1 ()
+  (set-spatula-1)
+  (set-ladle-1)
   )

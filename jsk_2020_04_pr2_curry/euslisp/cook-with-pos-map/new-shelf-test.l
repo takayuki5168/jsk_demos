@@ -4,7 +4,7 @@
 
 (defun open-test ()
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
-  ;; (update-pos)
+  (update-pos)
 
   (open-shelf-set)
   (open-shelf)
@@ -15,7 +15,7 @@
 
 (defun close-test ()
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
-  ;; (update-pos)
+  (update-pos)
 
   (close-shelf-set)
   (close-shelf)
