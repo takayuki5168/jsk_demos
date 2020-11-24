@@ -1235,6 +1235,7 @@
   ;; 棚の中におたまとヘラをセットする．
   (open-shelf-set)
   (oepn-shelf)
+  (after-open)
 
   (receive-spatula)
   (put-spatula-0)
@@ -1249,6 +1250,7 @@
 (defun set-from-shelf ()
   (open-shelf-set)
   (oepn-shelf)
+  (after-open)
 
   (grasp-spatula-0)
   (put-spatula-1)
