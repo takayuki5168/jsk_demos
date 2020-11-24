@@ -22,7 +22,4 @@
 
   (grasp-potato-peeler)
   (put-potato-peeler)
-
-  
   )
-

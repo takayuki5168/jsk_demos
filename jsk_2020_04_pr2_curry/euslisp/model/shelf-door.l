@@ -10,7 +10,7 @@
    (let (link1
 	 b1
 	 b2
-	 (sy 295)
+	 (sy 280)
 	 (sz 60)
 	 )
      (send-super* :init :name name args)
@@ -19,7 +19,7 @@
      (setq b1 (make-cube 10 sy sz))     
      (setq b2 (make-cube 10 10 30))
 
-     (send b1 :locate #f(0 147.5 0))
+     (send b1 :locate (float-vector 0 (/ sy 2) 0))
      (send b2 :locate (float-vector -10 (- sy 20) 0))
 
      (send b1 :set-color :blue)
@@ -47,7 +47,7 @@
      
      ;; definition of :handle
      (setq handle0 (make-cascoords :pos (float-vector 0.0 0.0 0.0) :rot #2f((1.0 0.0 0.0) (0.0 1.0 0.0) (0.0 0.0 1.0)) :name "handle0"))
-     (send handle0 :locate (float-vector -5 (- sy 20) 0))
+     (send handle0 :locate (float-vector -15 (- sy 20) 0))
      (send link1 :assoc handle0)
 
      ;; definition of :attention
