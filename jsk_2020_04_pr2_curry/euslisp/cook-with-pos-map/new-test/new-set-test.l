@@ -20,12 +20,11 @@
   (warn "please run (switch-bowl) ~%")
   )
 
-
 (defun switch-bowl ()
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/bowl-use-codes.l")
   (update-pos)
   (switch-bowl-2)  
-
+  
   (warn "please run (set-pot-tools) ~%")
   )
 
@@ -35,9 +34,9 @@
   
   (set-spatula-1)
   (set-ladle-1)
-
+  
   (reset-rarm)
-
+  
   (warn "please run (spatula-test) ~%")
   )
 
