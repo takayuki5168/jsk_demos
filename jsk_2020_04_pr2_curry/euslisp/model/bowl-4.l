@@ -23,7 +23,7 @@
      (setq b1 (body- b1 b5))
      
      (send b1 :locate #f(0 0 90))
-     (send b4 :locate #f(0 0 2.5))
+     (send b4 :locate #f(0 0 0))
 
      (send b1 :set-color :Silver)
      (send b4 :set-color :Silver) 
