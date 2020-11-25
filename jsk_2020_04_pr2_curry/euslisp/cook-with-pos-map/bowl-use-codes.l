@@ -1018,7 +1018,17 @@
   (warn "please run (put-mcup) ~%")
   )
 
+(defun recieve-mcup ()
+  (carry-mcup-pose)
 
+  ;; mcupを受け取る
+  (send *ri* :stop-grasp :larm :wait t)
+  (send *ri* :speak-jp "軽量カップを握らせて下さい")
+  (unix:sleep *s-time*)
+  (send *ri* :start-grasp :larm :wait t)
+
+  (warn "please run (put-mcup) ~%")
+  )
 
 ;; now funcs
 ;; ボウル２をセット
@@ -1130,6 +1140,11 @@
   )
 
 (defun now-set-mcup ()
+  (recieve-mcup)
+  (put-mcup)
+  )
+
+(defun now-grasp-mcup ()
   (set-pose)
   (grasp-mcup)
   (carry-mcup-pose)
