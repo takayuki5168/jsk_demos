@@ -17,7 +17,7 @@
   (update-pos)
 
   (spatula-mix-test)
-  (put-spatula)
+  (put-spatula-1)
 
   (warn "please run (ladle-test) ~%")
   )
@@ -27,7 +27,7 @@
   (update-pos)
 
   (ladle-mix-test)
-  (put-ladle)  
+  (put-ladle-1)  
   )
 
 

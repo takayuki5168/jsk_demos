@@ -315,10 +315,6 @@
   )
 
 (defun put-spatula-1 ()  
-  (send *pr2* :larm :angle-vector #f(117.007 48.3805 113.439 -103.326 38.7107 -5.72958 14.4628))
-  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
-  (send *ri* :wait-interpolation)
-
   (send *arrow* :newcoords (send *spatula-coords-1* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad -90) :x)
   
@@ -1157,6 +1153,10 @@
   )
 
 (defun grasp-ladle ()
+  (send *pr2* :larm :angle-vector #f(117.007 48.3805 113.439 -103.326 38.7107 -5.72958 14.4628))
+  (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+  (send *ri* :wait-interpolation)
+  
   (up-rarm)
   
   ;;掴む位置

@@ -1,6 +1,5 @@
 (defun ih-init ()
   ;; init
-  (load "move-to-kitchen-with-map.l")
   (load "tool-use-codes.l")
 
   ;; set pot
@@ -241,7 +240,7 @@
   )
 
 (defun grasp-knob ()
-  (send *ri* :stop-grasp :larm :wait t)
+  (send *ri* :move-gripper :larm 0.08)
   
   (send *arrow* :newcoords (send *ih-knob-coords* :copy-worldcoords))
   (send *arrow* :rotate (deg2rad 90) :x)
@@ -278,22 +277,22 @@
 
   (if (> deg 0)
       (progn 
-	(dolist (i (/ deg 10))
+	(dotimes (i (/ deg 10))
 	  (send *arrow* :rotate (deg2rad 10) :x)
 	  (send *pr2* :larm :inverse-kinematics
 		(send *arrow* :copy-worldcoords)
 		:rotation-axis t
-		:debug-view t)
+		:debug-view nil)
 	  (setq av (send *pr2* :angle-vector))
 	  (setq avs (append avs (list av)))
 	  (setq tms (append tms (list 600)))
 	  ))
-    (dolist (i (/ (* deg -1) 10))
+    (dotimes (i (/ (* deg -1) 10))
       (send *arrow* :rotate (deg2rad -10) :x)
       (send *pr2* :larm :inverse-kinematics
 	    (send *arrow* :copy-worldcoords)
 	    :rotation-axis t
-	    :debug-view t)
+	    :debug-view nil)
       (setq av (send *pr2* :angle-vector))
       (setq avs (append avs (list av)))
       (setq tms (append tms (list 600)))
@@ -420,7 +419,7 @@
   (send *ri* :stop-grasp :larm :wait t)
 
   (send *arrow* :newcoords (send *pot-larm-from-below* :copy-worldcoords))
-  (send *arrow* :translate #f(-100 0 100) :world)
+  (send *arrow* :translate #f(100 0 -100) :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
@@ -435,7 +434,7 @@
   (send *ri* :stop-grasp :larm :wait t)
 
   (send *arrow* :newcoords (send *pot-larm-from-above* :copy-worldcoords))
-  (send *arrow* :translate #f(60 0 -60) :world)
+  (send *arrow* :translate #f(-60 0 60) :world)
   (send *pr2* :larm :inverse-kinematics
   	(send *arrow* :copy-worldcoords)
   	:rotation-axis t
@@ -766,8 +765,8 @@
 
 (defun ladle-mix-test ()
   ;; おたまでかき混ぜる動作のテスト
-  (grasp-pot-from-below)
   (grasp-ladle)
+  (grasp-pot-from-below)
   (mix-with-ladle-set)
   (mix-with-ladle)
   (wait-pose-ladle)

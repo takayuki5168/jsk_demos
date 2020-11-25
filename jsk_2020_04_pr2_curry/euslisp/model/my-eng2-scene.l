@@ -413,13 +413,14 @@
 ;; (setq *potato-peeler-coords* (make-coords :pos (float-vector 542 8915 30900) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
 
 ;; tmp
-(setq *knife-coords* (make-coords :pos (float-vector 580 8726 30857) :rpy (float-vector 3.14 0.073 1.498))) ;; 包丁
-(setq *peeler-coords* (make-coords :pos (float-vector 580 8810 30870) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
+(setq *knife-coords* (make-coords :pos (float-vector 580 8715 30857) :rpy (float-vector 3.14 0.073 1.498))) ;; 包丁
+(setq *peeler-coords* (make-coords :pos (float-vector 580 8815 30870) :rpy (float-vector 3.14 0.049 1.51))) ;; ピーラー
 (setq *potato-peeler-coords* (make-coords :pos (float-vector 580 8915 30865) :rpy (float-vector 3.14 0.013 1.545))) ;; じゃがいもピーラー
 ;;
 
 (setq *spatula-coords-0* (make-coords :pos (float-vector 340 8739 31433) :rpy (float-vector -3.14 -0.008 1.529))) ;; ヘラ，棚の中
-(setq *spatula-coords-1* (make-coords :pos (float-vector 604 8573 30872) :rpy (float-vector 3.101 -0.002 1.46))) ;; ヘラ，平置き
+;; (setq *spatula-coords-1* (make-coords :pos (float-vector 604 8573 30872) :rpy (float-vector 3.101 -0.002 1.46))) ;; ヘラ，平置き
+(setq *spatula-coords-1* (make-coords :pos (float-vector 592 8549 30872) :rpy (float-vector 3.084 -0.042 1.542))) ;; ヘラ，平置き
 (setq *ladle-coords-0* (make-coords :pos (float-vector 346 8637 31449) :rpy (float-vector -3.14 -0.008 1.529))) ;; おたま，棚の中
 (setq *ladle-coords-1* (make-coords :pos (float-vector 599 8313 30877) :rpy (float-vector 3.128 -0.098 1.514))) ;; おたま，平置き
 
@@ -444,9 +445,13 @@
 (setq *fauset-coords* (make-coords :pos (float-vector 350 9157 30850) :rpy (float-vector 3.14 0 0)))
 
 ;; コンロ
-(setq *ih-switch-on-coords* (make-coords :pos (float-vector 680 8181 30750) :rpy (float-vector -3.047 -0.011 1.512)))
-(setq *ih-switch-off-coords* (make-coords :pos (float-vector 680 8171 30750) :rpy (float-vector -3.047 -0.011 1.512)))
-(setq *ih-knob-coords* (make-coords :pos (float-vector 680 8164 30715) :rpy (float-vector -3.047 -0.011 1.512)))
+;; (setq *ih-switch-on-coords* (make-coords :pos (float-vector 680 8181 30750) :rpy (float-vector -3.047 -0.011 1.512)))
+;; (setq *ih-switch-off-coords* (make-coords :pos (float-vector 680 8171 30750) :rpy (float-vector -3.047 -0.011 1.512)))
+;; (setq *ih-knob-coords* (make-coords :pos (float-vector 680 8164 30715) :rpy (float-vector -3.047 -0.011 1.512)))
+
+(setq *ih-switch-on-coords* (make-coords :pos (float-vector 680 8171 30750) :rpy (float-vector -3.047 -0.011 1.512)))
+(setq *ih-switch-off-coords* (make-coords :pos (float-vector 680 8161 30750) :rpy (float-vector -3.047 -0.011 1.512)))
+(setq *ih-knob-coords* (make-coords :pos (float-vector 680 8154 30715) :rpy (float-vector -3.047 -0.011 1.512)))
 
 
 ;; example

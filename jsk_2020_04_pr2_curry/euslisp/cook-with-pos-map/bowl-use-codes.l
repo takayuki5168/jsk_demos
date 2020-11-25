@@ -21,8 +21,10 @@
   ;; (setq *bowl-1-coords* (make-coords :pos (float-vector 362 8446 30880) :rpy (float-vector 2.766 0.889 1.742)))
   (setq *bowl-1-coords* (make-coords :pos (float-vector 383 8425 30889) :rpy (float-vector 2.892 1.01 1.404))) ;; big ver 
   (setq *bowl-2-coords* (make-coords :pos (float-vector 344 8616 30880) :rpy (float-vector 3.016 0.995 1.718)))
-  (setq *bowl-2-set-coords* (make-coords :pos (float-vector 584.588 8546.67 30885.165) :rpy (float-vector -2.389 0.788 1.578)))
-  (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.911 8425.179 30885.843) :rpy (float-vector 2.561 1.128 2.104)))
+  ;; (setq *bowl-2-set-coords* (make-coords :pos (float-vector 584.588 8546.67 30885.165) :rpy (float-vector -2.389 0.788 1.578)))
+  ;; (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.911 8425.179 30885.843) :rpy (float-vector 2.561 1.128 2.104)))
+  (setq *bowl-2-set-coords* (make-coords :pos (float-vector 558.94 8455.526 30890.992) :rpy (float-vector -2.649 1.102 1.301)))
+  (setq *bowl-2-set-larm-coords* (make-coords :pos (float-vector 550.455 8389.4 30870.472) :rpy (float-vector 3.006 0.965 -1.5)))
   
   (setq *bowl-3-coords* (make-coords :pos (float-vector 672 7632 30873) :rpy (float-vector -2.152 1.02 1.606)))
   (setq *bowl-4-coords* (make-coords :pos (float-vector 567 7824 30920) :rpy (float-vector -2.624 1.195 2.113)))
@@ -1073,14 +1075,25 @@
   (reset-rarm)
   )
 
-;; TODO ヘラを入れたい
 (defun now-transfer ()
   (transfer-to-pot)
+
+  (grasp-spatula)
+  (squeeze-test-set)
+  (squeeze-test)
+  (avoid-rarm)
+  
   (after-transfer)
   )
-;; TODO ヘラを入れたい
+
 (defun now-transfer-left ()
   (transfer-to-pot-left)
+
+  (grasp-spatula)
+  (squeeze-test-set)
+  (squeeze-test)
+  (avoid-rarm)
+  
   (after-transfer-left)
   )
 
