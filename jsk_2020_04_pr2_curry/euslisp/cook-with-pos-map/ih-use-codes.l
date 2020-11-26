@@ -578,20 +578,6 @@
   )
 
 ;; ladle
-;; (defun set-ladle ()
-;;   (setq *ladle* (ladle))
-
-;;   ;; おたまをセットする．
-;;   (send *ladle* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-;;   (send *ladle* :rotate (deg2rad 90) :x)
-;;   (send *pr2* :rarm :end-coords :assoc *ladle*)
-
-;;   (objects (list *scene* *pr2* *ladle* *pot*))
-;;   (update-view)
-
-;;   (warn "please run (mix-with-ladle-set) ~%")
-;;   )
-
 (defun mix-with-ladle-set ()
   (send *ri* :start-grasp :rarm :gain 30 :wait t)
 
@@ -774,6 +760,7 @@
   (release-pot-from-below)
   )
 
+
 (defun now-spatula-mix ()
   ;; ヘラでかき混ぜる動作 ヘラは掴んでいる前提
   (grasp-pot-from-below)
@@ -785,8 +772,8 @@
   (release-pot-from-below)
   )
 
-(defun ladle-mix-test ()
-  ;; おたまでかき混ぜる動作のテスト
+(defun now-ladle-mix ()
+  ;; おたまでかき混ぜる動作 へらは掴んでいる前提
   (set-ladle)
   (grasp-pot-from-below)
   (mix-with-ladle-set)
@@ -795,3 +782,42 @@
   (avoid-rarm-ladle)
   (release-pot-from-below)
   )
+
+
+(defun spatula-mix-loop (&rest args &key (times 10) &allow-other-keys)
+  (wait-pose-spatula)
+  (dotimes (i times)
+    (mix-with-spatula)
+    )
+  (wait-pose-spatula)
+  )
+
+(defun ladle-mix-loop (&rest args &key (times 10) &allow-other-keys)
+  (wait-pose-ladle)
+  (dotimes (i times)
+    (mix-with-ladle)
+    )
+  (wait-pose-ladle)
+  )
+
+(defun now-spatula-mix-loop (&rest args &key (times 10) &allow-other-keys)
+  ;; ヘラでtims回かき混ぜる動作 ヘラは掴んでいる前提
+  (grasp-pot-from-below)
+  (set-spatula)
+  (mix-with-spatula-set)
+  (spatula-mix-loop :times times)
+  (avoid-rarm-spatula)
+  (release-pot-from-below)
+  )
+
+(defun now-ladle-mix-loop (&rest args &key (times 10) &allow-other-keys)
+  ;; おたまでtims回かき混ぜる動作 へらは掴んでいる前提
+  (set-ladle)
+  (grasp-pot-from-below)
+  (mix-with-ladle-set)
+  (ladle-mix-loop :times times)
+  (avoid-rarm-ladle)
+  (release-pot-from-below)
+  )
+
+

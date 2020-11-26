@@ -111,7 +111,8 @@
   ;; かき混ぜる　ヘラは掴んでいる前提
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
   (update-pos)
-  (now-spatula-mix)
+  ;; (now-spatula-mix)
+  (now-spatula-mix-loop :times 10)
   
   (warn " 玉ねぎを炒めて確認し，肉をセットして please run (curry-5) ~%")
   )
@@ -135,7 +136,8 @@
   ;; かき混ぜる ヘラは掴んでいる前提
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
   (update-pos)
-  (now-spatula-mix)
+  ;; (now-spatula-mix)
+  (now-spatula-mix-loop :times 10)
   
   (warn "肉を炒めて確認して please run (curry-6) ~%")
   )
@@ -156,16 +158,13 @@
   )
 
 (defun curry-7 () ;; 煮込む動作
-  ;; コンロ操作をする
+  ;; おたまを掴む，コンロ操作，おたまで混ぜる．
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
   (update-pos)
   (grasp-ladle) ;; おたまを掴む 
-  (now-start-ih)
-  
-  ;; おたまで混ぜる
-  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
-  (update-pos)
-  (now-ladle-mix)
+  (now-start-ih) ;; コンロ操作
+  ;; (now-ladle-mix) ;; おたまで混ぜる
+  (now-ladle-mix-loop :times 10) ;; おたまで10回混ぜる
   
   (warn "灰汁を取るなどをしながら，カレールーを入れるタイミングで please run (curry-8) ~%")
   )
@@ -182,9 +181,17 @@
   (grasp-spatula)
   (now-transfer-4)
   (put-spatula-1)
-  
-  )
 
+  ;; おたまを掴む，コンロ操作，おたまで混ぜる．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (grasp-ladle) ;; おたまを掴む 
+  (now-start-ih) ;; コンロ操作
+  ;; (now-ladle-mix) ;; おたまで混ぜる
+  (now-ladle-mix-loop :times 10) ;; おたまで10回混ぜる
+  
+  (warn "完成するまで混ぜたり様子をみたりする ~%")
+  )
 
 
 ;; defun util funcs
@@ -193,4 +200,24 @@
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
   (update-pos)
   (now-on-start-ih)
+  )
+
+(defun grasp-pot-tmp ()
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (grasp-pot-from-below)
+  )
+
+(defun relase-pot-tmp ()
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (release-pot-from-below)
+  )
+
+(defun spatula-mix-tmp (&rest args &key (times 10) &allow-other-keys)
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (mix-with-spatula-set)
+  (spatula-mix-loop :times times)
+  (avoid-rarm-spatula)  
   )
