@@ -698,16 +698,16 @@
 
 
 ;; spatula funcs
-(defun set-spatula ()
-  (setq *spatula* (spatula))
+;; (defun set-spatula ()
+;;   (setq *spatula* (spatula))
   
-  (send *spatula* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *spatula* :rotate (deg2rad 90) :x)
-  (send (send *pr2* :rarm :end-coords) :assoc *spatula*)
-
-  (objects (list *pr2* *scene* *spatula*))
-  (update-view)
-  )
+;;   (send *spatula* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+;;   (send *spatula* :rotate (deg2rad 90) :x)
+;;   (send (send *pr2* :rarm :end-coords) :assoc *spatula*)
+  
+;;   (objects (list *pr2* *scene* *spatula*))
+;;   (update-view)
+;;   )
 
 (defun squeeze-test-set ()
   (send *ri* :start-grasp :rarm :gain 30 :wait t)
@@ -1078,7 +1078,8 @@
 (defun now-transfer ()
   (transfer-to-pot)
 
-  (grasp-spatula)
+  ;; (grasp-spatula)
+  (set-spatula) ;; ヘラは掴んでいる想定で行う
   (squeeze-test-set)
   (squeeze-test)
   (avoid-rarm)
@@ -1089,7 +1090,8 @@
 (defun now-transfer-left ()
   (transfer-to-pot-left)
 
-  (grasp-spatula)
+  ;; (grasp-spatula)
+  (set-spatula) ;; ヘラは掴んでいる想定で行う
   (squeeze-test-set)
   (squeeze-test)
   (avoid-rarm)

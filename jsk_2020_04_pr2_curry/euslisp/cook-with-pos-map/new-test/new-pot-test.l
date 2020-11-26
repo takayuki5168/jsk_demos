@@ -1,13 +1,13 @@
 (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
 
-(warn "please run (set-tools) ~%")
+(warn "please run (set-pot-tools) ~%")
 
-(defun set-tools ()
+(defun set-pot-tools ()
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
   (update-pos)
   
-  (set-spatula-1)
-  (set-ladle-1)
+  (now-set-spatula-1)
+  (now-set-ladle-1)
 
   (warn "please run (spatula-test) ~%")
   )

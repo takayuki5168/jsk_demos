@@ -41,10 +41,8 @@
   (update-pos)
   (put-knife)
   
-  (warn "please run (curry-2) ~%")
+  (warn "じゃがいもを洗ってセットして please run (curry-2) ~%")
   )
-
-;; じゃがいもを洗ってセットする
 
 (defun curry-2 () ;; じゃがいもの下ごしらえ
   ;; じゃがいもピーラーを掴む
@@ -53,15 +51,17 @@
   (grasp-potato-peeler)
   
   ;; じゃがいもを剥く
+  (load "package://")
   
   
-  ;; じゃがいもピーラーを置く，包丁を掴む
+  ;; じゃがいもピーラーを置いて包丁を掴む
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
   (update-pos)
   (put-potato-peeler)
   (grasp-knife)
 
   ;; じゃがいも切断
+  (load "package://")
   
   
   ;; 包丁を置く
@@ -69,10 +69,8 @@
   (update-pos)
   (put-knife)
   
-  (warn "please run (curry-3) ~%")
+  (warn " 加熱準備の準備（棚を開けられたら無くせる）をして please run (curry-3) ~%")
   )
-
-;; 準備の準備（棚を開けられたら問題無い）
 
 (defun curry-3 () ;; 加熱調理の準備
   ;; ボウルをセットする
@@ -82,33 +80,45 @@
   (now-set-3) ;; ボウル３をセットする
   (now-set-4) ;; ボウル４をセットする
 
-  ;; ヘラをおたまを置く 
+  ;; ヘラとおたまを置く 
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
   (update-pos)
   (set-spatula-1)
   (set-ladle-1)
   
-  (warn "please run (curry-4) ~%")
+  (warn "玉ねぎをセットして　please run (curry-4) ~%")
   )
-
-;; 玉ねぎをセットする
 
 (defun curry-4 () ;; 玉ねぎを炒める
+  ;; ヘラを掴む
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
+  (update-pos)
+  (grasp-spatula)
+  
   ;; ボウル２を鍋に移す
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/bowl-use-codes.l")
+  (update-pos)
+  (now-transfer-2)
+  
+  ;; コンロ操作をする
   
   
-  (warn "please run (curry-5) ~%")
+  ;; かき混ぜる
+  
+  
+  (warn " 玉ねぎを炒めて確認し，肉をセットして please run (curry-5) ~%")
   )
-
-;; 玉ねぎを炒めて確認し，　肉をセットする
 
 (defun curry-5 () ;; 肉を炒める
   ;; ボウル３を鍋に移す
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/bowl-use-codes.l")
+  (update-pos)
+  (now-transfer-3)
   
-  (warn "please run (curry-6) ~%")
+  ;; 
+  
+  (warn "肉を炒めて確認して please run (curry-6) ~%")
   )
-
-;; 肉を炒めて確認する，
 
 (defun curry-6 () ;; 野菜を煮込む
   ;;

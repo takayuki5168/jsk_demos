@@ -449,20 +449,6 @@
 
 ;; tool funcs
 ;; spatula
-(defun set-spatula ()
-  (setq *spatula* (spatula))
-
-  ;; へらをセットする．
-  (send *spatula* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *spatula* :rotate (deg2rad 90) :x)
-  (send *pr2* :rarm :end-coords :assoc *spatula*)
-
-  (objects (list *pr2* *scene* *spatula*))
-  (update-view)
-  )
-
-
-
 (defun mix-with-spatula-set ()
   (send *ri* :start-grasp :rarm :gain 30 :wait t)
   
@@ -592,19 +578,19 @@
   )
 
 ;; ladle
-(defun set-ladle ()
-  (setq *ladle* (ladle))
+;; (defun set-ladle ()
+;;   (setq *ladle* (ladle))
 
-  ;; おたまをセットする．
-  (send *ladle* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
-  (send *ladle* :rotate (deg2rad 90) :x)
-  (send *pr2* :rarm :end-coords :assoc *ladle*)
+;;   ;; おたまをセットする．
+;;   (send *ladle* :newcoords (send (send *pr2* :rarm :end-coords) :copy-worldcoords))
+;;   (send *ladle* :rotate (deg2rad 90) :x)
+;;   (send *pr2* :rarm :end-coords :assoc *ladle*)
 
-  (objects (list *scene* *pr2* *ladle* *pot*))
-  (update-view)
+;;   (objects (list *scene* *pr2* *ladle* *pot*))
+;;   (update-view)
 
-  (warn "please run (mix-with-ladle-set) ~%")
-  )
+;;   (warn "please run (mix-with-ladle-set) ~%")
+;;   )
 
 (defun mix-with-ladle-set ()
   (send *ri* :start-grasp :rarm :gain 30 :wait t)
