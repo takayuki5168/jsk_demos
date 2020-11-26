@@ -90,43 +90,88 @@
   )
 
 (defun curry-4 () ;; 玉ねぎを炒める
-  ;; ヘラを掴む
-  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
-  (update-pos)
-  (grasp-spatula)
-  
   ;; ボウル２を鍋に移す
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/bowl-use-codes.l")
   (update-pos)
+  (grasp-spatula) ;; ヘラを掴む
   (now-transfer-2)
   
-  ;; コンロ操作をする
+  ;; コンロ操作をする 電源を入れるところから
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (now-on-stove)
+  (now-start-ih)
   
-  
-  ;; かき混ぜる
-  
+  ;; かき混ぜる　ヘラは掴んでいる前提
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (now-spatula-mix)
   
   (warn " 玉ねぎを炒めて確認し，肉をセットして please run (curry-5) ~%")
   )
 
 (defun curry-5 () ;; 肉を炒める
-  ;; ボウル３を鍋に移す
+  ;; ;; 火を止める　玉ねぎを炒めたら一度火を止める
+  ;; (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  ;; (update-pos)
+  ;; (push-knob)
+  
+  ;; ボウル３を鍋に移す ヘラは掴んでいる前提
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/bowl-use-codes.l")
   (update-pos)
-  (now-transfer-3)
+  (now-transfer-3) ;; ヘラは掴んでいる前提
   
-  ;; 
+  ;; コンロ操作をする
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (now-start-ih)
+  
+  ;; かき混ぜる ヘラは掴んでいる前提
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (now-spatula-mix)
   
   (warn "肉を炒めて確認して please run (curry-6) ~%")
   )
 
-(defun curry-6 () ;; 野菜を煮込む
-  ;;
+(defun curry-6 () ;; 野菜を入れる
+  ;; ;; 火を止める　玉ねぎを炒めたら一度火を止める
+  ;; (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  ;; (update-pos)
+  ;; (push-knob)
   
-  (warn "please run (curry-7) ~%")
+  ;; ボウル１を鍋に移す ヘラは掴んでいる前提
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/bowl-use-codes.l")
+  (update-pos)
+  (now-transfer-1) ;; ヘラは掴んでいる前提
+  (put-spatula-1)
+  
+  (warn "水を組んで入れたら please run (curry-7) ~%")
   )
 
-(defun curry-7 () ;; カレールーを入れる
-  ;;
+(defun curry-7 () ;; 煮込む動作
+  ;; コンロ操作をする
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (grasp-ladle) ;; おたまを掴む 
+  (now-start-ih)
+  
+  ;; 
+  
+  
+  (warn "水を組んで入れたら please run (curry-8) ~%")
+  )
 
+(defun curry-8 ()
+  ;; 
+  
+  )
+
+
+;; defun util funcs
+(defun use-ih-tmp ()
+  ;; コンロ操作をする
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (now-on-start-ih)
   )

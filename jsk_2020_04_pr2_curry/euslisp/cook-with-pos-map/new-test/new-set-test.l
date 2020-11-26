@@ -32,8 +32,8 @@
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
   (update-pos)
   
-  (set-spatula-1)
-  (set-ladle-1)
+  (now-set-spatula-1)
+  (now-set-ladle-1)
   
   (reset-rarm)
   
@@ -44,6 +44,7 @@
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
   (update-pos)
 
+  (grasp-spatula)
   (spatula-mix-test)
   (put-spatula-1)
 
@@ -54,6 +55,7 @@
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
   (update-pos)
 
+  (grasp-ladle)
   (ladle-mix-test)
   (put-ladle-1)  
   )
