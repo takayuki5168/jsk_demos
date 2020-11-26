@@ -24,8 +24,18 @@
   (update-pos)
   (grasp-peeler)
   
-  ;; 人参皮剥き
-  (load "package://")
+  ;; 人参の皮剥き 古いバージョン
+  ;; 人参の半分の皮を剥く．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  (now-peel)
+  
+  ;; 人参を回転させる．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-rotate-with-rec-tmp.l")
+  (now-rotate)
+  
+  ;; 人参の半分の皮を剥く．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/carrot-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  (now-peel)
   
   ;; ピーラーを置く，包丁を掴む
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
@@ -34,7 +44,8 @@
   (grasp-knife)
   
   ;; 人参切断
-  (load "package://")
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/carrot-cut-test-with-sense-test-two-with-rec.l")
+  (now-cut)
   
   ;; 包丁を置く
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
@@ -42,7 +53,9 @@
   (put-knife)
 
   ;; ボウル１に移す動作
-  
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/transfer-vegs/transfer-test-with-rec.l")
+  ;; (now-transfer)
+  (now-transfer-bowl-1)
   
   (warn "じゃがいもを洗ってセットして please run (curry-2) ~%")
   )
@@ -53,9 +66,19 @@
   (update-pos)
   (grasp-potato-peeler)
   
-  ;; じゃがいもを剥く
-  (load "package://")
+  ;; じゃがいも皮剥き
+  ;; じゃがいも半分の皮を剥く．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  (now-peel)
   
+  ;; じゃがいもを回転させる．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-rotate-with-rec-tmp.l")
+  (now-rotate)
+  
+  ;; じゃがいも半分の皮を剥く．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/rotate-peel-test/potato-peel-rotate-with-rec-tmp-with-sense-test-two.l")
+  (now-peel)
+
   
   ;; じゃがいもピーラーを置いて包丁を掴む
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
@@ -64,16 +87,39 @@
   (grasp-knife)
 
   ;; じゃがいも切断
-  (load "package://")
+  ;; じゃがいもを半分に切る．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-cut-half-with-rec.l")
+  (now-cut)
   
+  ;; 右半分を立てる．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-half-right-set-with-rec.l")
+  (now-set)
+  
+  ;; 右半分を回転させる．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-half-right-rotate-with-rec.l")
+  (now-rotate)
 
+  ;; 右半分を切る．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-cut-right-quarter-box-with-rec.l")
+  (now-cut)
+
+  ;; 左半分を回転させる．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-half-left-rotate-with-rec.l")
+  (now-rotate)
+
+  ;; 左半分を切る．
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/cut-stable/potato-cut-left-quarter-box-with-rec.l")
+  (now-cut)
+  
   ;; 包丁を置く
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
   (update-pos)
   (put-knife)
-
-  ;; ボウル１に移す動作
   
+  ;; ボウル１に移す動作
+  (load "package://jsk_2020_04_pr2_curry/euslisp/kitchen-move/transfer-vegs/transfer-test-with-rec.l")
+  ;; (now-transfer)
+  (now-transfer-bowl-1)  
   
   (warn " 加熱準備の準備（棚を開けられたら無くせる）をして please run (curry-3) ~%")
   )
