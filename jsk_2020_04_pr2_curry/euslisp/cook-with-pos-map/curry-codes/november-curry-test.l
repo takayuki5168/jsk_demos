@@ -40,6 +40,9 @@
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
   (update-pos)
   (put-knife)
+
+  ;; ボウル１に移す動作
+  
   
   (warn "じゃがいもを洗ってセットして please run (curry-2) ~%")
   )
@@ -63,11 +66,14 @@
   ;; じゃがいも切断
   (load "package://")
   
-  
+
   ;; 包丁を置く
   (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/tool-use-codes.l")
   (update-pos)
   (put-knife)
+
+  ;; ボウル１に移す動作
+  
   
   (warn " 加熱準備の準備（棚を開けられたら無くせる）をして please run (curry-3) ~%")
   )
@@ -156,16 +162,29 @@
   (grasp-ladle) ;; おたまを掴む 
   (now-start-ih)
   
-  ;; 
+  ;; おたまで混ぜる
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  (update-pos)
+  (now-ladle-mix)
   
-  
-  (warn "水を組んで入れたら please run (curry-8) ~%")
+  (warn "灰汁を取るなどをしながら，カレールーを入れるタイミングで please run (curry-8) ~%")
   )
 
-(defun curry-8 ()
-  ;; 
+(defun curry-8 ()   ;; カレールーを入れる
+  ;; ;; 火を止める　玉ねぎを炒めたら一度火を止める
+  ;; (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/ih-use-codes.l")
+  ;; (update-pos)
+  ;; (push-knob)
+
+  ;; ボウル４を鍋に移す ヘラは途中で掴む
+  (load "package://jsk_2020_04_pr2_curry/euslisp/cook-with-pos-map/bowl-use-codes.l")
+  (update-pos)
+  (grasp-spatula)
+  (now-transfer-4)
+  (put-spatula-1)
   
   )
+
 
 
 ;; defun util funcs
