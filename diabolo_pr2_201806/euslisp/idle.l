@@ -4,6 +4,14 @@
 ;;   rosrun pr2_juggle calc_idle_diabolo_state   ;;ディアボロの傾きを計算
 ;; rosrun rviz rviz -d ~/.rviz/idle.rviz
 
+(defun toss ()
+  (send *ri* :angle-vector *toss-start-pos* 3000)
+  (send *ri* :wait-interpolation)
+  (send *ri* :angle-vector *toss-goal-pos* 400 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
+  (send *ri* :wait-interpolation-smooth 500)
+  (send *ri* :angle-vector *toss-start-pos* 1000)
+  )
+
 (defun idle-control (right-x-diff no-z) ;; |right-x-diff| < *max-x-dif*(= 220)
   ;; set z
   (setq *just-now-time* (/ (send (ros::time-now) :to-nsec) 1000000))
@@ -53,7 +61,7 @@
   (send *ri* :angle-vector (idle-control 0 simulate) 1500) ;;800)
   (send *pr2* :head-neck-p :joint-angle 50)
 
-  (setq *idle-cnt* 0)  
+  (setq *toss-cnt* 0)
   (setq *stop-feedback* 0)
 
   (if (eq simulate t)
@@ -65,8 +73,13 @@
       ;;(print (list (- (/ (send (ros::time-now) :to-nsec) 1000000) *now-loop-time*) "[ms]"))
       
       ;;(setq *now-loop-time* (/ (send (ros::time-now) :to-nsec) 1000000))
-      ;;(setq *idle-cnt* (+ *idle-cnt* 1))
+   (setq *toss-cnt* (+ *toss-cnt* 1))
       
+   (when (and (> *toss-cnt* 100) (< (abs *idle-diabolo-pitch*) 10) (< (abs *idle-diabolo-yaw*) 10))
+     (toss)
+     (setq *toss-cnt* 0)
+     )
+
       ;; subscribe
       (ros::spin-once "idle")
     (if (eq diabolo-system t)
@@ -122,7 +135,7 @@
         (setq *idle-control-x-diff* 0)
         )
       (setq *idle-ec* (idle-control *idle-control-x-diff* simulate))     
-      (if (eq (mod *idle-cnt* 2) 0)
+      (if t
           ;;(bench (progn (publish-left-angle-vector 1500)  (publish-right-angle-vector 1500)))
           (bench (send *ri* :angle-vector *idle-ec* 1500)) ;;800)
           ;;(bench (send *ri* :angle-vector *idle-ec* 1500)) ;;800)
