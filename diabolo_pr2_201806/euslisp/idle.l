@@ -4,23 +4,36 @@
 ;;   rosrun pr2_juggle calc_idle_diabolo_state   ;;ディアボロの傾きを計算
 ;; rosrun rviz rviz -d ~/.rviz/idle.rviz
 
+(setq *grasp-hard* nil)
+
 (defun toss ()
-  (send *ri* :start-grasp :arms :gain 0.005)
-  (send *ri* :angle-vector *toss-start-pos* 2000)
+  (send *ri* :start-grasp :arms :gain 0.008)
+
+  (send *ri* :angle-vector *toss-start-pos* 3000)
   (send *ri* :wait-interpolation)
-  (send *ri* :start-grasp :arms :gain 0.05)
+  (send *ri* :start-grasp :arms :gain 0.25)
   (unix::usleep 30000)
-  (send *ri* :angle-vector *toss-goal-pos* 1000 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
-  (send *ri* :wait-interpolation-smooth 100)
-  (send *ri* :angle-vector *toss-start-pos* 1000)
-  (send *ri* :start-grasp :arms :gain 0.01)
+
+  ;; toss
+  (if t
+      (progn
+        (send *ri* :angle-vector *toss-goal-pos* 1000 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
+        (send *ri* :wait-interpolation-smooth 100)
+        (send *ri* :angle-vector *toss-start-pos* 1000)
+        )
+    (progn
+      (send *ri* :angle-vector-sequence (list *toss-goal-pos* *toss-start-pos*) (list 1000 1000) :default-controller 0 :end-coords-interpolation t :min-time 0.1)
+      )
+    )
+
+  (setq *grasp-hard* t)
   )
 
 (defun idle-control (right-x-diff no-z) ;; |right-x-diff| < *max-x-dif*(= 220)
   ;; set z
   (setq *just-now-time* (/ (send (ros::time-now) :to-nsec) 1000000))
   (if (eq no-z nil)
-      (if (> (- *just-now-time* *now-time*) 1300) ;;700) ;; 1300
+      (if (> (- *just-now-time* *now-time*) 800);; 1300) ;;700) ;; 1300
           (progn
             (setq *now-time* *just-now-time*)
             (setq *right-z-diff* (- *right-z-diff*))
@@ -52,7 +65,7 @@
         (send *ri* :angle-vector *roll-3-pos* 3000)
         (send *ri* :wait-interpolation)
         (unix::usleep 3000)
-        (send *ri* :angle-vector *roll-4-pos* 1200)
+        (send *ri* :angle-vector *roll-4-pos* 1500)
         (send *ri* :wait-interpolation-smooth 800)
         )
       )
@@ -66,6 +79,7 @@
   (send *pr2* :head-neck-p :joint-angle 50)
 
   (setq *toss-cnt* 0)
+  (setq *stabilize-cnt* 0)
   (setq *stop-feedback* 0)
 
   (if (eq simulate t)
@@ -78,10 +92,20 @@
       
       ;;(setq *now-loop-time* (/ (send (ros::time-now) :to-nsec) 1000000))
    (setq *toss-cnt* (+ *toss-cnt* 1))
-      
+   
+   (when *grasp-hard*
+     (setq *grasp-hard* nil)
+     (send *ri* :start-grasp :arms :gain 0.007)
+     )
+
    (when (and (> *toss-cnt* 100) (< (abs *idle-diabolo-pitch*) 10) (< (abs *idle-diabolo-yaw*) 10))
-     (toss)
-     (setq *toss-cnt* 0)
+     (setq *stabilize-cnt* (+ *stabilize-cnt* 1))
+
+     (when (> *stabilize-cnt* 10)
+       (toss)
+       (setq *toss-cnt* 0)
+       (setq *stabilize-cnt* 0)
+       )
      )
 
       ;; subscribe
@@ -141,7 +165,7 @@
       (setq *idle-ec* (idle-control *idle-control-x-diff* simulate))     
       (if t
           ;;(bench (progn (publish-left-angle-vector 1500)  (publish-right-angle-vector 1500)))
-          (bench (send *ri* :angle-vector *idle-ec* 1500)) ;;800)
+          (bench (send *ri* :angle-vector *idle-ec* 1000)) ;; 1500)) ;;800)
           ;;(bench (send *ri* :angle-vector *idle-ec* 1500)) ;;800)
           )
       )
