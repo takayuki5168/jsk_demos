@@ -153,13 +153,13 @@
     (setq *toss-start-pos* (send *pr2* :angle-vector))
 
     ;; goal
-    (setq *toss-goal-right-cube* (make-cube 100 100 100 :pos (float-vector 500 -740 1250))) ;; 500 -730 1250
+    (setq *toss-goal-right-cube* (make-cube 100 100 100 :pos (float-vector 500 -840 1150))) ;; 500 -730 1250
     (send *toss-goal-right-cube* :rotate (* pi 0.5) :x)
     (send *toss-goal-right-cube* :rotate (* pi 0.5) :z)
     (send *toss-goal-right-cube* :rotate (* pi -0.4) :y)
     ;;(send *toss-goal-right-cube* :rotate (* pi -0.2) :x)
     (send *pr2* :rarm :inverse-kinematics *toss-goal-right-cube*)
-    (setq *toss-goal-left-cube* (make-cube 100 100 100 :pos (float-vector 500 740 1250))) ;; 500 730 1250
+    (setq *toss-goal-left-cube* (make-cube 100 100 100 :pos (float-vector 500 840 1150))) ;; 500 730 1250
     (send *toss-goal-left-cube* :rotate (* pi -0.5) :x)
     (send *toss-goal-left-cube* :rotate (* pi -0.5) :z)
     (send *toss-goal-left-cube* :rotate (* pi -0.4) :y)

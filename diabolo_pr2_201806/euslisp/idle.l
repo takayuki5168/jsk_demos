@@ -5,11 +5,15 @@
 ;; rosrun rviz rviz -d ~/.rviz/idle.rviz
 
 (defun toss ()
-  (send *ri* :angle-vector *toss-start-pos* 3000)
+  (send *ri* :start-grasp :arms :gain 0.005)
+  (send *ri* :angle-vector *toss-start-pos* 2000)
   (send *ri* :wait-interpolation)
-  (send *ri* :angle-vector *toss-goal-pos* 400 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
-  (send *ri* :wait-interpolation-smooth 500)
+  (send *ri* :start-grasp :arms :gain 0.05)
+  (unix::usleep 30000)
+  (send *ri* :angle-vector *toss-goal-pos* 1000 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
+  (send *ri* :wait-interpolation-smooth 100)
   (send *ri* :angle-vector *toss-start-pos* 1000)
+  (send *ri* :start-grasp :arms :gain 0.01)
   )
 
 (defun idle-control (right-x-diff no-z) ;; |right-x-diff| < *max-x-dif*(= 220)
