@@ -29,6 +29,29 @@
   (setq *grasp-hard* t)
   )
 
+(defun toss2 ()
+  (send *ri* :start-grasp :arms :gain 0.008)
+
+  (send *ri* :angle-vector *toss2-start-pos* 2000)
+  (send *ri* :wait-interpolation)
+  (send *ri* :start-grasp :arms :gain 0.25)
+  (unix::usleep 30000)
+
+  ;; toss
+  (if t
+      (progn
+        (send *ri* :angle-vector *toss2-goal-pos* 1000 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
+        (send *ri* :wait-interpolation-smooth 100)
+        (send *ri* :angle-vector *toss2-start-pos* 1000)
+        )
+    (progn
+      (send *ri* :angle-vector-sequence (list *toss2-goal-pos* *toss2-start-pos*) (list 1000 1000) :default-controller 0 :end-coords-interpolation t :min-time 0.1)
+      )
+    )
+
+  (setq *grasp-hard* t)
+  )
+
 (defun idle-control (right-x-diff no-z) ;; |right-x-diff| < *max-x-dif*(= 220)
   ;; set z
   (setq *just-now-time* (/ (send (ros::time-now) :to-nsec) 1000000))

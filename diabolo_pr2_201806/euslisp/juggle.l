@@ -200,4 +200,21 @@
     (setq *toss-save-pos* (send *pr2* :angle-vector))
     |#
     )
+
+  (progn  ;; toss 2
+    (let ((toss-rarm-coords (make-coords :pos (float-vector 700 -150 1050)))
+          (toss-larm-coords (make-coords :pos (float-vector 700 150 1050))))
+      (send *pr2* :rarm :inverse-kinematics toss-rarm-coords)
+      (send *pr2* :larm :inverse-kinematics toss-larm-coords)
+      (setq *toss2-start-pos* (send *pr2* :angle-vector))
+      )
+    (let ((toss-rarm-coords (make-coords :pos (float-vector 700 -550 1150)))
+          (toss-larm-coords (make-coords :pos (float-vector 700 550 1150))))
+      (send toss-rarm-coords :rotate 1.5 :x)
+      (send toss-larm-coords :rotate -1.5 :x)
+      (send *pr2* :rarm :inverse-kinematics toss-rarm-coords)
+      (send *pr2* :larm :inverse-kinematics toss-larm-coords)
+      (setq *toss2-goal-pos* (send *pr2* :angle-vector))
+      )
+    )
   )
