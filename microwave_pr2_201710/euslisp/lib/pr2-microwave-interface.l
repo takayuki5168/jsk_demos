@@ -76,6 +76,7 @@
        (send *pr2* :move-to (send *ri* :state :worldcoords) :world)
 
        (send *pr2* :head :neck-p :joint-angle 28)
+       (send *pr2* :torso_lift_joint :joint-angle 50)
        (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
        (send *ri* :wait-interpolation)
 
@@ -191,7 +192,6 @@
        (send *ri* :wait-interpolation)
        )
 
-
      (let ((i 170)   ;; open
            (av)
            (tms (list))
@@ -297,169 +297,42 @@
    (put &optional (wait? nil))
    (if put
        (send *ri* :start-grasp :rarm) ;; TODO gain
-     )
-
-   (send *microwave* :move-to (make-coords :pos microwave-pos :rpy (car microwave-rpy)) :world)
-   (send *microwave* :angle-vector (float-vector 100))
-
-   (progn   ;; pre-put1
-     (send *pr2* :rarm :angle-vector (float-vector -23.6954 65.1019 -97.3693 -118.161 118.624 -85.6695 -112.431))
-     (send *pr2* :larm :angle-vector #f(60.0 74.0 20.0 -120.0 20.0 -30.0 180.0))
-
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
-
-   (progn   ;; pre-put2
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector -120 -150 140)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-     (send *ri* :wait-interpolation)
-     )
-
-   (progn   ;; put
-     (when put
-       (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector 90 -150 140)) :rotate 0 :x) :rotation-axis t)
-       (if wait? (wait-enter))
-       (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-       (send *ri* :wait-interpolation)
-       )
-
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector 90 -150 120)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
-
-   (if put
-       (send *ri* :stop-grasp :rarm)
-     (send *ri* :start-grasp :rarm)
-     )
-   (unix::sleep 2)
-
-   (progn   ;; post-put1
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector -120 -150 160)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-     (send *ri* :wait-interpolation)
-     )
-
-   (progn   ;; pre-put1
-     (send *pr2* :rarm :angle-vector (float-vector -23.6954 65.1019 -97.3693 -118.161 118.624 -85.6695 -112.431))
-     (send *pr2* :larm :angle-vector #f(60.0 74.0 20.0 -120.0 20.0 -30.0 180.0))
-
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
-   )
-
-  (:put-object
-   (&optional (wait? nil))
-   (send *ri* :start-grasp :rarm)
-   (send *ri* :wait-interpolation)
-
-   (send *microwave* :move-to (make-coords :pos microwave-pos :rpy (car microwave-rpy)) :world)
-   (send *microwave* :angle-vector (float-vector 100))
-
-   (progn   ;; pre-put1
-     (send *pr2* :rarm :angle-vector (float-vector -23.6954 65.1019 -97.3693 -118.161 118.624 -85.6695 -112.431))
-     (send *pr2* :larm :angle-vector #f(60.0 74.0 20.0 -120.0 20.0 -30.0 180.0))
-
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
-
-   (progn   ;; pre-put2
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector -120 -150 140)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-     (send *ri* :wait-interpolation)
-     )
-
-   (progn   ;; put
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector 90 -150 140)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector 90 -150 120)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-
      (send *ri* :stop-grasp :rarm)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
      )
-
-   (send *ri* :stop-grasp :rarm)
-   (unix::sleep 2)
-
-   (progn   ;; post-put1
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector -120 -150 160)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 4000)
-     (send *ri* :wait-interpolation)
-     )
-
-   (progn   ;; post-put2
-     (send *pr2* :reset-pose)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
-     (send *ri* :wait-interpolation)
-     )
-   )
-
-  ;; TODO
-  (:take-object
-   (&optional (wait? nil))
-   (send *ri* :stop-grasp :rarm)
-   (send *ri* :wait-interpolation)
 
    (send *microwave* :move-to (make-coords :pos microwave-pos :rpy (car microwave-rpy)) :world)
    (send *microwave* :angle-vector (float-vector 100))
 
-   (progn   ;; pre-put
-     (send *pr2* :rarm :angle-vector (float-vector -23.6954 65.1019 -97.3693 -118.161 118.624 -85.6695 -112.431))
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector -200 -300 150)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 6000)
-     (send *ri* :wait-interpolation)
-     )
+   (let ((avs (list)))
+     (send *pr2* :larm :angle-vector #f(60.0 74.0 20.0 -120.0 20.0 -30.0 180.0))
+     (send *pr2* :rarm :angle-vector #f(-13.5147 43.8851 -81.4194 -117.145 201.132 -114.592 -5.12015))
+     (setq avs (append avs (list (send *pr2* :angle-vector))))
 
-   (progn   ;; put
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector 70 -300 100)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
+     (send *pr2* :rarm :angle-vector #f(14.0887 -10.8416 -74.5103 -89.3329 241.475 -113.345 -4.10804))
+     (setq avs (append avs (list (send *pr2* :angle-vector))))
 
-     (send *ri* :start-grasp :rarm)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
+     (send *pr2* :rarm :angle-vector #f(27.147 -16.7355 -53.5165 -23.2155 211.5 -86.5591 -53.3598))
+     (send *pr2* :rarm :move-end-pos #f(-60 0 0))
+     (setq avs (append avs (list (send *pr2* :angle-vector))))
 
-   (progn   ;; post-put1
-     (send *pr2* :rarm :inverse-kinematics (send (send (send *microwave* :copy-worldcoords) :translate (float-vector -200 -300 150)) :rotate 0 :x) :rotation-axis t)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
+     (send *pr2* :rarm :move-end-pos #f(60 0 0))
+     (setq avs (append avs (list (send *pr2* :angle-vector))))
 
-   (progn   ;; post-put2
-     (pr2-left-reset-pose)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+     ;; pre
+     (send *ri* :angle-vector-sequence avs (mapcar #'(lambda (av) 1500) avs))
      (send *ri* :wait-interpolation)
 
-     (send *pr2* :rarm :angle-vector (float-vector -23.6954 65.1019 -97.3693 -118.161 118.624 -85.6695 -112.431))
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 5000)
+     (if put
+         (send *ri* :stop-grasp :rarm)
+       (send *ri* :start-grasp :rarm)
+       )
+     (unix::sleep 1)
+
+     ;; pro
+     (send *ri* :angle-vector-sequence (reverse avs) (mapcar #'(lambda (av) 1500) avs))
      (send *ri* :wait-interpolation)
+
+     (send *pr2* :angle-vector (elt avs 0))
      )
    )
 
@@ -478,14 +351,14 @@
      (progn   ;; push
        (send *pr2* :rarm :inverse-kinematics button :rotation-axis t)
        (if wait? (wait-enter))
-       (send *ri* :angle-vector (send *pr2* :angle-vector) 3000)
+       (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
        (send *ri* :wait-interpolation)
        )
 
      (progn   ;; post-push
        (send *pr2* :rarm :inverse-kinematics button-front :rotation-axis t)
        (if wait? (wait-enter))
-       (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+       (send *ri* :angle-vector (send *pr2* :angle-vector) 1000)
        (send *ri* :wait-interpolation)
        )
      )
@@ -494,63 +367,33 @@
   (:push-500w-button
    (&optional (wait? nil))
    (send *pr2* :reset-pose)
-   ;;(send *pr2* :start-grasp :rarm)
    (send *ri* :start-grasp :rarm)
 
    (send *microwave* :move-to (make-coords :pos microwave-pos :rpy (car microwave-rpy)) :world)
    (send *microwave* :angle-vector (float-vector 180))
 
    (send self :push-button (float-vector -70 -338 95))
-
-   #|
-   (progn   ;; reset-pose
-     (send *pr2* :reset-pose)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
-   |#
    )
 
   (:push-1min-button
    (&optional (wait? nil))
    (send *pr2* :reset-pose)
-   ;;(send *pr2* :start-grasp :rarm)
    (send *ri* :start-grasp :rarm)
 
    (send *microwave* :move-to (make-coords :pos microwave-pos :rpy (car microwave-rpy)) :world)
    (send *microwave* :angle-vector (float-vector 180))
 
    (send self :push-button (float-vector -70 -358 110))
-
-   #|
-   (progn   ;; reset-pose
-     (send *pr2* :reset-pose)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
-   |#
    )
 
   (:push-start-button
    (&optional (wait? nil))
    (send *pr2* :reset-pose)
-   ;;(send *pr2* :start-grasp :rarm)
    (send *ri* :start-grasp :rarm)
 
    (send *microwave* :move-to (make-coords :pos microwave-pos :rpy (car microwave-rpy)) :world)
    (send *microwave* :angle-vector (float-vector 180))
 
    (send self :push-button (float-vector -65 -378 190))
-
-   #|
-   (progn   ;; reset-pose
-     (send *pr2* :reset-pose)
-     (if wait? (wait-enter))
-     (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
-     (send *ri* :wait-interpolation)
-     )
-   |#
    )
   )
