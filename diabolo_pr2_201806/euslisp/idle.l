@@ -6,47 +6,20 @@
 
 (setq *grasp-hard* nil)
 
-(defun toss ()
-  (send *ri* :start-grasp :arms :gain 0.008)
-
-  (send *ri* :angle-vector *toss-start-pos* 3000)
-  (send *ri* :wait-interpolation)
-  (send *ri* :start-grasp :arms :gain 0.25)
-  (unix::usleep 30000)
-
-  ;; toss
-  (if t
-      (progn
-        (send *ri* :angle-vector *toss-goal-pos* 1000 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
-        (send *ri* :wait-interpolation-smooth 100)
-        (send *ri* :angle-vector *toss-start-pos* 1000)
-        )
-    (progn
-      (send *ri* :angle-vector-sequence (list *toss-goal-pos* *toss-start-pos*) (list 1000 1000) :default-controller 0 :end-coords-interpolation t :min-time 0.1)
-      )
-    )
-
-  (setq *grasp-hard* t)
-  )
-
 (defun toss2 ()
   (send *ri* :start-grasp :arms :gain 0.008)
 
-  (send *ri* :angle-vector *toss2-start-pos* 2000)
-  (send *ri* :wait-interpolation)
+  (send *ri* :angle-vector *toss2-start-pos* 1000)
+  ;;(unix::usleep 1000000)
   (send *ri* :start-grasp :arms :gain 0.25)
-  (unix::usleep 30000)
+  ;;(unix::usleep 30000)
+  (unix::usleep 500000)
 
   ;; toss
-  (if t
-      (progn
-        (send *ri* :angle-vector *toss2-goal-pos* 1000 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
-        (send *ri* :wait-interpolation-smooth 100)
-        (send *ri* :angle-vector *toss2-start-pos* 1000)
-        )
-    (progn
-      (send *ri* :angle-vector-sequence (list *toss2-goal-pos* *toss2-start-pos*) (list 1000 1000) :default-controller 0 :end-coords-interpolation t :min-time 0.1)
-      )
+  (when (< (abs *idle-diabolo-pitch*) 5)
+    (send *ri* :angle-vector *toss2-goal-pos* 800)
+    (unix::usleep 1180000)
+    (send *ri* :angle-vector *toss2-start-pos* 1000)
     )
 
   (setq *grasp-hard* t)
@@ -54,7 +27,7 @@
 
 (defun idle-control (right-x-diff no-z) ;; |right-x-diff| < *max-x-dif*(= 220)
   ;; set z
-  (setq *just-now-time* (/ (send (ros::time-now) :to-nsec) 1000000))
+  (setq *just-now-time* (/ (send (ros::time-now) :to-nsec) 1000000))  ;; ms
   (if (eq no-z nil)
       (if (> (- *just-now-time* *now-time*) 800);; 1300) ;;700) ;; 1300
           (progn
@@ -103,6 +76,7 @@
 
   (setq *toss-cnt* 0)
   (setq *stabilize-cnt* 0)
+  (setq *cnt* 0)
   (setq *stop-feedback* 0)
 
   (if (eq simulate t)
@@ -121,11 +95,11 @@
      (send *ri* :start-grasp :arms :gain 0.007)
      )
 
-   (when (and (> *toss-cnt* 100) (< (abs *idle-diabolo-pitch*) 10) (< (abs *idle-diabolo-yaw*) 10))
+   (when (and (> *toss-cnt* 50) (< (abs *idle-diabolo-pitch*) 5) (< (abs *idle-diabolo-yaw*) 5))
      (setq *stabilize-cnt* (+ *stabilize-cnt* 1))
 
-     (when (> *stabilize-cnt* 10)
-       (toss)
+     (when (> *stabilize-cnt* 20)
+       (toss2)
        (setq *toss-cnt* 0)
        (setq *stabilize-cnt* 0)
        )
@@ -142,9 +116,9 @@
         (ros::spin-once "diabolo-system-simulate")
         )
 
-    (setq *idle-msg* (instance std_msgs::float64 :init))   
-    (send *idle-msg* :data 1)
-    (ros::publish "idle" *idle-msg*)
+    ;;(setq *idle-msg* (instance std_msgs::float64 :init))   
+    ;;(send *idle-msg* :data 1)
+    ;;(ros::publish "idle" *idle-msg*)
     
     (progn ;; pitch
       ;; P制御
@@ -178,6 +152,11 @@
           (if (> *idle-control-x-diff* (- *min-x-diff*))
               (setq *idle-control-x-diff* 0)))
 
+      (when (< *cnt* 100)
+        (setq *cnt* (+ *cnt* 1))
+        (setq *idle-control-x-diff* 0)
+        )
+
       ;; 実機での動作
       (if (eq pitch-valid nil)
           (setq *idle-control-x-diff* 0)
@@ -187,9 +166,8 @@
         )
       (setq *idle-ec* (idle-control *idle-control-x-diff* simulate))     
       (if t
-          ;;(bench (progn (publish-left-angle-vector 1500)  (publish-right-angle-vector 1500)))
-          (bench (send *ri* :angle-vector *idle-ec* 1000)) ;; 1500)) ;;800)
-          ;;(bench (send *ri* :angle-vector *idle-ec* 1500)) ;;800)
+          (bench (send *ri* :angle-vector *idle-ec* 300)) ;; 1500)) ;;800)
+          ;;(send *ri* :angle-vector *idle-ec* 2000 :default-controller 0 :end-coords-interpolation t :min-time 0.1)
           )
       )
 
@@ -214,13 +192,13 @@
           (setq *idle-diabolo-yaw* 0))
 
       ;; 最大角度制限
-      (if (> *idle-diabolo-yaw* 20) ;;20)
-          (setq *idle-diabolo-yaw* 20)) ;;20))
-      (if (< *idle-diabolo-yaw* -20) ;;-20)
-          (setq *idle-diabolo-yaw* -20)) ;;-20))
+      (if (> *idle-diabolo-yaw* 40) ;;20)
+          (setq *idle-diabolo-yaw* 40)) ;;20))
+      (if (< *idle-diabolo-yaw* -40) ;;-20)
+          (setq *idle-diabolo-yaw* -40)) ;;-20))
 
-      (setq *radius* 0.7)
-      (setq *radius* (* *radius* 0.8))
+      ;;(setq *radius* 0.56)
+      (setq *radius* 0.4)
       (setq *idle-diabolo-yaw-rad* (/ (* *idle-diabolo-yaw* 3.14) 180))
 
       (setq *diff-x* (* *radius* (- 1 (cos *idle-diabolo-yaw-rad*))))
@@ -237,7 +215,7 @@
                  (progn
                    ;;(setq *goal* (send *ri* :move-trajectory *diff-x* *diff-y* *diff-theta* 10000))
                    (when (eq *stop-feedback* 0)
-                     (setq *goal* (send *ri* :move-trajectory *diff-x* *diff-y* *diff-theta* 1000))
+                     (setq *goal* (send *ri* :move-trajectory *diff-x* *diff-y* *diff-theta* 500))
                      (send *ac* :send-goal *goal*)
                      )
                    )
@@ -262,10 +240,11 @@
           (ros::sleep)
           )
         )
-    (unix::usleep 50000)
+    ;;(unix::usleep 50000)
+    (unix::usleep 100000)
     )
-  (send *idle-msg* :data 0)
-  (ros::publish "idle" *idle-msg*)
+  ;;(send *idle-msg* :data 0)
+  ;;(ros::publish "idle" *idle-msg*)
 
   (send *pr2* :rarm :inverse-kinematics *default-right-cube*)
   (send *pr2* :larm :inverse-kinematics *default-left-cube*)

@@ -68,7 +68,7 @@
   (load "package://pr2eus/pr2-interface.l")
   (pr2-init)
   
-  (send *ri* :angle-vector (send *pr2* :reset-pose) 5000)
+  ;;(send *ri* :angle-vector (send *pr2* :reset-pose) 5000)
   (setq *ac* (pr2-interface-move-base-trajectory-action *ri*))
   
   (send *ri* :start-grasp)
@@ -136,71 +136,6 @@
     (setq *roll-4-pos* (send *pr2* :angle-vector))
     )
 
-  (progn ;; toss
-    ;;(send *pr2* :reset-pose)
-    (send *pr2* :angle-vector #f(50.0 16.191 44.0774 31.227 -101.578 295.967 -52.3229 -46.5188 -16.6466 44.8379 -31.9883 -101.951 -272.998 -97.2327 394.953 0.0 5.0))
-    ;;(send *pr2* :head-neck-p :joint-angle 5)
-
-    ;; start
-    (setq *toss-start-right-cube* (make-cube 100 100 100 :pos (float-vector 500 -350 950))) ;; 500 -350 850)))
-    (send *toss-start-right-cube* :rotate (* pi 0.5) :x)
-    (send *toss-start-right-cube* :rotate (* pi 0.5) :z)
-    (send *toss-start-right-cube* :rotate (* pi -0.4) :y)
-    (send *pr2* :rarm :inverse-kinematics *toss-start-right-cube*)
-    (setq *toss-start-left-cube* (make-cube 100 100 100 :pos (float-vector 500 350 950))) ;; 500 350 850)))
-    (send *toss-start-left-cube* :rotate (* pi -0.5) :x)
-    (send *toss-start-left-cube* :rotate (* pi -0.5) :z)
-    (send *toss-start-left-cube* :rotate (* pi -0.4) :y)
-    (send *pr2* :larm :inverse-kinematics *toss-start-left-cube*)
-    (setq *toss-start-pos* (send *pr2* :angle-vector))
-    #|
-    (let ((avs (list)))
-      (send *pr2* :rarm :inverse-kinematics (make-coords :pos #f(500.0 -150.0 1050.0) :rpy (float-vector pi/2 0 0)))
-      (send *pr2* :larm :inverse-kinematics (make-coords :pos #f(500.0 150.0 1050.0) :rpy (float-vector -pi/2 0 0)))
-      (setq avs (append avs (list (send *pr2* :angle-vector))))
-
-      (send *pr2* :rarm :inverse-kinematics (make-coords :pos #f(500.0 -150.0 1050.0) :rpy (float-vector pi/2 -1 0)))
-      (send *pr2* :larm :inverse-kinematics (make-coords :pos #f(500.0 150.0 1050.0) :rpy (float-vector -pi/2 -1 0)))
-      (setq avs (append avs (list (send *pr2* :angle-vector))))
-
-      (send *pr2* :rarm :inverse-kinematics (make-coords :pos #f(500.0 -350.0 950.0) :rpy (float-vector pi/2 -2.5 0)))
-      (send *pr2* :larm :inverse-kinematics (make-coords :pos #f(500.0 350.0 950.0) :rpy (float-vector -pi/2 -2.5 0)))
-      (setq avs (append avs (list (send *pr2* :angle-vector))))
-      (setq *toss-start-avs* avs)
-      )
-    |#
-
-    ;; goal
-    (setq *toss-goal-right-cube* (make-cube 100 100 100 :pos (float-vector 500 -860 1150))) ;; 500 -730 1250
-    (send *toss-goal-right-cube* :rotate (* pi 0.5) :x)
-    (send *toss-goal-right-cube* :rotate (* pi 0.5) :z)
-    (send *toss-goal-right-cube* :rotate (* pi -0.4) :y)
-    ;;(send *toss-goal-right-cube* :rotate (* pi -0.2) :x)
-    (send *pr2* :rarm :inverse-kinematics *toss-goal-right-cube*)
-    (setq *toss-goal-left-cube* (make-cube 100 100 100 :pos (float-vector 500 860 1150))) ;; 500 730 1250
-    (send *toss-goal-left-cube* :rotate (* pi -0.5) :x)
-    (send *toss-goal-left-cube* :rotate (* pi -0.5) :z)
-    (send *toss-goal-left-cube* :rotate (* pi -0.4) :y)
-    ;;(send *toss-goal-left-cube* :rotate (* pi 0.2) :x)
-    (send *pr2* :larm :inverse-kinematics *toss-goal-left-cube*)
-    (setq *toss-goal-pos* (send *pr2* :angle-vector))
-
-    #|
-    ;; save
-    (setq *toss-save-right-cube* (make-cube 100 100 100 :pos (float-vector 580 -320 1000))) ;; 580 -720
-    (send *toss-save-right-cube* :rotate (* pi 0.5) :x)
-    (send *toss-save-right-cube* :rotate (* pi 0.5) :z)
-    (send *toss-save-right-cube* :rotate (* pi -0.4) :y)
-    (send *pr2* :rarm :inverse-kinematics *toss-save-right-cube*)
-    (setq *toss-save-left-cube* (make-cube 100 100 100 :pos (float-vector 580 320 1000))) ;; 580 720
-    (send *toss-save-left-cube* :rotate (* pi -0.5) :x)
-    (send *toss-save-left-cube* :rotate (* pi -0.5) :z)
-    (send *toss-save-left-cube* :rotate (* pi -0.4) :y)
-    (send *pr2* :larm :inverse-kinematics *toss-save-left-cube*)
-    (setq *toss-save-pos* (send *pr2* :angle-vector))
-    |#
-    )
-
   (progn  ;; toss 2
     (let ((toss-rarm-coords (make-coords :pos (float-vector 700 -150 1050)))
           (toss-larm-coords (make-coords :pos (float-vector 700 150 1050))))
@@ -208,13 +143,19 @@
       (send *pr2* :larm :inverse-kinematics toss-larm-coords)
       (setq *toss2-start-pos* (send *pr2* :angle-vector))
       )
-    (let ((toss-rarm-coords (make-coords :pos (float-vector 700 -550 1150)))
-          (toss-larm-coords (make-coords :pos (float-vector 700 550 1150))))
-      (send toss-rarm-coords :rotate 1.5 :x)
-      (send toss-larm-coords :rotate -1.5 :x)
+    (let ((toss-rarm-coords (make-coords :pos (float-vector 700 -600 1150)))
+          (toss-larm-coords (make-coords :pos (float-vector 700 600 1150))))
+      (send toss-rarm-coords :rotate 3 :x)
       (send *pr2* :rarm :inverse-kinematics toss-rarm-coords)
+      (send toss-rarm-coords :rotate 0.35 :x)
+      (send *pr2* :rarm :inverse-kinematics toss-rarm-coords)
+      (send toss-larm-coords :rotate -3 :x)
+      (send *pr2* :larm :inverse-kinematics toss-larm-coords)
+      (send toss-larm-coords :rotate -0.35 :x)
       (send *pr2* :larm :inverse-kinematics toss-larm-coords)
       (setq *toss2-goal-pos* (send *pr2* :angle-vector))
       )
     )
+
+  (send *pr2* :reset-pose)
   )

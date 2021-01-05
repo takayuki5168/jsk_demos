@@ -12,9 +12,9 @@ class CalcIdleDiaboloStateNode
 public:
   CalcIdleDiaboloStateNode() : nh_(""), pnh_("~"), r_(30),
 			       pitch_(0), yaw_(0),  			       
-			       min_cube_x_(0.3), max_cube_x_(1.0),
+			       min_cube_x_(0.4), max_cube_x_(1.0),
 			       min_cube_y_(-0.2), max_cube_y_(0.2),
-			       min_cube_z_(0.1), max_cube_z_(0.7)
+			       min_cube_z_(0.15), max_cube_z_(0.6)
 
   {
     // Subscriber
@@ -64,10 +64,10 @@ private:
     marker_cube_.scale.x = 0.01;
     marker_cube_.scale.y = 0.01;
     marker_cube_.scale.z = 0.5;
-    marker_cube_.color.r = 1.0f;
-    marker_cube_.color.g = 0.2f;
-    marker_cube_.color.b = 0.0f;
-    marker_cube_.color.a = 0.3;
+    marker_cube_.color.r = 0.0f;
+    marker_cube_.color.g = 0.0f;
+    marker_cube_.color.b = 1.0f;
+    marker_cube_.color.a = 0.2;
     marker_cube_.lifetime = ros::Duration();
     
     /*
@@ -85,7 +85,7 @@ private:
     marker_mid_.color.r = 0.0f;
     marker_mid_.color.g = 0.0f;
     marker_mid_.color.b = 1.0f;
-    marker_mid_.color.a = 1.0;
+    marker_mid_.color.a = 0.2;
     marker_mid_.lifetime = ros::Duration();
   }
 
